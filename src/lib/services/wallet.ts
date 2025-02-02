@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
-import { Wallet, CreateWalletDTO, UpdateWalletDTO } from '@/lib/supabase/client'
+import { Wallet, CreateWalletDTO, UpdateWalletDTO } from '@/lib/types/wallet'
 
 export const walletService = {
   // Create a new wallet
