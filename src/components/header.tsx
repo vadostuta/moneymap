@@ -31,7 +31,16 @@ export function Header () {
               >
                 Wallets
               </Link>
-              {/* Add more nav links here as needed */}
+              <Link
+                href='/transactions'
+                className={`hover:text-primary transition-colors ${
+                  pathname === '/transactions'
+                    ? 'text-primary font-medium'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                Transactions
+              </Link>
             </nav>
           )}
         </div>
