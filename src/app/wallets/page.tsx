@@ -13,6 +13,11 @@ export default function WalletsPage () {
   const [showForm, setShowForm] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
+  const onSelectWallet = (wallet: Wallet) => {
+    setSelectedWallet(wallet)
+    setShowForm(false)
+  }
+
   if (loading) {
     return (
       <div className='flex min-h-screen flex-col items-center justify-center p-24'>
@@ -34,7 +39,7 @@ export default function WalletsPage () {
       <h1 className='text-2xl font-bold mb-6'>My Wallets</h1>
       <div className='flex gap-6'>
         <WalletList
-          onSelectWallet={setSelectedWallet}
+          onSelectWallet={onSelectWallet}
           onAddNew={() => setShowForm(true)}
           refreshTrigger={refreshTrigger}
         />

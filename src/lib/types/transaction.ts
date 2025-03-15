@@ -9,6 +9,10 @@ export type TransactionCategory =
   | 'Healthcare'
   | 'Education'
   | 'Travel'
+  | 'Presents'
+  | 'Other'
+  | 'Donations'
+  | 'Subscriptions'
 
 export type TransactionLabel =
   | 'Personal'
