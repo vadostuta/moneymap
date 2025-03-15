@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Wallet } from '@/lib/supabase/client'
+import { Wallet } from '@/lib/types/wallet'
 import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
 
