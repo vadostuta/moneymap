@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/contexts/auth-context'
-import { Wallet } from '@/lib/supabase/client'
+import { Wallet } from '@/lib/types/wallet'
 import { WalletList } from '@/components/wallet/WalletList'
 import { WalletForm } from '@/components/wallet/WalletForm'
 import { WalletDetail } from '@/components/wallet/WalletDetail'
