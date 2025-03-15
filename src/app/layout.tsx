@@ -30,8 +30,12 @@ export default function RootLayout ({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <Header />
-          {children}
+          <div className='flex flex-col h-screen mx-auto max-w-7xl'>
+            <Header />
+            <main className='flex-1 flex justify-center'>
+              <div className='w-full'>{children}</div>
+            </main>
+          </div>
         </AuthProvider>
       </body>
     </html>
