@@ -34,26 +34,36 @@ export function WalletList ({
     }
   }
 
-  if (loading) return <div>Loading wallets...</div>
+  if (loading) return <div className='p-4'>Loading wallets...</div>
 
   return (
-    <div className='flex flex-col h-full w-64 border-r'>
-      <div className='flex-1 overflow-y-auto'>
-        {wallets.map(wallet => (
-          <button
-            key={wallet.id}
-            onClick={() => onSelectWallet(wallet)}
-            className='w-full p-4 text-left hover:bg-gray-100 border-b'
-          >
-            <h3 className='font-medium'>{wallet.name}</h3>
-            <p className='text-sm text-gray-600'>
-              {wallet.balance} {wallet.currency}
-            </p>
-            <p className='text-xs text-gray-500'>{wallet.type}</p>
-          </button>
-        ))}
+    <div className='flex flex-col h-full border rounded-lg md:rounded-none md:border-r md:border-l-0 md:border-t-0 md:border-b-0'>
+      <div className='flex-1 overflow-y-auto max-h-[60vh] md:max-h-none'>
+        {wallets.length > 0 ? (
+          wallets.map(wallet => (
+            <button
+              key={wallet.id}
+              onClick={() => onSelectWallet(wallet)}
+              className='w-full p-3 md:p-4 text-left hover:bg-secondary border-b flex justify-between items-center'
+            >
+              <div>
+                <h3 className='font-medium text-sm md:text-base'>
+                  {wallet.name}
+                </h3>
+                <p className='text-xs md:text-sm text-gray-500'>
+                  {wallet.type}
+                </p>
+              </div>
+              <p className='text-sm md:text-base font-medium'>
+                {wallet.balance} {wallet.currency}
+              </p>
+            </button>
+          ))
+        ) : (
+          <div className='p-4 text-center text-gray-500'>No wallets found</div>
+        )}
       </div>
-      <div className='p-4 border-t'>
+      <div className='p-3 md:p-4 border-t'>
         <Button onClick={onAddNew} className='w-full'>
           Add New Wallet
         </Button>

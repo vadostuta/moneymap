@@ -45,57 +45,61 @@ export function WalletDetail ({ wallet, onDelete }: WalletDetailProps) {
   }
 
   return (
-    <div className='p-6'>
-      <div className='mb-6'>
-        <h2 className='text-2xl font-bold mb-2'>{wallet.name}</h2>
-        <p className='text-gray-600'>Type: {wallet.type}</p>
+    <div className='p-4 md:p-6'>
+      <div className='mb-4 md:mb-6'>
+        <h2 className='text-xl md:text-2xl font-bold mb-2'>{wallet.name}</h2>
+        <p className='text-gray-600 text-sm md:text-base'>
+          Type: {wallet.type}
+        </p>
       </div>
 
-      <div className='mb-6'>
-        <h3 className='text-xl font-semibold mb-2'>Balance</h3>
-        <p className='text-3xl'>
+      <div className='mb-4 md:mb-6'>
+        <h3 className='text-lg md:text-xl font-semibold mb-2'>Balance</h3>
+        <p className='text-2xl md:text-3xl'>
           {wallet.balance} {wallet.currency}
         </p>
       </div>
 
-      <div className='mb-6'>
-        <p className='text-sm text-gray-500'>
+      <div className='mb-4 md:mb-6'>
+        <p className='text-xs md:text-sm text-gray-500'>
           Created: {new Date(wallet.created_at).toLocaleDateString()}
         </p>
-        <p className='text-sm text-gray-500'>
+        <p className='text-xs md:text-sm text-gray-500'>
           Last updated: {new Date(wallet.updated_at).toLocaleDateString()}
         </p>
       </div>
 
-      <div className='mb-6'>
-        <h3 className='text-xl font-semibold mb-4'>Recent Transactions</h3>
+      <div className='mb-4 md:mb-6'>
+        <h3 className='text-lg md:text-xl font-semibold mb-3 md:mb-4'>
+          Recent Transactions
+        </h3>
         {loading ? (
           <p>Loading transactions...</p>
         ) : recentTransactions.length > 0 ? (
-          <div className='space-y-3'>
+          <div className='space-y-2 md:space-y-3 overflow-x-auto'>
             {recentTransactions.map(transaction => (
               <div
                 key={transaction.id}
-                className='border rounded p-3 flex justify-between items-center'
+                className='border rounded p-2 md:p-3 flex flex-col md:flex-row md:justify-between md:items-center'
               >
-                <div>
-                  <div className='flex items-center gap-2'>
+                <div className='mb-2 md:mb-0'>
+                  <div className='flex flex-wrap items-center gap-1 md:gap-2'>
                     <span
                       className={`font-medium ${
                         transaction.type === 'income'
                           ? 'text-green-600'
-                          : 'text-red-600'
+                          : 'text-white'
                       }`}
                     >
                       {transaction.type === 'income' ? '+' : '-'}{' '}
                       {transaction.amount} {wallet.currency}
                     </span>
-                    <span className='text-sm text-gray-500'>
+                    <span className='text-xs md:text-sm text-gray-500'>
                       • {transaction.category}
                     </span>
                   </div>
                   {transaction.description && (
-                    <p className='text-sm text-gray-600 mt-1'>
+                    <p className='text-xs md:text-sm text-gray-600 mt-1'>
                       {transaction.description}
                     </p>
                   )}
@@ -103,7 +107,7 @@ export function WalletDetail ({ wallet, onDelete }: WalletDetailProps) {
                     {new Date(transaction.date).toLocaleString()}
                   </p>
                 </div>
-                <span className='text-xs px-2 py-1 bg-gray-100 rounded'>
+                <span className='text-xs px-2 py-1 bg-secondary rounded self-start md:self-center'>
                   {transaction.label}
                 </span>
               </div>
@@ -114,7 +118,11 @@ export function WalletDetail ({ wallet, onDelete }: WalletDetailProps) {
         )}
       </div>
 
-      <Button variant='destructive' onClick={handleDelete}>
+      <Button
+        variant='destructive'
+        onClick={handleDelete}
+        className='w-full md:w-auto'
+      >
         Delete Wallet
       </Button>
     </div>

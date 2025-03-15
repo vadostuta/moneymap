@@ -12,15 +12,17 @@ export default function WalletsPage () {
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [showMobileList, setShowMobileList] = useState(true)
 
   const onSelectWallet = (wallet: Wallet) => {
     setSelectedWallet(wallet)
     setShowForm(false)
+    setShowMobileList(false) // Hide list on mobile when wallet is selected
   }
 
   if (loading) {
     return (
-      <div className='flex min-h-screen flex-col items-center justify-center p-24'>
+      <div className='flex min-h-screen flex-col items-center justify-center p-6 md:p-24'>
         Loading...
       </div>
     )
@@ -28,30 +30,57 @@ export default function WalletsPage () {
 
   if (!user) {
     return (
-      <div className='flex min-h-screen flex-col items-center justify-center p-24'>
+      <div className='flex min-h-screen flex-col items-center justify-center p-6 md:p-24'>
         Please log in to manage your wallets.
       </div>
     )
   }
 
   return (
-    <div className='container py-6'>
-      <h1 className='text-2xl font-bold mb-6'>My Wallets</h1>
-      <div className='flex gap-6'>
-        <WalletList
-          onSelectWallet={onSelectWallet}
-          onAddNew={() => setShowForm(true)}
-          refreshTrigger={refreshTrigger}
-        />
+    <div className='container py-4 md:py-6 px-4 md:px-6'>
+      <div className='flex items-center justify-between mb-4 md:mb-6'>
+        <h1 className='text-xl md:text-2xl font-bold'>My Wallets</h1>
+        {!showMobileList && (
+          <button
+            onClick={() => setShowMobileList(true)}
+            className='md:hidden px-3 py-1 text-sm bg-gray-100 rounded-md'
+          >
+            Back to list
+          </button>
+        )}
+      </div>
 
-        <div className='flex-1 min-h-[500px] border rounded-lg'>
+      <div className='flex flex-col md:flex-row gap-4 md:gap-6'>
+        {/* Mobile: Show either list or detail */}
+        <div
+          className={`md:block ${showMobileList ? 'block' : 'hidden'} md:w-64`}
+        >
+          <WalletList
+            onSelectWallet={onSelectWallet}
+            onAddNew={() => {
+              setShowForm(true)
+              setShowMobileList(false) // Hide list on mobile when form is shown
+            }}
+            refreshTrigger={refreshTrigger}
+          />
+        </div>
+
+        <div
+          className={`flex-1 min-h-[400px] md:min-h-[500px] border rounded-lg ${
+            showMobileList ? 'hidden' : 'block'
+          } md:block`}
+        >
           {showForm ? (
             <WalletForm
-              onCancel={() => setShowForm(false)}
+              onCancel={() => {
+                setShowForm(false)
+                setShowMobileList(true) // Show list on mobile when canceling form
+              }}
               onSuccess={() => {
                 setShowForm(false)
                 setSelectedWallet(null)
                 setRefreshTrigger(prev => prev + 1)
+                setShowMobileList(true) // Show list on mobile after success
               }}
             />
           ) : selectedWallet ? (
@@ -60,10 +89,11 @@ export default function WalletsPage () {
               onDelete={() => {
                 setSelectedWallet(null)
                 setRefreshTrigger(prev => prev + 1)
+                setShowMobileList(true) // Show list on mobile after deletion
               }}
             />
           ) : (
-            <div className='flex items-center justify-center h-full text-gray-500'>
+            <div className='flex items-center justify-center h-full text-gray-500 p-4 text-center'>
               Select a wallet or create a new one
             </div>
           )}

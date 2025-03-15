@@ -65,58 +65,106 @@ export function TransactionList ({ refreshTrigger }: TransactionListProps) {
         </div>
       )}
 
-      {transactions.map(transaction => (
-        <div
-          key={transaction.id}
-          className='border rounded-lg p-4 flex justify-between items-start'
-        >
-          <div>
-            <div className='flex items-center gap-2 mb-2'>
-              <span
-                className={`font-medium ${
-                  transaction.type === 'income'
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                }`}
-              >
-                {transaction.type === 'income' ? '+' : '-'} {transaction.amount}
-              </span>
-              <span className='text-gray-500'>•</span>
-              <span className='text-gray-600'>{transaction.wallet?.name}</span>
-            </div>
-            <div className='text-sm text-gray-600 mb-1'>
-              {transaction.category}
-            </div>
-            {transaction.description && (
-              <div className='text-sm text-gray-500'>
-                {transaction.description}
+      <div
+        className='grid grid-cols-auto-fill gap-4'
+        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}
+      >
+        {transactions.map(transaction => (
+          <div
+            key={transaction.id}
+            className='bg-dark dark:bg-gray-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-700 flex flex-col'
+          >
+            {/* Transaction info */}
+            <div className='flex-1'>
+              <div className='flex items-center gap-2 mb-2'>
+                <span
+                  className={`text-lg font-semibold ${
+                    transaction.type === 'income'
+                      ? 'text-emerald-500'
+                      : 'text-white'
+                  }`}
+                >
+                  {transaction.type === 'income' ? '+' : '-'}{' '}
+                  {transaction.amount}
+                </span>
+                <div className='ml-auto'>
+                  <span className='text-xs px-2 py-1 bg-secondary rounded-full text-gray-600 dark:text-gray-300 text-white'>
+                    {transaction.wallet?.name}
+                  </span>
+                </div>
               </div>
-            )}
-            <div className='text-xs text-gray-400 mt-2'>
-              {new Date(transaction.date).toLocaleString()}
+
+              <div className='text-sm font-medium text-gray-700 dark:text-grey-300 mb-2'>
+                {transaction.category}
+              </div>
+
+              {transaction.description && (
+                <div className='text-sm text-gray-500 dark:text-gray-400 mb-2 line-clamp-2'>
+                  {transaction.description}
+                </div>
+              )}
+
+              <div className='text-xs text-gray-400 dark:text-gray-500 mb-4'>
+                {new Date(transaction.date).toLocaleDateString()}
+              </div>
+            </div>
+
+            {/* Bottom section with label and actions */}
+            <div className='pt-3 mt-auto border-t border-gray-100 dark:border-gray-700 flex items-center justify-between'>
+              <span className='text-xs px-2 py-1 bg-secondary rounded-full'>
+                {transaction.label}
+              </span>
+
+              <div className='flex items-center gap-2'>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='h-8 w-8 p-0 rounded-full'
+                  onClick={() => setEditingTransaction(transaction)}
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='16'
+                    height='16'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  >
+                    <path d='M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z'></path>
+                  </svg>
+                  <span className='sr-only'>Edit</span>
+                </Button>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='h-8 w-8 p-0 rounded-full text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20'
+                  onClick={() => handleDelete(transaction.id)}
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='16'
+                    height='16'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  >
+                    <path d='M3 6h18'></path>
+                    <path d='M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6'></path>
+                    <path d='M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2'></path>
+                  </svg>
+                  <span className='sr-only'>Delete</span>
+                </Button>
+              </div>
             </div>
           </div>
-          <div className='flex items-center gap-2'>
-            <span className='text-xs px-2 py-1 bg-gray-100 rounded'>
-              {transaction.label}
-            </span>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setEditingTransaction(transaction)}
-            >
-              Edit
-            </Button>
-            <Button
-              variant='destructive'
-              size='sm'
-              onClick={() => handleDelete(transaction.id)}
-            >
-              Delete
-            </Button>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }

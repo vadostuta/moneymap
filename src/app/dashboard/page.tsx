@@ -87,7 +87,7 @@ export default function DashboardPage () {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className='text-lg sm:text-xl font-bold text-red-500'>
+            <p className='text-lg sm:text-xl font-bold text-white'>
               - ${summary.totalExpenses.toLocaleString()}
             </p>
           </CardContent>
@@ -111,7 +111,7 @@ export default function DashboardPage () {
               className={`text-lg sm:text-xl font-bold ${
                 summary.totalIncome - summary.totalExpenses >= 0
                   ? 'text-green-500'
-                  : 'text-red-500'
+                  : 'text-white'
               }`}
             >
               ${(summary.totalIncome - summary.totalExpenses).toLocaleString()}

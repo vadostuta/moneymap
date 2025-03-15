@@ -36,7 +36,7 @@ export function WalletForm ({ onCancel, onSuccess }: WalletFormProps) {
           type='text'
           value={formData.name}
           onChange={e => setFormData({ ...formData, name: e.target.value })}
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
           required
         />
       </div>
@@ -48,7 +48,7 @@ export function WalletForm ({ onCancel, onSuccess }: WalletFormProps) {
           onChange={e =>
             setFormData({ ...formData, type: e.target.value as WalletType })
           }
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
         >
           <option value='credit'>Credit</option>
           <option value='debit'>Debit</option>
@@ -70,7 +70,7 @@ export function WalletForm ({ onCancel, onSuccess }: WalletFormProps) {
             const value = e.target.value === '' ? 0 : parseFloat(e.target.value)
             setFormData({ ...formData, balance: value })
           }}
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
           required
         />
       </div>
@@ -82,7 +82,7 @@ export function WalletForm ({ onCancel, onSuccess }: WalletFormProps) {
           onChange={e =>
             setFormData({ ...formData, currency: e.target.value as Currency })
           }
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
         >
           <option value='USD'>USD</option>
           <option value='EUR'>EUR</option>
@@ -91,11 +91,18 @@ export function WalletForm ({ onCancel, onSuccess }: WalletFormProps) {
         </select>
       </div>
 
-      <div className='flex justify-end space-x-2'>
-        <Button type='button' variant='outline' onClick={onCancel}>
+      <div className='flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:space-x-2 mt-6'>
+        <Button
+          type='button'
+          variant='outline'
+          onClick={onCancel}
+          className='w-full sm:w-auto'
+        >
           Cancel
         </Button>
-        <Button type='submit'>Save</Button>
+        <Button type='submit' className='w-full sm:w-auto'>
+          Save
+        </Button>
       </div>
     </form>
   )
