@@ -15,7 +15,6 @@ import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart"
 
 // Updated chartConfig to include expenses and income
@@ -35,6 +34,13 @@ interface TransactionData {
   date: string
   expenses: number
   income: number
+}
+
+// Interface for transaction
+interface Transaction {
+  date: string
+  type: string
+  amount: number
 }
 
 export function RevenueCard() {
@@ -65,7 +71,7 @@ export function RevenueCard() {
         }
 
         // Process transactions into chart data format
-        const processedData = processTransactions(transactions);
+        const processedData = processTransactions(transactions as Transaction[]);
         setChartData(processedData);
       } catch (error) {
         console.error('Failed to fetch transaction data:', error);
@@ -78,9 +84,9 @@ export function RevenueCard() {
   }, []);
 
   // Process transactions into chart data
-  const processTransactions = (transactions: any[]) => {
+  const processTransactions = (transactions: Transaction[]) => {
     // Group transactions by date
-    const groupedByDate = transactions.reduce((acc: Record<string, any>, transaction: any) => {
+    const groupedByDate = transactions.reduce((acc: Record<string, { expenses: number, income: number }>, transaction: Transaction) => {
       const date = transaction.date.split('T')[0]; // Get YYYY-MM-DD format
       
       if (!acc[date]) {
@@ -197,13 +203,20 @@ export function RevenueCard() {
               tickFormatter={(value) => value.toLocaleString()}
             />
             <ChartTooltip 
-              config={chartConfig}
+              formatter={(value, name) => {
+                return [value.toLocaleString(), chartConfig[name as keyof typeof chartConfig]?.label || name];
+              }}
               labelFormatter={(value) => {
                 return new Date(value).toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
                   year: "numeric",
                 });
+              }}
+              contentStyle={{
+                borderRadius: '8px',
+                border: '1px solid var(--border)',
+                backgroundColor: 'var(--background)',
               }}
             />
             <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
