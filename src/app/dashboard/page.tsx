@@ -179,6 +179,7 @@ export default function DashboardPage () {
               <CardTitle>
                 Transactions for{' '}
                 {new Date(selectedDate).toLocaleDateString('en-US', {
+                  weekday: 'long',
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric'
