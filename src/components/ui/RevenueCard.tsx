@@ -129,6 +129,7 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
   );
 
   // Add this function to handle bar click
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleBarClick = (data: any) => {
     if (data && data.activePayload && data.activePayload.length > 0) {
       const clickedDate = data.activePayload[0].payload.date;
@@ -136,10 +137,14 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
       // If clicking the same date, toggle selection off
       if (selectedDate === clickedDate) {
         setSelectedDate(null);
-        onDateSelect && onDateSelect(null);
+        if (onDateSelect) {
+          onDateSelect(null);
+        }
       } else {
         setSelectedDate(clickedDate);
-        onDateSelect && onDateSelect(clickedDate);
+        if (onDateSelect) {
+          onDateSelect(clickedDate);
+        }
       }
     }
   };

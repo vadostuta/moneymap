@@ -6,7 +6,11 @@ import { supabase } from '@/lib/supabase/client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RevenueCard } from '@/components/ui/RevenueCard'
-import { TransactionItem } from '@/components/transaction/TransactionItem'
+import {
+  TransactionItem,
+  TransactionItemProps
+} from '@/components/transaction/TransactionItem'
+import { Transaction } from '@/lib/types/transaction'
 
 export default function DashboardPage () {
   const { user, loading } = useAuth()
@@ -15,7 +19,7 @@ export default function DashboardPage () {
     totalIncome: 0
   })
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  const [dateTransactions, setDateTransactions] = useState([])
+  const [dateTransactions, setDateTransactions] = useState<Transaction[]>([])
   const [loadingTransactions, setLoadingTransactions] = useState(false)
 
   useEffect(() => {
@@ -63,6 +67,7 @@ export default function DashboardPage () {
         income?.reduce((sum, item) => sum + item.amount, 0) || 0
 
       setSummary({ totalExpenses, totalIncome })
+      console.log(summary)
     } catch (error) {
       console.error('Failed to fetch summary data:', error)
     }
@@ -194,7 +199,9 @@ export default function DashboardPage () {
                   {dateTransactions.map(transaction => (
                     <TransactionItem
                       key={transaction.id}
-                      transaction={transaction}
+                      transaction={
+                        transaction as TransactionItemProps['transaction']
+                      }
                       showActions={false}
                     />
                   ))}

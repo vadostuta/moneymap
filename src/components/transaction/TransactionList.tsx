@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Transaction } from '@/lib/types/transaction'
 import { transactionService } from '@/lib/services/transaction'
 import { TransactionForm } from './TransactionForm'
-import { TransactionItem } from './TransactionItem'
+import { TransactionItem, TransactionItemProps } from './TransactionItem'
 
 interface TransactionListProps {
   refreshTrigger?: number
@@ -69,9 +69,9 @@ export function TransactionList ({ refreshTrigger }: TransactionListProps) {
         {transactions.map(transaction => (
           <TransactionItem
             key={transaction.id}
-            transaction={transaction}
+            transaction={transaction as TransactionItemProps['transaction']}
             showActions={true}
-            onEdit={setEditingTransaction}
+            onEdit={() => setEditingTransaction(transaction)}
             onDelete={handleDelete}
           />
         ))}
