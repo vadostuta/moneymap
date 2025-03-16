@@ -113,7 +113,7 @@ export function TransactionForm ({
               type: e.target.value as TransactionType
             })
           }
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
           required
         >
           {transactionTypes.map(type => (
@@ -135,7 +135,7 @@ export function TransactionForm ({
               amount: parseFloat(e.target.value) || 0
             })
           }
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
           required
           step='0.01'
         />
@@ -148,7 +148,7 @@ export function TransactionForm ({
           onChange={e =>
             setFormData({ ...formData, wallet_id: e.target.value })
           }
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
           required
         >
           {wallets.map(wallet => (
@@ -169,7 +169,7 @@ export function TransactionForm ({
               category: e.target.value as TransactionCategory
             })
           }
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
           required
         >
           {categories.map(category => (
@@ -190,7 +190,7 @@ export function TransactionForm ({
               label: e.target.value as TransactionLabel
             })
           }
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
           required
         >
           {labels.map(label => (
@@ -216,7 +216,7 @@ export function TransactionForm ({
               date: new Date(e.target.value).toISOString()
             })
           }
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
           required
         />
       </div>
@@ -230,7 +230,7 @@ export function TransactionForm ({
           onChange={e =>
             setFormData({ ...formData, description: e.target.value })
           }
-          className='w-full p-2 border rounded'
+          className='w-full p-2 border rounded bg-secondary'
           rows={3}
         />
       </div>
