@@ -43,10 +43,16 @@ interface Transaction {
   amount: number
 }
 
-export function RevenueCard() {
+// Add this new interface for the component props
+interface RevenueCardProps {
+  onDateSelect?: (date: string | null) => void;
+}
+
+export function RevenueCard({ onDateSelect }: RevenueCardProps) {
   const [chartData, setChartData] = React.useState<TransactionData[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [activeChart, setActiveChart] = React.useState<"expenses" | "income">("expenses");
+  const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
 
   // Fetch transaction data from Supabase
   React.useEffect(() => {
@@ -122,6 +128,22 @@ export function RevenueCard() {
     [chartData]
   );
 
+  // Add this function to handle bar click
+  const handleBarClick = (data: any) => {
+    if (data && data.activePayload && data.activePayload.length > 0) {
+      const clickedDate = data.activePayload[0].payload.date;
+      
+      // If clicking the same date, toggle selection off
+      if (selectedDate === clickedDate) {
+        setSelectedDate(null);
+        onDateSelect && onDateSelect(null);
+      } else {
+        setSelectedDate(clickedDate);
+        onDateSelect && onDateSelect(clickedDate);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -180,6 +202,7 @@ export function RevenueCard() {
               left: 12,
               right: 12,
             }}
+            onClick={handleBarClick}
           >
             <CartesianGrid vertical={false} />
             <XAxis
@@ -215,11 +238,17 @@ export function RevenueCard() {
               }}
               contentStyle={{
                 borderRadius: '8px',
-                border: '1px solid var(--border)',
-                backgroundColor: 'var(--background)',
+                border: '1px solid var(--chart-1)',
+                backgroundColor: 'var(--chart-1)',
               }}
             />
-            <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
+            <Bar 
+              dataKey={activeChart} 
+              fill={`var(--color-${activeChart})`}
+              style={{
+                cursor: 'pointer',
+              }}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>

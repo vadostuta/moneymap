@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RevenueCard } from '@/components/ui/RevenueCard'
+import { TransactionItem } from '@/components/transaction/TransactionItem'
 
 export default function DashboardPage () {
   const { user, loading } = useAuth()
@@ -13,12 +14,23 @@ export default function DashboardPage () {
     totalExpenses: 0,
     totalIncome: 0
   })
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [dateTransactions, setDateTransactions] = useState([])
+  const [loadingTransactions, setLoadingTransactions] = useState(false)
 
   useEffect(() => {
     if (user) {
       fetchSummaryData()
     }
   }, [user])
+
+  useEffect(() => {
+    if (user && selectedDate) {
+      fetchTransactionsForDate(selectedDate)
+    } else {
+      setDateTransactions([])
+    }
+  }, [user, selectedDate])
 
   async function fetchSummaryData () {
     try {
@@ -56,6 +68,41 @@ export default function DashboardPage () {
     }
   }
 
+  async function fetchTransactionsForDate (date: string) {
+    try {
+      setLoadingTransactions(true)
+
+      const startDate = new Date(date)
+      startDate.setHours(0, 0, 0, 0)
+
+      const endDate = new Date(date)
+      endDate.setHours(23, 59, 59, 999)
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .gte('date', startDate.toISOString())
+        .lte('date', endDate.toISOString())
+        .order('date', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching transactions for date:', error)
+        return
+      }
+
+      setDateTransactions(data || [])
+    } catch (error) {
+      console.error('Failed to fetch transactions for date:', error)
+    } finally {
+      setLoadingTransactions(false)
+    }
+  }
+
+  const handleDateSelect = (date: string | null) => {
+    setSelectedDate(date)
+  }
+
   if (loading) {
     return (
       <div className='flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-4 sm:p-6 md:p-8'>
@@ -79,7 +126,7 @@ export default function DashboardPage () {
   return (
     <div className='container px-4 py-4 sm:py-6 mx-auto max-w-7xl'>
       <h1 className='text-xl sm:text-2xl font-bold mb-4 sm:mb-6'>Dashboard</h1>
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6'>
+      {/* <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6'>
         <Card className='w-full'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-base sm:text-lg'>
@@ -118,11 +165,48 @@ export default function DashboardPage () {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       <div className='mb-4 sm:mb-6'>
-        <RevenueCard />
+        <RevenueCard onDateSelect={handleDateSelect} />
       </div>
+
+      {/* Display transactions for the selected date */}
+      {selectedDate && (
+        <div className='mt-6'>
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Transactions for{' '}
+                {new Date(selectedDate).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loadingTransactions ? (
+                <p>Loading transactions...</p>
+              ) : dateTransactions.length > 0 ? (
+                <div className='space-y-4'>
+                  {dateTransactions.map(transaction => (
+                    <TransactionItem
+                      key={transaction.id}
+                      transaction={transaction}
+                      showActions={false}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className='text-center text-gray-500 py-8'>
+                  No transactions found for this date.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
