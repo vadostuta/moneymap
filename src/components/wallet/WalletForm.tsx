@@ -88,6 +88,7 @@ export function WalletForm ({ onCancel, onSuccess }: WalletFormProps) {
           <option value='EUR'>EUR</option>
           <option value='GBP'>GBP</option>
           <option value='UAH'>UAH</option>
+          <option value='PLN'>PLN</option>
         </select>
       </div>
 

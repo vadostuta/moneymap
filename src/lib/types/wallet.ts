@@ -1,5 +1,5 @@
 export type WalletType = 'cash' | 'bank' | 'crypto' | 'savings' | 'investment'
-export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY'
+export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'PLN'
 
 export interface Wallet {
   id: string
