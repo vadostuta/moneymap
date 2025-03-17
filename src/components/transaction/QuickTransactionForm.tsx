@@ -25,17 +25,31 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/components/ui/use-toast'
 
-export function QuickTransactionForm () {
+interface QuickTransactionFormProps {
+  variant?: 'default' | 'wide'
+  initialData?: Transaction
+  onSuccess?: () => void
+  onCancel?: () => void
+}
+
+export function QuickTransactionForm ({
+  variant = 'default',
+  initialData,
+  onSuccess,
+  onCancel
+}: QuickTransactionFormProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [formData, setFormData] = useState({
-    type: 'expense' as TransactionType,
-    amount: '',
-    wallet_id: '',
-    category: '' as TransactionCategory,
-    date: new Date().toISOString().split('T')[0],
-    description: ''
+    type: initialData?.type || ('expense' as TransactionType),
+    amount: initialData?.amount?.toString() || '',
+    wallet_id: initialData?.wallet_id || '',
+    category: initialData?.category || ('' as TransactionCategory),
+    date:
+      initialData?.date?.split('T')[0] ||
+      new Date().toISOString().split('T')[0],
+    description: initialData?.description || ''
   })
 
   const categories: TransactionCategory[] = [
@@ -101,31 +115,25 @@ export function QuickTransactionForm () {
         description: formData.description
       }
 
-      await transactionService.create(transaction)
+      if (initialData) {
+        await transactionService.update(initialData.id, transaction)
+      } else {
+        await transactionService.create(transaction)
+      }
 
-      // Add success toast
       toast({
-        title: 'Transaction added successfully',
+        title: initialData ? 'Transaction updated' : 'Transaction added',
         description: `${
           formData.type === 'expense' ? 'Expense' : 'Income'
-        } of ${formData.amount} has been recorded.`
+        } has been ${initialData ? 'updated' : 'recorded'}.`
       })
 
-      // Reset form
-      setFormData({
-        type: 'expense',
-        amount: '',
-        wallet_id: wallets[0]?.id || '',
-        category: '' as TransactionCategory,
-        date: new Date().toISOString().split('T')[0],
-        description: ''
-      })
+      onSuccess?.()
     } catch (error) {
-      console.error('Failed to create transaction:', error)
-      // Optionally add error toast
+      console.error('Failed to save transaction:', error)
       toast({
-        title: 'Failed to add transaction',
-        description: 'Please try again.',
+        title: 'Error',
+        description: 'Failed to save transaction. Please try again.',
         variant: 'destructive'
       })
     } finally {
@@ -134,7 +142,12 @@ export function QuickTransactionForm () {
   }
 
   return (
-    <Card className='w-full max-w-md mx-auto'>
+    <Card
+      className={cn(
+        'mx-auto',
+        variant === 'default' ? 'w-full max-w-md' : 'w-full'
+      )}
+    >
       <form onSubmit={handleSubmit}>
         <CardContent className='space-y-3 pt-6 px-4'>
           <Tabs
@@ -155,7 +168,14 @@ export function QuickTransactionForm () {
             </TabsList>
           </Tabs>
 
-          <div className='grid grid-cols-2 gap-4'>
+          <div
+            className={cn(
+              'grid gap-4',
+              variant === 'default'
+                ? 'grid-cols-2'
+                : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+            )}
+          >
             <Input
               id='amount'
               type='number'
@@ -188,36 +208,6 @@ export function QuickTransactionForm () {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <div className='grid grid-cols-3 gap-1.5'>
-            {categories.map(category => (
-              <button
-                key={category}
-                type='button'
-                onClick={() => setFormData({ ...formData, category })}
-                className={cn(
-                  'transition-all duration-200 ease-in-out',
-                  formData.category === category ? 'scale-102' : ''
-                )}
-              >
-                <Badge
-                  variant={
-                    formData.category === category ? 'selected' : 'secondary'
-                  }
-                  className={cn(
-                    'w-full py-1.5 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center',
-                    formData.category === category ? 'shadow-sm' : ''
-                  )}
-                >
-                  <span className='mr-1.5'>{categoryIcons[category]}</span>
-                  <span className='truncate'>{category}</span>
-                </Badge>
-              </button>
-            ))}
-          </div>
-
-          <div className='grid grid-cols-2 gap-4'>
             <Input
               id='description'
               placeholder='Description'
@@ -245,15 +235,61 @@ export function QuickTransactionForm () {
             />
           </div>
 
+          <div
+            className={cn(
+              'grid gap-1.5',
+              variant === 'default'
+                ? 'grid-cols-3'
+                : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'
+            )}
+          >
+            {categories.map(category => (
+              <button
+                key={category}
+                type='button'
+                onClick={() => setFormData({ ...formData, category })}
+                className={cn(
+                  'transition-all duration-200 ease-in-out',
+                  formData.category === category ? 'scale-102' : ''
+                )}
+              >
+                <Badge
+                  variant={
+                    formData.category === category ? 'selected' : 'secondary'
+                  }
+                  className={cn(
+                    'w-full py-1.5 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center',
+                    formData.category === category ? 'shadow-sm' : ''
+                  )}
+                >
+                  <span className='mr-1.5'>{categoryIcons[category]}</span>
+                  <span className='truncate'>{category}</span>
+                </Badge>
+              </button>
+            ))}
+          </div>
+
           <CardFooter className='px-0 pb-0'>
-            <Button
-              type='submit'
-              className='w-full h-12 text-base font-medium'
-              disabled={loading}
-            >
-              <Plus className='mr-2 h-5 w-5' />
-              {loading ? 'Adding...' : 'Add Transaction'}
-            </Button>
+            <div className='flex w-full gap-2'>
+              {onCancel && (
+                <Button
+                  type='button'
+                  variant='ghost'
+                  onClick={onCancel}
+                  className='flex-1'
+                >
+                  Cancel
+                </Button>
+              )}
+              <Button type='submit' className='flex-1' disabled={loading}>
+                <Plus className='mr-2 h-5 w-5' />
+                {loading
+                  ? 'Saving...'
+                  : initialData
+                  ? 'Update Transaction'
+                  : 'Add Transaction'}
+              </Button>
+            </div>
           </CardFooter>
         </CardContent>
       </form>

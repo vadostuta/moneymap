@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { TransactionCategory } from '@/lib/types/transaction'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
 
 function TransactionsContent () {
   const { user, loading } = useAuth()
@@ -166,14 +167,13 @@ function TransactionsContent () {
           </div>
 
           {showForm ? (
-            <div className='border rounded-lg mb-6'>
-              <TransactionForm
-                onSuccess={() => {
-                  setShowForm(false)
-                  setRefreshTrigger(prev => prev + 1) // Refresh list after adding
-                }}
-                onCancel={() => setShowForm(false)}
-              />
+            <div className='mb-6'>
+              <QuickTransactionForm variant='wide' />
+              <div className='mt-4 text-center'>
+                <Button variant='ghost' onClick={() => setShowForm(false)}>
+                  Close
+                </Button>
+              </div>
             </div>
           ) : null}
 
