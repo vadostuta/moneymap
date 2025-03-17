@@ -16,7 +16,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   TransactionCategory,
   TransactionType,
-  CreateTransactionDTO
+  CreateTransactionDTO,
+  Transaction
 } from '@/lib/types/transaction'
 import { Wallet } from '@/lib/types/wallet'
 import { transactionService } from '@/lib/services/transaction'

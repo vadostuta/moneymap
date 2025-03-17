@@ -3,20 +3,17 @@
 import { useEffect, useState } from 'react'
 import { Wallet } from '@/lib/types/wallet'
 import { walletService } from '@/lib/services/wallet'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Star } from 'lucide-react'
 
 interface WalletListProps {
   onSelectWallet: (wallet: Wallet) => void
-  onAddNew: () => void
   refreshTrigger?: number
   selectedWalletId?: string
 }
 
 export function WalletList ({
   onSelectWallet,
-  onAddNew,
   refreshTrigger,
   selectedWalletId
 }: WalletListProps) {
@@ -70,11 +67,6 @@ export function WalletList ({
         ) : (
           <div className='p-4 text-center text-gray-500'>No wallets found</div>
         )}
-      </div>
-      <div className='p-3 md:p-4 border-t'>
-        <Button onClick={onAddNew} className='w-full'>
-          Add New Wallet
-        </Button>
       </div>
     </div>
   )

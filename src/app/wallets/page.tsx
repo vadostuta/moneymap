@@ -7,6 +7,7 @@ import { WalletList } from '@/components/wallet/WalletList'
 import { WalletForm } from '@/components/wallet/WalletForm'
 import { WalletDetail } from '@/components/wallet/WalletDetail'
 import { walletService } from '@/lib/services/wallet'
+import { Button } from '@/components/ui/button'
 
 export default function WalletsPage () {
   const { user, loading } = useAuth()
@@ -51,14 +52,24 @@ export default function WalletsPage () {
     <div className='container py-4 md:py-6 px-4 md:px-6'>
       <div className='flex items-center justify-between mb-4 md:mb-6'>
         <h1 className='text-xl md:text-2xl font-bold'>My Wallets</h1>
-        {!showMobileList && (
-          <button
-            onClick={() => setShowMobileList(true)}
-            className='md:hidden px-3 py-1 text-sm bg-gray-100 rounded-md'
+        <div className='flex items-center gap-2'>
+          {!showMobileList && (
+            <button
+              onClick={() => setShowMobileList(true)}
+              className='md:hidden px-3 py-1 text-sm bg-gray-100 rounded-md'
+            >
+              Back to list
+            </button>
+          )}
+          <Button
+            onClick={() => {
+              setShowForm(true)
+              setShowMobileList(false)
+            }}
           >
-            Back to list
-          </button>
-        )}
+            Add New Wallet
+          </Button>
+        </div>
       </div>
 
       <div className='flex flex-col md:flex-row gap-4 md:gap-6'>
@@ -68,10 +79,6 @@ export default function WalletsPage () {
         >
           <WalletList
             onSelectWallet={onSelectWallet}
-            onAddNew={() => {
-              setShowForm(true)
-              setShowMobileList(false)
-            }}
             refreshTrigger={refreshTrigger}
             selectedWalletId={selectedWallet?.id}
           />

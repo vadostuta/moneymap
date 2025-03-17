@@ -12,21 +12,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
-import { TransactionCategory } from '@/lib/types/transaction'
+import { Transaction, TransactionCategory } from '@/lib/types/transaction'
 
 // Define the transaction interface that can be used across the app
 export interface TransactionItemProps {
-  transaction: {
-    id: string
-    date: string
-    type: string
-    amount: number
-    description?: string
-    category?: string
-    wallet?: { name: string }
-  }
+  transaction: Transaction
   showActions?: boolean
-  onEdit?: (transaction: TransactionItemProps['transaction']) => void
+  onEdit?: (transaction: Transaction) => void
   onDelete?: (id: string) => void
 }
 

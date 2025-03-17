@@ -101,8 +101,8 @@ export function TransactionList ({
     }
   }
 
-  const handleEdit = (transaction: TransactionItemProps['transaction']) => {
-    setEditingTransaction(transaction as Transaction)
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction)
   }
 
   const handleEditSuccess = () => {

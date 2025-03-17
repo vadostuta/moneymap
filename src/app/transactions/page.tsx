@@ -3,7 +3,6 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
-import { TransactionForm } from '@/components/transaction/TransactionForm'
 import { TransactionList } from '@/components/transaction/TransactionList'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
