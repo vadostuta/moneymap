@@ -6,23 +6,25 @@ import { supabase } from "@/lib/supabase/client"
 
 import {
   Card,
-  CardContent
+  CardContent,
+  CardHeader,
 } from "@/components/ui/card"
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
 } from "@/components/ui/chart"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Updated chartConfig to include expenses and income
 const chartConfig = {
   expenses: {
     label: "Expenses",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(341 90% 62%)", // Deep red
   },
   income: {
     label: "Income",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(151 75% 48%)", // Bright green
   },
 } satisfies ChartConfig
 
@@ -48,7 +50,7 @@ interface RevenueCardProps {
 export function RevenueCard({ onDateSelect }: RevenueCardProps) {
   const [chartData, setChartData] = React.useState<TransactionData[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [activeChart] = React.useState<"expenses" | "income">("expenses");
+  const [activeChart, setActiveChart] = React.useState<"expenses" | "income">("expenses");
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
 
   // Fetch transaction data from Supabase
@@ -168,31 +170,22 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
 
   return (
     <Card>
-      {/* <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle>Financial Overview</CardTitle>
-          <CardDescription>
-            Your income and expenses
-          </CardDescription>
-        </div>
-        <div className="flex">
-          {(["expenses", "income"] as const).map((key) => (
-            <button
-              key={key}
-              data-active={activeChart === key}
-              className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
-              onClick={() => setActiveChart(key)}
-            >
-              <span className="text-xs text-muted-foreground">
-                {chartConfig[key].label}
-              </span>
-              <span className="text-lg font-bold leading-none sm:text-3xl">
-                {total[key].toLocaleString()}
-              </span>
-            </button>
-          ))}
-        </div>
-      </CardHeader> */}
+      <CardHeader className="pb-4">
+        <Tabs
+          value={activeChart}
+          onValueChange={(value) => setActiveChart(value as "expenses" | "income")}
+          className="w-fit"
+        >
+          <TabsList className="grid w-[200px] grid-cols-2">
+            <TabsTrigger value="expenses" className="text-xs">
+              Expenses
+            </TabsTrigger>
+            <TabsTrigger value="income" className="text-xs">
+              Income
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </CardHeader>
       <CardContent className="px-2 sm:p-6">
         <ChartContainer
           config={chartConfig}
@@ -212,6 +205,7 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
+              
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value);
@@ -229,20 +223,29 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
             />
             <ChartTooltip 
               formatter={(value, name) => {
-                return [value.toLocaleString(), chartConfig[name as keyof typeof chartConfig]?.label || name];
+                const formattedValue = new Intl.NumberFormat('en-US', {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(value as number);
+                
+                return [formattedValue, name === 'expenses' ? 'Expenses' : 'Income'];
               }}
               labelFormatter={(value) => {
                 return new Date(value).toLocaleDateString("en-US", {
-                  month: "short",
+                  weekday: 'short',
+                  month: "long",
                   day: "numeric",
-                  year: "numeric",
                 });
               }}
               contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
-                border: '1px solid var(--chart-1)',
-                backgroundColor: 'var(--chart-1)',
+                padding: '12px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
               }}
+              cursor={{ stroke: 'hsl(var(--muted))' }}
+              wrapperStyle={{ outline: 'none' }}
             />
             <Bar 
               dataKey={activeChart} 
