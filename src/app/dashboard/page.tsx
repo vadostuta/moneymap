@@ -11,6 +11,7 @@ import {
   TransactionItemProps
 } from '@/components/transaction/TransactionItem'
 import { Transaction } from '@/lib/types/transaction'
+import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
 
 export default function DashboardPage () {
   const { user, loading } = useAuth()
@@ -130,91 +131,117 @@ export default function DashboardPage () {
 
   return (
     <div className='container px-4 py-4 sm:py-6 mx-auto max-w-7xl'>
-      <h1 className='text-xl sm:text-2xl font-bold mb-4 sm:mb-6'>Dashboard</h1>
-      {/* <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6'>
-        <Card className='w-full'>
-          <CardHeader className='pb-2'>
-            <CardTitle className='text-base sm:text-lg'>
-              Total expenses
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className='text-lg sm:text-xl font-bold text-white'>
-              - ${summary.totalExpenses.toLocaleString()}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className='w-full'>
-          <CardHeader className='pb-2'>
-            <CardTitle className='text-base sm:text-lg'>Total income</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className='text-lg sm:text-xl font-bold text-green-500'>
-              + ${summary.totalIncome.toLocaleString()}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className='w-full'>
-          <CardHeader className='pb-2'>
-            <CardTitle className='text-base sm:text-lg'>Balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p
-              className={`text-lg sm:text-xl font-bold ${
-                summary.totalIncome - summary.totalExpenses >= 0
-                  ? 'text-green-500'
-                  : 'text-white'
-              }`}
-            >
-              ${(summary.totalIncome - summary.totalExpenses).toLocaleString()}
-            </p>
-          </CardContent>
-        </Card>
-      </div> */}
-
-      <div className='mb-4 sm:mb-6'>
-        <RevenueCard onDateSelect={handleDateSelect} />
-      </div>
-
-      {/* Display transactions for the selected date */}
-      {selectedDate && (
-        <div className='mt-6'>
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Transactions for{' '}
-                {new Date(selectedDate).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        <div className='w-full'>
+          <QuickTransactionForm />
+        </div>
+        <div className='w-full'>
+          {/* <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6'>
+          <Card className='w-full'>
+            <CardHeader className='pb-2'>
+              <CardTitle className='text-base sm:text-lg'>
+                Total expenses
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {loadingTransactions ? (
-                <p>Loading transactions...</p>
-              ) : dateTransactions.length > 0 ? (
-                <div className='space-y-4'>
-                  {dateTransactions.map(transaction => (
-                    <TransactionItem
-                      key={transaction.id}
-                      transaction={
-                        transaction as TransactionItemProps['transaction']
-                      }
-                      showActions={false}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className='text-center text-gray-500 py-8'>
-                  No transactions found for this date.
-                </p>
-              )}
+              <p className='text-lg sm:text-xl font-bold text-white'>
+                - ${summary.totalExpenses.toLocaleString()}
+              </p>
             </CardContent>
           </Card>
+          <Card className='w-full'>
+            <CardHeader className='pb-2'>
+              <CardTitle className='text-base sm:text-lg'>Total income</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className='text-lg sm:text-xl font-bold text-green-500'>
+                + ${summary.totalIncome.toLocaleString()}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className='w-full'>
+            <CardHeader className='pb-2'>
+              <CardTitle className='text-base sm:text-lg'>Balance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p
+                className={`text-lg sm:text-xl font-bold ${
+                  summary.totalIncome - summary.totalExpenses >= 0
+                    ? 'text-green-500'
+                    : 'text-white'
+                }`}
+              >
+                ${(summary.totalIncome - summary.totalExpenses).toLocaleString()}
+              </p>
+            </CardContent>
+          </Card>
+        </div> */}
+
+          <div className='mb-4 sm:mb-6'>
+            <RevenueCard onDateSelect={handleDateSelect} />
+          </div>
+
+          {/* Display transactions for the selected date */}
+          {selectedDate && (
+            <div className='mt-6'>
+              <Card>
+                <CardHeader className='flex flex-row items-center justify-between'>
+                  <CardTitle>
+                    Transactions for{' '}
+                    {new Date(selectedDate).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </CardTitle>
+                  <button
+                    onClick={() => setSelectedDate(null)}
+                    className='rounded-full p-2 hover:bg-muted transition-colors'
+                    aria-label='Close transactions'
+                  >
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      width='24'
+                      height='24'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='2'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    >
+                      <line x1='18' y1='6' x2='6' y2='18'></line>
+                      <line x1='6' y1='6' x2='18' y2='18'></line>
+                    </svg>
+                  </button>
+                </CardHeader>
+                <CardContent>
+                  {loadingTransactions ? (
+                    <p>Loading transactions...</p>
+                  ) : dateTransactions.length > 0 ? (
+                    <div className='space-y-4'>
+                      {dateTransactions.map(transaction => (
+                        <TransactionItem
+                          key={transaction.id}
+                          transaction={
+                            transaction as TransactionItemProps['transaction']
+                          }
+                          showActions={false}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className='text-center text-gray-500 py-8'>
+                      No transactions found for this date.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }
