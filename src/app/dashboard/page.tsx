@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/auth-context'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import Link from 'next/link'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RevenueCard } from '@/components/ui/RevenueCard'
@@ -236,6 +237,14 @@ export default function DashboardPage () {
                       No transactions found for this date.
                     </p>
                   )}
+                  <div className='mt-6 text-center'>
+                    <Link
+                      href={`/transactions?date=${selectedDate}`}
+                      className='inline-flex items-center px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors'
+                    >
+                      View All Transactions
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             </div>

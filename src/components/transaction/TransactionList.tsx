@@ -1,81 +1,97 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Transaction } from '@/lib/types/transaction'
-import { transactionService } from '@/lib/services/transaction'
-import { TransactionForm } from './TransactionForm'
-import { TransactionItem, TransactionItemProps } from './TransactionItem'
+import { useAuth } from '@/contexts/auth-context'
+import { supabase } from '@/lib/supabase/client'
+import { TransactionItem } from './TransactionItem'
+import type { Transaction } from '@/lib/types/transaction'
+import { format } from 'date-fns'
 
 interface TransactionListProps {
-  refreshTrigger?: number
+  selectedDate?: Date
+  searchQuery?: string
+  selectedCategory?: string
 }
 
-export function TransactionList ({ refreshTrigger }: TransactionListProps) {
+export function TransactionList ({
+  selectedDate,
+  searchQuery,
+  selectedCategory
+}: TransactionListProps) {
+  const { user } = useAuth()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
-  const [editingTransaction, setEditingTransaction] =
-    useState<Transaction | null>(null)
 
   useEffect(() => {
-    loadTransactions()
-  }, [refreshTrigger])
+    if (user) {
+      fetchTransactions()
+    }
+  }, [user, selectedDate])
 
-  const loadTransactions = async () => {
+  async function fetchTransactions () {
     try {
-      const data = await transactionService.getAll()
-      setTransactions(data)
+      setLoading(true)
+      let query = supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('date', { ascending: false })
+
+      if (selectedDate) {
+        const startDate = new Date(selectedDate)
+        startDate.setHours(0, 0, 0, 0)
+
+        const endDate = new Date(selectedDate)
+        endDate.setHours(23, 59, 59, 999)
+
+        query = query
+          .gte('date', startDate.toISOString())
+          .lte('date', endDate.toISOString())
+      }
+
+      if (searchQuery) {
+        query = query.ilike('description', `%${searchQuery}%`)
+      }
+
+      if (selectedCategory) {
+        query = query.eq('category', selectedCategory)
+      }
+
+      const { data, error } = await query
+
+      if (error) {
+        console.error('Error fetching transactions:', error)
+        return
+      }
+
+      setTransactions(data || [])
     } catch (error) {
-      console.error('Failed to load transactions:', error)
+      console.error('Failed to fetch transactions:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this transaction?')) return
-
-    try {
-      await transactionService.delete(id)
-      await loadTransactions()
-    } catch (error) {
-      console.error('Failed to delete transaction:', error)
-    }
-  }
-
-  if (loading) return <div>Loading transactions...</div>
-
-  if (transactions.length === 0) {
-    return (
-      <div className='text-center text-gray-500 py-8'>No transactions yet</div>
-    )
+  if (loading) {
+    return <div>Loading transactions...</div>
   }
 
   return (
     <div className='space-y-4'>
-      {editingTransaction && (
-        <div className='border rounded-lg mb-4'>
-          <TransactionForm
-            transaction={editingTransaction}
-            onSuccess={() => {
-              setEditingTransaction(null)
-              loadTransactions()
-            }}
-            onCancel={() => setEditingTransaction(null)}
-          />
-        </div>
-      )}
-
-      <div className='space-y-4'>
-        {transactions.map(transaction => (
+      {transactions.length > 0 ? (
+        transactions.map(transaction => (
           <TransactionItem
             key={transaction.id}
-            transaction={transaction as TransactionItemProps['transaction']}
+            transaction={transaction}
             showActions={true}
-            onEdit={() => setEditingTransaction(transaction)}
-            onDelete={handleDelete}
           />
-        ))}
-      </div>
+        ))
+      ) : (
+        <p className='text-center text-muted-foreground py-8'>
+          No transactions found
+          {selectedDate && ` for ${format(selectedDate, 'MMMM d, yyyy')}`}.
+        </p>
+      )}
     </div>
   )
 }
