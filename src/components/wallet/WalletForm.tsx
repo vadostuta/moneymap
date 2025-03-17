@@ -6,26 +6,35 @@ import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
 
 interface WalletFormProps {
-  onCancel: () => void
+  initialData?: Wallet
   onSuccess: () => void
+  onCancel: () => void
 }
 
-export function WalletForm ({ onCancel, onSuccess }: WalletFormProps) {
+export function WalletForm ({
+  initialData,
+  onSuccess,
+  onCancel
+}: WalletFormProps) {
   const [formData, setFormData] = useState<CreateWalletDTO>({
-    name: '',
-    type: 'cash',
-    balance: 0,
-    currency: 'USD',
-    is_primary: false
+    name: initialData?.name || '',
+    type: initialData?.type || 'cash',
+    balance: initialData?.balance || 0,
+    currency: initialData?.currency || 'USD',
+    is_primary: initialData?.is_primary || false
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await walletService.create(formData)
+      if (initialData) {
+        await walletService.update(initialData.id, formData)
+      } else {
+        await walletService.create(formData)
+      }
       onSuccess()
     } catch (error) {
-      console.error('Failed to create wallet:', error)
+      console.error('Failed to save wallet:', error)
     }
   }
 

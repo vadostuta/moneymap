@@ -15,6 +15,7 @@ export default function WalletsPage () {
   const [showForm, setShowForm] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [showMobileList, setShowMobileList] = useState(true)
+  const [editingWallet, setEditingWallet] = useState<Wallet | null>(null)
 
   const onSelectWallet = (wallet: Wallet) => {
     setSelectedWallet(wallet)
@@ -30,6 +31,12 @@ export default function WalletsPage () {
       }
       setRefreshTrigger(prev => prev + 1) // This will refresh the wallet list
     }
+  }
+
+  const handleEdit = (wallet: Wallet) => {
+    setEditingWallet(wallet)
+    setShowForm(true)
+    setShowMobileList(false)
   }
 
   if (loading) {
@@ -91,15 +98,18 @@ export default function WalletsPage () {
         >
           {showForm ? (
             <WalletForm
+              initialData={editingWallet}
               onCancel={() => {
                 setShowForm(false)
-                setShowMobileList(true) // Show list on mobile when canceling form
+                setEditingWallet(null)
+                setShowMobileList(true)
               }}
               onSuccess={() => {
                 setShowForm(false)
+                setEditingWallet(null)
                 setSelectedWallet(null)
                 setRefreshTrigger(prev => prev + 1)
-                setShowMobileList(true) // Show list on mobile after success
+                setShowMobileList(true)
               }}
             />
           ) : selectedWallet ? (
@@ -111,6 +121,7 @@ export default function WalletsPage () {
                 setShowMobileList(true)
               }}
               onUpdate={refreshWallet}
+              onEdit={() => handleEdit(selectedWallet)}
             />
           ) : (
             <div className='flex items-center justify-center h-full text-gray-500 p-4 text-center'>

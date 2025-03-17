@@ -15,12 +15,14 @@ interface WalletDetailProps {
   wallet: Wallet
   onDelete: () => void
   onUpdate?: () => void
+  onEdit: () => void
 }
 
 export function WalletDetail ({
   wallet,
   onDelete,
-  onUpdate
+  onUpdate,
+  onEdit
 }: WalletDetailProps) {
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
     []
@@ -69,6 +71,9 @@ export function WalletDetail ({
       <div className='flex items-center justify-between mb-4'>
         <h2 className='text-xl md:text-2xl font-bold mb-2'>{wallet.name}</h2>
         <div className='flex items-center gap-2'>
+          <Button variant='outline' onClick={onEdit}>
+            Edit
+          </Button>
           <button
             onClick={handlePrimaryToggle}
             className='p-2 hover:bg-secondary rounded-full'
