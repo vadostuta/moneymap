@@ -98,7 +98,7 @@ export default function WalletsPage () {
         >
           {showForm ? (
             <WalletForm
-              initialData={editingWallet}
+              initialData={editingWallet || undefined}
               onCancel={() => {
                 setShowForm(false)
                 setEditingWallet(null)

@@ -1,7 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { CreateWalletDTO, WalletType, Currency } from '@/lib/types/wallet'
+import {
+  CreateWalletDTO,
+  WalletType,
+  Currency,
+  Wallet
+} from '@/lib/types/wallet'
 import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
 
