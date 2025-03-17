@@ -6,6 +6,7 @@ import { Wallet } from '@/lib/types/wallet'
 import { WalletList } from '@/components/wallet/WalletList'
 import { WalletForm } from '@/components/wallet/WalletForm'
 import { WalletDetail } from '@/components/wallet/WalletDetail'
+import { walletService } from '@/lib/services/wallet'
 
 export default function WalletsPage () {
   const { user, loading } = useAuth()
@@ -18,6 +19,16 @@ export default function WalletsPage () {
     setSelectedWallet(wallet)
     setShowForm(false)
     setShowMobileList(false) // Hide list on mobile when wallet is selected
+  }
+
+  const refreshWallet = async () => {
+    if (selectedWallet) {
+      const updatedWallet = await walletService.getById(selectedWallet.id)
+      if (updatedWallet) {
+        setSelectedWallet(updatedWallet)
+      }
+      setRefreshTrigger(prev => prev + 1) // This will refresh the wallet list
+    }
   }
 
   if (loading) {
@@ -59,9 +70,13 @@ export default function WalletsPage () {
             onSelectWallet={onSelectWallet}
             onAddNew={() => {
               setShowForm(true)
-              setShowMobileList(false) // Hide list on mobile when form is shown
+              setShowMobileList(false)
             }}
             refreshTrigger={refreshTrigger}
+            selectedWalletId={selectedWallet?.id}
+            onPrimarySet={updatedWallet => {
+              setSelectedWallet(updatedWallet)
+            }}
           />
         </div>
 
@@ -89,8 +104,9 @@ export default function WalletsPage () {
               onDelete={() => {
                 setSelectedWallet(null)
                 setRefreshTrigger(prev => prev + 1)
-                setShowMobileList(true) // Show list on mobile after deletion
+                setShowMobileList(true)
               }}
+              onUpdate={refreshWallet}
             />
           ) : (
             <div className='flex items-center justify-center h-full text-gray-500 p-4 text-center'>

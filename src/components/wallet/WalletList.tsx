@@ -4,17 +4,21 @@ import { useEffect, useState } from 'react'
 import { Wallet } from '@/lib/types/wallet'
 import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { Star } from 'lucide-react'
 
 interface WalletListProps {
   onSelectWallet: (wallet: Wallet) => void
   onAddNew: () => void
   refreshTrigger?: number
+  selectedWalletId?: string
 }
 
 export function WalletList ({
   onSelectWallet,
   onAddNew,
-  refreshTrigger
+  refreshTrigger,
+  selectedWalletId
 }: WalletListProps) {
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [loading, setLoading] = useState(true)
@@ -41,23 +45,27 @@ export function WalletList ({
       <div className='flex-1 overflow-y-auto max-h-[60vh] md:max-h-none'>
         {wallets.length > 0 ? (
           wallets.map(wallet => (
-            <button
+            <div
               key={wallet.id}
               onClick={() => onSelectWallet(wallet)}
-              className='w-full p-3 md:p-4 text-left hover:bg-secondary border-b flex justify-between items-center'
+              className={cn(
+                'flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-secondary/50',
+                selectedWalletId === wallet.id ? 'bg-secondary' : ''
+              )}
             >
-              <div>
-                <h3 className='font-medium text-sm md:text-base'>
-                  {wallet.name}
-                </h3>
-                <p className='text-xs md:text-sm text-gray-500'>
-                  {wallet.type}
+              <div className='flex-1'>
+                <h3 className='font-medium'>{wallet.name}</h3>
+                <p className='text-sm text-muted-foreground'>
+                  {wallet.balance} {wallet.currency}
                 </p>
               </div>
-              <p className='text-sm md:text-base font-medium'>
-                {wallet.balance} {wallet.currency}
-              </p>
-            </button>
+              {wallet.is_primary && (
+                <Star
+                  className='h-4 w-4 fill-yellow-400 text-yellow-400'
+                  aria-label='Primary wallet'
+                />
+              )}
+            </div>
           ))
         ) : (
           <div className='p-4 text-center text-gray-500'>No wallets found</div>

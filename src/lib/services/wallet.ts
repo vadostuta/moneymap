@@ -66,5 +66,19 @@ export const walletService = {
     const { error } = await supabase.from('wallets').delete().eq('id', id)
 
     if (error) throw error
+  },
+
+  async setPrimary (walletId: string): Promise<void> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User must be logged in')
+
+    // Start a transaction to update all wallets
+    const { error } = await supabase.rpc('set_primary_wallet', {
+      wallet_id_input: walletId
+    })
+
+    if (error) throw error
   }
 }

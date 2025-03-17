@@ -77,7 +77,9 @@ export function QuickTransactionForm () {
       const data = await walletService.getAll()
       setWallets(data)
       if (data.length > 0) {
-        setFormData(prev => ({ ...prev, wallet_id: data[0].id }))
+        // Find primary wallet or fallback to first wallet
+        const primaryWallet = data.find(w => w.is_primary) || data[0]
+        setFormData(prev => ({ ...prev, wallet_id: primaryWallet.id }))
       }
     } catch (error) {
       console.error('Failed to load wallets:', error)

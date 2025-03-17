@@ -8,6 +8,7 @@ export interface Wallet {
   type: WalletType
   balance: number
   currency: Currency
+  is_primary: boolean
   created_at: string
   updated_at: string
 }

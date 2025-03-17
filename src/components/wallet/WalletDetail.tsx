@@ -6,13 +6,20 @@ import { Transaction } from '@/lib/types/transaction'
 import { walletService } from '@/lib/services/wallet'
 import { transactionService } from '@/lib/services/transaction'
 import { Button } from '@/components/ui/button'
+import { Star } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface WalletDetailProps {
   wallet: Wallet
   onDelete: () => void
+  onUpdate?: () => void
 }
 
-export function WalletDetail ({ wallet, onDelete }: WalletDetailProps) {
+export function WalletDetail ({
+  wallet,
+  onDelete,
+  onUpdate
+}: WalletDetailProps) {
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
     []
   )
@@ -44,10 +51,39 @@ export function WalletDetail ({ wallet, onDelete }: WalletDetailProps) {
     }
   }
 
+  const handlePrimaryToggle = async () => {
+    try {
+      await walletService.setPrimary(wallet.id)
+      if (onUpdate) {
+        onUpdate()
+      }
+    } catch (error) {
+      console.error('Failed to set primary wallet:', error)
+    }
+  }
+
   return (
     <div className='p-4 md:p-6'>
-      <div className='mb-4 md:mb-6'>
+      <div className='flex items-center justify-between mb-4'>
         <h2 className='text-xl md:text-2xl font-bold mb-2'>{wallet.name}</h2>
+        <div className='flex items-center gap-2'>
+          <button
+            onClick={handlePrimaryToggle}
+            className='p-2 hover:bg-secondary rounded-full'
+          >
+            <Star
+              className={cn(
+                'h-5 w-5',
+                wallet.is_primary
+                  ? 'fill-yellow-400 text-yellow-400'
+                  : 'text-muted-foreground'
+              )}
+            />
+          </button>
+        </div>
+      </div>
+
+      <div className='mb-4 md:mb-6'>
         <p className='text-gray-600 text-sm md:text-base'>
           Type: {wallet.type}
         </p>
