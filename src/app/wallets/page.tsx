@@ -74,9 +74,6 @@ export default function WalletsPage () {
             }}
             refreshTrigger={refreshTrigger}
             selectedWalletId={selectedWallet?.id}
-            onPrimarySet={updatedWallet => {
-              setSelectedWallet(updatedWallet)
-            }}
           />
         </div>
 

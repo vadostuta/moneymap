@@ -10,7 +10,7 @@ export interface TransactionItemProps {
     date: string
     type: string
     amount: number
-    description: string
+    description?: string
     category?: string
     wallet?: { name: string }
     label?: string

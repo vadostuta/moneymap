@@ -6,10 +6,7 @@ import { supabase } from "@/lib/supabase/client"
 
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  CardContent
 } from "@/components/ui/card"
 import {
   ChartConfig,
@@ -51,7 +48,7 @@ interface RevenueCardProps {
 export function RevenueCard({ onDateSelect }: RevenueCardProps) {
   const [chartData, setChartData] = React.useState<TransactionData[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [activeChart, setActiveChart] = React.useState<"expenses" | "income">("expenses");
+  const [activeChart] = React.useState<"expenses" | "income">("expenses");
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
 
   // Fetch transaction data from Supabase
@@ -120,13 +117,13 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
     }));
   };
 
-  const total = React.useMemo(
-    () => ({
-      expenses: chartData.reduce((acc, curr) => acc + curr.expenses, 0),
-      income: chartData.reduce((acc, curr) => acc + curr.income, 0),
-    }),
-    [chartData]
-  );
+  // const total = React.useMemo(
+  //   () => ({
+  //     expenses: chartData.reduce((acc, curr) => acc + curr.expenses, 0),
+  //     income: chartData.reduce((acc, curr) => acc + curr.income, 0),
+  //   }),
+  //   [chartData]
+  // );
 
   // Add this function to handle bar click
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

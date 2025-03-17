@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
 import { TransactionForm } from '@/components/transaction/TransactionForm'
@@ -8,15 +8,15 @@ import { TransactionList } from '@/components/transaction/TransactionList'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DatePicker } from '@/components/ui/date-picker'
-import { format } from 'date-fns'
 import { Input } from '@/components/ui/input'
 import { TransactionCategory } from '@/lib/types/transaction'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
-export default function TransactionsPage () {
+function TransactionsContent () {
   const { user, loading } = useAuth()
   const [showForm, setShowForm] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const searchParams = useSearchParams()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
@@ -186,5 +186,31 @@ export default function TransactionsPage () {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function TransactionsPage () {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className='flex min-h-screen flex-col items-center justify-center p-24'>
+        Loading...
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className='flex min-h-screen flex-col items-center justify-center p-24'>
+        Please log in to manage your transactions.
+      </div>
+    )
+  }
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TransactionsContent />
+    </Suspense>
   )
 }

@@ -15,7 +15,8 @@ export function WalletForm ({ onCancel, onSuccess }: WalletFormProps) {
     name: '',
     type: 'cash',
     balance: 0,
-    currency: 'USD'
+    currency: 'USD',
+    is_primary: false
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
