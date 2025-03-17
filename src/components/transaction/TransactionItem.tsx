@@ -77,7 +77,7 @@ export function TransactionItem ({
               transaction.type === 'expense' ? 'text-white' : 'text-green-500'
             }`}
           >
-            {transaction.type === 'expense' ? '-' : '+'} $
+            {transaction.type === 'expense' ? '-' : '+'}
             {transaction.amount.toLocaleString()}
           </p>
 

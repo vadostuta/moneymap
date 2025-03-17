@@ -91,8 +91,8 @@ export function QuickTransactionForm ({
     try {
       const data = await walletService.getAll()
       setWallets(data)
-      if (data.length > 0) {
-        // Find primary wallet or fallback to first wallet
+      // Only set wallet_id if it's not already set (for new transactions)
+      if (!formData.wallet_id && data.length > 0) {
         const primaryWallet = data.find(w => w.is_primary) || data[0]
         setFormData(prev => ({ ...prev, wallet_id: primaryWallet.id }))
       }
@@ -229,7 +229,7 @@ export function QuickTransactionForm ({
                 })
               }
               required
-              className='text-base h-12'
+              className='text-base h-12 w-full'
               onClick={e => {
                 ;(e.target as HTMLInputElement).showPicker()
               }}
