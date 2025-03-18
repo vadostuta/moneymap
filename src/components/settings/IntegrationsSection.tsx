@@ -4,17 +4,7 @@ import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
 import { MonobankIcon } from '@/components/icons/MonobankIcon'
-
-interface BankIntegration {
-  id: string
-  user_id: string
-  provider: 'monobank'
-  api_token: string
-  is_active: boolean
-  created_at: string
-  updated_at: string
-  last_sync_at: string | null
-}
+import { MonobankService, BankIntegration } from '@/lib/services/monobank'
 
 interface Props {
   refreshTrigger: number
@@ -31,30 +21,11 @@ export function IntegrationsSection ({
 
   const fetchBankIntegrations = async () => {
     try {
-      // First get the current user
-      const {
-        data: { user },
-        error: userError
-      } = await supabase.auth.getUser()
-
-      if (userError) throw userError
-      if (!user) {
-        toast.error('Please sign in to view your integrations')
-        return
-      }
-
-      // Then fetch their integrations
-      const { data, error } = await supabase
-        .from('bank_integrations')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setIntegrations(data || [])
+      const data = await MonobankService.fetchIntegrations()
+      setIntegrations(data)
 
       // Notify parent about Monobank integration status
-      const hasMonobank = (data || []).some(
+      const hasMonobank = data.some(
         i => i.provider === 'monobank' && i.is_active
       )
       onIntegrationsChange?.(hasMonobank)
@@ -69,43 +40,7 @@ export function IntegrationsSection ({
   const handleDisconnect = async (integrationId: string) => {
     setIsDisconnecting(integrationId)
     try {
-      const {
-        data: { user },
-        error: userError
-      } = await supabase.auth.getUser()
-
-      if (userError) {
-        console.error('Auth error:', userError)
-        throw userError
-      }
-
-      if (!user) {
-        throw new Error('No user found')
-      }
-
-      console.log('Attempting to delete integration:', {
-        integrationId,
-        userId: user.id
-      })
-
-      // Simplified delete operation
-      const { error: deleteError, data: deletedData } = await supabase
-        .from('bank_integrations')
-        .delete()
-        .eq('id', integrationId)
-        .eq('user_id', user.id) // ensure we only delete user's own integration
-        .select() // return the deleted row
-
-      if (deleteError) {
-        console.error('Delete error:', deleteError)
-        throw deleteError
-      }
-
-      console.log('Deleted data:', deletedData)
-
-      if (!deletedData || deletedData.length === 0) {
-        throw new Error('No integration was deleted')
-      }
+      await MonobankService.disconnectIntegration(integrationId)
 
       setIntegrations(prev => {
         const newIntegrations = prev.filter(i => i.id !== integrationId)

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
 import { MonobankIcon } from '@/components/icons/MonobankIcon'
+import { MonobankService } from '@/lib/services/monobank'
 
 interface Props {
   onSuccess?: () => void
@@ -18,25 +19,7 @@ export function MonobankIntegration ({ onSuccess }: Props) {
     setIsLoading(true)
 
     try {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser()
-      if (!user) throw new Error('No user found')
-
-      if (!token.match(/^[a-zA-Z0-9_-]{32,48}$/)) {
-        throw new Error('Invalid Monobank token format')
-      }
-
-      const { error } = await supabase.from('bank_integrations').insert({
-        user_id: user.id,
-        provider: 'monobank',
-        api_token: token,
-        is_active: true
-        // updated_at and last_sync_at will be handled by database defaults
-      })
-
-      if (error) throw error
-
+      await MonobankService.addIntegration(token)
       toast.success('Monobank integration added successfully!')
       setToken('')
       onSuccess?.()
