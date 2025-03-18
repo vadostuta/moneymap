@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
-import { supabase } from '@/lib/supabase/client'
 import { MonobankIcon } from '@/components/icons/MonobankIcon'
 import { MonobankService } from '@/lib/services/monobank'
 
