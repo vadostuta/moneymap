@@ -12,6 +12,24 @@ import { TransactionCategory } from '@/lib/types/transaction'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
+import { MonobankService } from '@/lib/services/monobank'
+import { toast } from 'react-hot-toast'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { supabase } from '@/lib/supabase/client'
+import { MonobankTransaction } from '@/lib/services/monobank'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from '@/components/ui/dialog'
 
 function TransactionsContent () {
   const { user, loading } = useAuth()
@@ -24,6 +42,13 @@ function TransactionsContent () {
   const [selectedCategory, setSelectedCategory] = useState<
     TransactionCategory | ''
   >('')
+  const [isMonobankLoading, setIsMonobankLoading] = useState(false)
+  const [showWalletDialog, setShowWalletDialog] = useState(false)
+  const [selectedWalletId, setSelectedWalletId] = useState<string>('')
+  const [monobankTransactions, setMonobankTransactions] = useState<
+    MonobankTransaction[]
+  >([])
+  const [wallets, setWallets] = useState<{ id: string; name: string }[]>([])
 
   const categories: TransactionCategory[] = [
     'Food & Dining',
@@ -64,8 +89,86 @@ function TransactionsContent () {
     }
   }, [searchParams])
 
+  useEffect(() => {
+    async function fetchWallets () {
+      const { data, error } = await supabase
+        .from('wallets')
+        .select('id, name')
+        .eq('user_id', user?.id)
+
+      if (!error && data) {
+        setWallets(data)
+      }
+    }
+
+    if (user) {
+      fetchWallets()
+    }
+  }, [user])
+
   const handleDateChange = (date: Date | undefined) => {
     setSelectedDate(date)
+  }
+
+  const handleFetchMonobank = async () => {
+    setIsMonobankLoading(true)
+    try {
+      const to = new Date()
+      const from = new Date(to.getTime() - 24 * 60 * 60 * 1000)
+
+      const transactions = await MonobankService.fetchTransactions(from, to)
+      const filteredTransactions = transactions.filter(
+        t => !t.description.includes('На charity')
+      )
+      setMonobankTransactions(filteredTransactions)
+      setShowWalletDialog(true)
+      toast.success(
+        `Fetched ${filteredTransactions.length} transactions (excluding charity)`
+      )
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to fetch transactions'
+      )
+    } finally {
+      setIsMonobankLoading(false)
+    }
+  }
+
+  const handleSaveTransactions = async () => {
+    if (!selectedWalletId) {
+      toast.error('Please select a wallet')
+      return
+    }
+
+    setIsMonobankLoading(true)
+    try {
+      const before = Date.now()
+      await MonobankService.saveTransactions(
+        monobankTransactions,
+        selectedWalletId
+      )
+
+      // Fetch the count of transactions created after our save operation started
+      const { count } = await supabase
+        .from('transactions')
+        .select('*', { count: 'exact', head: true })
+        .eq('wallet_id', selectedWalletId)
+        .gt('created_at', new Date(before).toISOString())
+
+      toast.success(`Saved ${count} new transactions`)
+      setShowWalletDialog(false)
+      setMonobankTransactions([])
+      setSelectedWalletId('')
+
+      // Force refresh the transaction list
+      setRefreshTrigger(Date.now())
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to save transactions'
+      )
+    } finally {
+      setIsMonobankLoading(false)
+    }
   }
 
   if (loading) {
@@ -92,6 +195,17 @@ function TransactionsContent () {
         </CardHeader>
         <CardContent>
           <div className='mb-6 space-y-4'>
+            <div className='flex items-center gap-4'>
+              <Button
+                onClick={handleFetchMonobank}
+                disabled={isMonobankLoading}
+                variant='outline'
+              >
+                {isMonobankLoading
+                  ? 'Fetching Monobank...'
+                  : 'Fetch Last 24h Monobank Transactions'}
+              </Button>
+            </div>
             <div className='flex items-center gap-4'>
               <DatePicker
                 date={selectedDate}
@@ -177,11 +291,53 @@ function TransactionsContent () {
           ) : null}
 
           <TransactionList
-            key={`${selectedDate?.toISOString()}-${searchQuery}-${selectedCategory}`}
+            key={`${selectedDate?.toISOString()}-${searchQuery}-${selectedCategory}-${refreshTrigger}`}
             selectedDate={selectedDate}
             searchQuery={searchQuery}
             selectedCategory={selectedCategory}
           />
+
+          <Dialog open={showWalletDialog} onOpenChange={setShowWalletDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Select Wallet</DialogTitle>
+                <DialogDescription>
+                  Choose which wallet to save {monobankTransactions.length}{' '}
+                  transactions to
+                </DialogDescription>
+              </DialogHeader>
+              <Select
+                value={selectedWalletId}
+                onValueChange={setSelectedWalletId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Select a wallet' />
+                </SelectTrigger>
+                <SelectContent>
+                  {wallets.map(wallet => (
+                    <SelectItem key={wallet.id} value={wallet.id}>
+                      {wallet.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className='flex justify-end gap-4'>
+                <Button
+                  variant='outline'
+                  onClick={() => setShowWalletDialog(false)}
+                  disabled={isMonobankLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveTransactions}
+                  disabled={!selectedWalletId || isMonobankLoading}
+                >
+                  {isMonobankLoading ? 'Saving...' : 'Save Transactions'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     </div>
