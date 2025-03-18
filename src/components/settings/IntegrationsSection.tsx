@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { supabase } from '@/lib/supabase/client'
 import { MonobankIcon } from '@/components/icons/MonobankIcon'
-import { MonobankIntegration } from '@/components/settings/MonobankIntegration'
 
 interface BankIntegration {
   id: string
@@ -15,14 +14,6 @@ interface BankIntegration {
   created_at: string
   updated_at: string
   last_sync_at: string | null
-}
-
-function formatDate (date: string) {
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
 }
 
 interface Props {
