@@ -60,6 +60,16 @@ export function Header () {
               >
                 Wallets
               </Link>
+              <Link
+                href='/settings'
+                className={`hover:text-primary transition-colors ${
+                  pathname === '/settings'
+                    ? 'text-primary font-medium'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                Settings
+              </Link>
             </nav>
           )}
         </div>
@@ -126,6 +136,17 @@ export function Header () {
               onClick={() => setMobileMenuOpen(false)}
             >
               Wallets
+            </Link>
+            <Link
+              href='/settings'
+              className={`py-2 hover:text-primary transition-colors ${
+                pathname === '/settings'
+                  ? 'text-primary font-medium'
+                  : 'text-muted-foreground'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Settings
             </Link>
             <div className='pt-4 border-t mt-2'>
               <div className='text-sm text-muted-foreground mb-2'>
