@@ -15,6 +15,19 @@ interface TransactionListProps {
   selectedCategory?: string
 }
 
+const getRandomColor = () => {
+  const colors = [
+    'border-blue-500',
+    'border-purple-500',
+    'border-pink-500',
+    'border-indigo-500',
+    'border-teal-500',
+    'border-orange-500',
+    'border-cyan-500'
+  ]
+  return colors[Math.floor(Math.random() * colors.length)]
+}
+
 export function TransactionList ({
   selectedDate,
   searchQuery,
@@ -114,6 +127,19 @@ export function TransactionList ({
     })
   }
 
+  // Group transactions by date and assign colors
+  const groupedTransactions = transactions.reduce((acc, transaction) => {
+    const date = transaction.date.split('T')[0]
+    if (!acc[date]) {
+      acc[date] = {
+        transactions: [],
+        color: getRandomColor()
+      }
+    }
+    acc[date].transactions.push(transaction)
+    return acc
+  }, {} as Record<string, { transactions: Transaction[]; color: string }>)
+
   if (loading) {
     return <div>Loading transactions...</div>
   }
@@ -132,14 +158,26 @@ export function TransactionList ({
       )}
 
       {transactions.length > 0 ? (
-        transactions.map(transaction => (
-          <TransactionItem
-            key={transaction.id}
-            transaction={transaction}
-            showActions={!editingTransaction} // Hide actions while editing
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+        Object.entries(groupedTransactions).map(([date, group]) => (
+          <div key={date} className='relative'>
+            <div
+              className={`absolute left-0 top-0 bottom-0 w-2 ${group.color} rounded-lg border-2`}
+            />
+            <div className='space-y-1'>
+              {group.transactions.map((transaction, index) => (
+                <div key={transaction.id} className='ml-4'>
+                  <TransactionItem
+                    transaction={transaction}
+                    showActions={!editingTransaction}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    isFirst={index === 0}
+                    isLast={index === group.transactions.length - 1}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         ))
       ) : (
         <p className='text-center text-muted-foreground py-8'>
