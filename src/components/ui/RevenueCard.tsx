@@ -3,6 +3,8 @@
 import * as React from "react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { supabase } from "@/lib/supabase/client"
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 import {
   Card,
@@ -52,6 +54,16 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
   const [loading, setLoading] = React.useState(true);
   const [activeChart, setActiveChart] = React.useState<"expenses" | "income">("expenses");
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
+  const [currentDate, setCurrentDate] = React.useState(new Date());
+
+  // Add functions to handle month navigation
+  const handlePreviousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
 
   // Fetch transaction data from Supabase
   React.useEffect(() => {
@@ -59,15 +71,25 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
       try {
         setLoading(true);
         
+        // Use currentDate instead of new Date()
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+          .toISOString()
+          .split('T')[0];
+        const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+          .toISOString()
+          .split('T')[0];
+        
         // Get the current user
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Fetch transactions from Supabase
+        // Fetch transactions from Supabase with date range
         const { data: transactions, error } = await supabase
           .from('transactions')
           .select('*')
           .eq('user_id', user.id)
+          .gte('date', firstDayOfMonth) // Greater than or equal to first day of month
+          .lte('date', lastDayOfMonth)  // Less than or equal to last day of month
           .order('date', { ascending: true });
 
         if (error) {
@@ -86,7 +108,7 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
     }
 
     fetchTransactionData();
-  }, []);
+  }, [currentDate]); // Add currentDate as dependency
 
   // Process transactions into chart data
   const processTransactions = (transactions: Transaction[]) => {
@@ -148,9 +170,56 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
     }
   };
 
+  // Extract the header into a separate component
+  const CardHeaderContent = () => (
+    <div className="flex justify-between items-center w-full">
+      <Tabs
+        value={activeChart}
+        onValueChange={(value) => setActiveChart(value as "expenses" | "income")}
+        className="w-fit"
+      >
+        <TabsList className="grid w-[200px] grid-cols-2">
+          <TabsTrigger value="expenses" className="text-xs">
+            Expenses
+          </TabsTrigger>
+          <TabsTrigger value="income" className="text-xs">
+            Income
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium">
+          {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+        </span>
+        <div className="flex gap-1">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePreviousMonth}
+            className="h-8 w-8"
+          >
+            <ChevronLeftIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleNextMonth}
+            className="h-8 w-8"
+          >
+            <ChevronRightIcon className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <Card>
+        <CardHeader className="pb-4">
+          <CardHeaderContent />
+        </CardHeader>
         <CardContent className="flex items-center justify-center h-[400px]">
           <p>Loading transaction data...</p>
         </CardContent>
@@ -161,8 +230,11 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
   if (chartData.length === 0) {
     return (
       <Card>
+        <CardHeader className="pb-4">
+          <CardHeaderContent />
+        </CardHeader>
         <CardContent className="flex items-center justify-center h-[400px]">
-          <p>No transaction data available. Add some transactions to see your chart.</p>
+          <p>No transaction data available for {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}.</p>
         </CardContent>
       </Card>
     );
@@ -171,20 +243,7 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
   return (
     <Card>
       <CardHeader className="pb-4">
-        <Tabs
-          value={activeChart}
-          onValueChange={(value) => setActiveChart(value as "expenses" | "income")}
-          className="w-fit"
-        >
-          <TabsList className="grid w-[200px] grid-cols-2">
-            <TabsTrigger value="expenses" className="text-xs">
-              Expenses
-            </TabsTrigger>
-            <TabsTrigger value="income" className="text-xs">
-              Income
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <CardHeaderContent />
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
         <ChartContainer
@@ -205,14 +264,10 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              
-              minTickGap={32}
+              minTickGap={0}
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
+                return date.getDate().toString().padStart(2, '0');
               }}
             />
             <YAxis 
