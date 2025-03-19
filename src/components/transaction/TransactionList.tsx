@@ -164,15 +164,13 @@ export function TransactionList ({
               className={`absolute left-0 top-0 bottom-0 w-2 ${group.color} rounded-lg border-2`}
             />
             <div className='space-y-1'>
-              {group.transactions.map((transaction, index) => (
+              {group.transactions.map(transaction => (
                 <div key={transaction.id} className='ml-4'>
                   <TransactionItem
                     transaction={transaction}
                     showActions={!editingTransaction}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
-                    isFirst={index === 0}
-                    isLast={index === group.transactions.length - 1}
                   />
                 </div>
               ))}
