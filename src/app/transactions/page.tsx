@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
 import { TransactionList } from '@/components/transaction/TransactionList'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Input } from '@/components/ui/input'
@@ -37,6 +37,7 @@ function TransactionsContent () {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<
@@ -171,6 +172,21 @@ function TransactionsContent () {
     }
   }
 
+  const handleClearFilters = () => {
+    // Clear the local state
+    handleDateChange(undefined)
+    setSearchQuery('')
+    setSelectedCategory('')
+
+    // Remove query parameters from URL
+    const current = new URLSearchParams(Array.from(searchParams.entries()))
+    current.delete('date')
+    const search = current.toString()
+    const query = search ? `?${search}` : ''
+
+    router.push(`/transactions${query}`)
+  }
+
   if (loading) {
     return (
       <div className='flex min-h-screen flex-col items-center justify-center p-24'>
@@ -214,7 +230,7 @@ function TransactionsContent () {
               />
               {selectedDate && (
                 <button
-                  onClick={() => handleDateChange(undefined)}
+                  onClick={handleClearFilters}
                   className='text-sm text-muted-foreground hover:text-primary'
                 >
                   Clear filter
@@ -230,7 +246,7 @@ function TransactionsContent () {
               />
               {searchQuery && (
                 <button
-                  onClick={() => setSearchQuery('')}
+                  onClick={handleClearFilters}
                   className='text-sm text-muted-foreground hover:text-primary'
                 >
                   Clear search
