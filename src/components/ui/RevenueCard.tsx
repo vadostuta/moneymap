@@ -17,6 +17,7 @@ import {
   ChartTooltip,
 } from "@/components/ui/chart"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { walletService } from "@/lib/services/wallet"
 
 // Updated chartConfig to include expenses and income
 const chartConfig = {
@@ -55,6 +56,7 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
   const [activeChart, setActiveChart] = React.useState<"expenses" | "income">("expenses");
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
   const [currentDate, setCurrentDate] = React.useState(new Date());
+  const [currency, setCurrency] = React.useState('$');
 
   // Add functions to handle month navigation
   const handlePreviousMonth = () => {
@@ -110,6 +112,24 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
     fetchTransactionData();
   }, [currentDate]); // Add currentDate as dependency
 
+  // Add wallet fetch in useEffect
+  React.useEffect(() => {
+    async function fetchWallet() {
+      try {
+        const data = await walletService.getAll();
+        // Get primary wallet or first wallet's currency
+        const primaryWallet = data.find(w => w.is_primary) || data[0];
+        if (primaryWallet) {
+          setCurrency(primaryWallet.currency);
+        }
+      } catch (error) {
+        console.error('Failed to load wallet currency:', error);
+      }
+    }
+
+    fetchWallet();
+  }, []);
+
   // Process transactions into chart data
   const processTransactions = (transactions: Transaction[]) => {
     // Group transactions by date
@@ -141,13 +161,11 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
     }));
   };
 
-  // const total = React.useMemo(
-  //   () => ({
-  //     expenses: chartData.reduce((acc, curr) => acc + curr.expenses, 0),
-  //     income: chartData.reduce((acc, curr) => acc + curr.income, 0),
-  //   }),
-  //   [chartData]
-  // );
+  // First, uncomment and modify the total calculation
+  const total = React.useMemo(
+    () => chartData.reduce((acc, curr) => acc + curr[activeChart], 0),
+    [chartData, activeChart]
+  );
 
   // Add this function to handle bar click
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -170,7 +188,7 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
     }
   };
 
-  // Extract the header into a separate component
+  // Then modify the CardHeaderContent to include the total
   const CardHeaderContent = () => (
     <div className="flex justify-between items-center w-full">
       <Tabs
@@ -188,10 +206,18 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
         </TabsList>
       </Tabs>
 
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">
-          {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-        </span>
+      <div className="flex items-center gap-4">
+        <div className="flex flex-col items-end">
+          <span className="text-sm font-medium">
+            {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </span>
+          <span style={{ color: chartConfig[activeChart].color }} className="text-sm">
+            Total: {new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: currency === '$' ? 'USD' : currency
+            }).format(total)}
+          </span>
+        </div>
         <div className="flex gap-1">
           <Button
             variant="outline"
