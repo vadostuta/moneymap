@@ -13,6 +13,7 @@ interface TransactionListProps {
   selectedDate?: Date
   searchQuery?: string
   selectedCategory?: string
+  selectedWalletId: string | 'all'
   onDelete: (id: string) => Promise<void>
 }
 
@@ -32,7 +33,8 @@ const getRandomColor = () => {
 export function TransactionList ({
   selectedDate,
   searchQuery,
-  selectedCategory
+  selectedCategory,
+  selectedWalletId
 }: TransactionListProps) {
   const { user } = useAuth()
   const { toast } = useToast()
@@ -45,28 +47,26 @@ export function TransactionList ({
     if (user) {
       fetchTransactions()
     }
-  }, [user, selectedDate])
+  }, [user, selectedDate, searchQuery, selectedCategory, selectedWalletId])
 
   async function fetchTransactions () {
     try {
       setLoading(true)
+      console.log('Starting fetch with filters:', {
+        selectedDate,
+        selectedWalletId,
+        searchQuery,
+        selectedCategory
+      })
+
       let query = supabase
         .from('transactions')
-        .select('*')
+        .select('*, wallet:wallets(name)')
         .eq('user_id', user?.id)
         .eq('is_deleted', false)
-        .order('date', { ascending: false })
 
-      if (selectedDate) {
-        const startDate = new Date(selectedDate)
-        startDate.setHours(0, 0, 0, 0)
-
-        const endDate = new Date(selectedDate)
-        endDate.setHours(23, 59, 59, 999)
-
-        query = query
-          .gte('date', startDate.toISOString())
-          .lte('date', endDate.toISOString())
+      if (selectedWalletId !== 'all') {
+        query = query.eq('wallet_id', selectedWalletId)
       }
 
       if (searchQuery) {
@@ -78,6 +78,14 @@ export function TransactionList ({
       }
 
       const { data, error } = await query
+        .order('date', { ascending: false })
+        .order('id', { ascending: false })
+
+      console.log('Full query response:', {
+        data,
+        error,
+        count: data?.length
+      })
 
       if (error) {
         console.error('Error fetching transactions:', error)

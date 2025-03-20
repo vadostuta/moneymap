@@ -46,7 +46,9 @@ function TransactionsContent () {
   >('')
   const [isMonobankLoading, setIsMonobankLoading] = useState(false)
   const [showWalletDialog, setShowWalletDialog] = useState(false)
-  const [selectedWalletId, setSelectedWalletId] = useState<string>('')
+  const [selectedWalletId, setSelectedWalletId] = useState<string | 'all'>(
+    'all'
+  )
   const [monobankTransactions, setMonobankTransactions] = useState<
     MonobankTransaction[]
   >([])
@@ -97,6 +99,7 @@ function TransactionsContent () {
         .from('wallets')
         .select('id, name')
         .eq('user_id', user?.id)
+        .eq('is_deleted', false)
 
       if (!error && data) {
         setWallets(data)
@@ -154,6 +157,7 @@ function TransactionsContent () {
     handleDateChange(undefined)
     setSearchQuery('')
     setSelectedCategory('')
+    setSelectedWalletId('all')
 
     // Remove query parameters from URL
     const current = new URLSearchParams(Array.from(searchParams.entries()))
@@ -281,6 +285,24 @@ function TransactionsContent () {
                 ))}
               </div>
             </div>
+            <div className='flex items-center gap-4'>
+              <Select
+                value={selectedWalletId}
+                onValueChange={value => setSelectedWalletId(value)}
+              >
+                <SelectTrigger className='w-[200px]'>
+                  <SelectValue placeholder='Filter by wallet' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All Wallets</SelectItem>
+                  {wallets.map(wallet => (
+                    <SelectItem key={wallet.id} value={wallet.id}>
+                      {wallet.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className='flex justify-between items-center mb-6'>
@@ -300,10 +322,11 @@ function TransactionsContent () {
           ) : null}
 
           <TransactionList
-            key={`${selectedDate?.toISOString()}-${searchQuery}-${selectedCategory}-${refreshTrigger}`}
+            key={`${selectedDate?.toISOString()}-${searchQuery}-${selectedCategory}-${selectedWalletId}-${refreshTrigger}`}
             selectedDate={selectedDate}
             searchQuery={searchQuery}
             selectedCategory={selectedCategory}
+            selectedWalletId={selectedWalletId}
             onDelete={handleTransactionDelete}
           />
 
