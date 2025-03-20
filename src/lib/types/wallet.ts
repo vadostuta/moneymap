@@ -9,6 +9,7 @@ export interface Wallet {
   balance: number
   currency: Currency
   is_primary: boolean
+  is_deleted: boolean
   created_at: string
   updated_at: string
 }

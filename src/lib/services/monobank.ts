@@ -6,6 +6,7 @@ export interface BankIntegration {
   user_id: string
   provider: 'monobank'
   api_token: string
+  wallet_id: string
   is_active: boolean
   created_at: string
   updated_at: string
@@ -62,7 +63,7 @@ export class MonobankService {
     return data || []
   }
 
-  static async addIntegration (token: string): Promise<void> {
+  static async addIntegration (token: string, walletId: string): Promise<void> {
     const {
       data: { user }
     } = await supabase.auth.getUser()
@@ -76,6 +77,7 @@ export class MonobankService {
       user_id: user.id,
       provider: 'monobank',
       api_token: token,
+      wallet_id: walletId,
       is_active: true
     })
 
@@ -107,7 +109,7 @@ export class MonobankService {
   static async fetchTransactions (
     from: Date,
     to: Date
-  ): Promise<MonobankTransaction[]> {
+  ): Promise<{ transactions: MonobankTransaction[]; walletId: string }> {
     const integrations = await this.fetchIntegrations()
     const activeIntegration = integrations.find(
       i => i.is_active && i.provider === 'monobank'
@@ -133,7 +135,10 @@ export class MonobankService {
       throw new Error(`Failed to fetch transactions: ${response.statusText}`)
     }
 
-    return response.json()
+    return {
+      transactions: await response.json(),
+      walletId: activeIntegration.wallet_id
+    }
   }
 
   static transformTransaction (

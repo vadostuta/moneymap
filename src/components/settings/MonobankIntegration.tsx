@@ -1,9 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { MonobankIcon } from '@/components/icons/MonobankIcon'
 import { MonobankService } from '@/lib/services/monobank'
+import { supabase } from '@/lib/supabase/client'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import Link from 'next/link'
 
 interface Props {
   onSuccess?: () => void
@@ -11,16 +20,39 @@ interface Props {
 
 export function MonobankIntegration ({ onSuccess }: Props) {
   const [token, setToken] = useState('')
+  const [selectedWalletId, setSelectedWalletId] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [wallets, setWallets] = useState<{ id: string; name: string }[]>([])
+
+  useEffect(() => {
+    async function fetchWallets () {
+      const { data, error } = await supabase
+        .from('wallets')
+        .select('id, name')
+        .eq('is_deleted', false)
+
+      if (!error && data) {
+        setWallets(data)
+      }
+    }
+
+    fetchWallets()
+  }, [])
 
   const handleSaveMonobankToken = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!selectedWalletId) {
+      toast.error('Please select a wallet for syncing')
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      await MonobankService.addIntegration(token)
+      await MonobankService.addIntegration(token, selectedWalletId)
       toast.success('Monobank integration added successfully!')
       setToken('')
+      setSelectedWalletId('')
       onSuccess?.()
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -50,39 +82,78 @@ export function MonobankIntegration ({ onSuccess }: Props) {
       </p>
 
       <form onSubmit={handleSaveMonobankToken}>
-        <div className='mb-4'>
-          <label
-            htmlFor='monobankToken'
-            className='block text-sm font-medium text-foreground mb-2'
-          >
-            Monobank API Token
-          </label>
-          <input
-            id='monobankToken'
-            type='password'
-            value={token}
-            onChange={e => setToken(e.target.value)}
-            className='w-full p-2 border rounded-md bg-secondary text-foreground'
-            placeholder='Enter your Monobank API token'
-            pattern='[a-zA-Z0-9_-]{32,48}'
-            required
-          />
-          <p className='text-sm text-muted-foreground mt-1'>
-            You can get your API token from{' '}
-            <a
-              href='https://api.monobank.ua/docs/'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-primary hover:underline'
+        <div className='space-y-4'>
+          <div>
+            <label
+              htmlFor='monobankToken'
+              className='block text-sm font-medium text-foreground mb-2'
             >
-              Monobank API page
-            </a>
-          </p>
+              Monobank API Token
+            </label>
+            <input
+              id='monobankToken'
+              type='password'
+              value={token}
+              onChange={e => setToken(e.target.value)}
+              className='w-full p-2 border rounded-md bg-secondary text-foreground'
+              placeholder='Enter your Monobank API token'
+              pattern='[a-zA-Z0-9_-]{32,48}'
+              required
+            />
+            <p className='text-sm text-muted-foreground mt-1'>
+              You can get your API token from{' '}
+              <a
+                href='https://api.monobank.ua/docs/'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-primary hover:underline'
+              >
+                Monobank API page
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <label className='block text-sm font-medium text-foreground mb-2'>
+              Select Wallet for Syncing
+            </label>
+            {wallets.length > 0 ? (
+              <Select
+                value={selectedWalletId}
+                onValueChange={setSelectedWalletId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Choose wallet for auto-sync' />
+                </SelectTrigger>
+                <SelectContent>
+                  {wallets.map(wallet => (
+                    <SelectItem key={wallet.id} value={wallet.id}>
+                      {wallet.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className='flex items-center gap-2 p-3 bg-secondary/50 rounded-md border border-border'>
+                <p className='text-sm text-muted-foreground'>
+                  To enable Monobank synchronization, you need to{' '}
+                  <Link
+                    href='/wallets'
+                    className='text-primary font-medium hover:underline'
+                  >
+                    create a wallet
+                  </Link>{' '}
+                  first
+                </p>
+              </div>
+            )}
+          </div>
         </div>
+
         <button
           type='submit'
-          disabled={isLoading}
-          className='bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50'
+          disabled={isLoading || !selectedWalletId}
+          className='mt-6 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50'
         >
           {isLoading ? 'Connecting...' : 'Connect Monobank'}
         </button>

@@ -30,6 +30,7 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog'
+import { addDays, subDays } from 'date-fns'
 
 function TransactionsContent () {
   const { user, loading } = useAuth()
@@ -111,30 +112,6 @@ function TransactionsContent () {
     setSelectedDate(date)
   }
 
-  const handleFetchMonobank = async () => {
-    setIsMonobankLoading(true)
-    try {
-      const to = new Date()
-      const from = new Date(to.getTime() - 24 * 60 * 60 * 1000)
-
-      const transactions = await MonobankService.fetchTransactions(from, to)
-      const filteredTransactions = transactions.filter(
-        t => !t.description.includes('На charity')
-      )
-      setMonobankTransactions(filteredTransactions)
-      setShowWalletDialog(true)
-      toast.success(
-        `Fetched ${filteredTransactions.length} transactions (excluding charity)`
-      )
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to fetch transactions'
-      )
-    } finally {
-      setIsMonobankLoading(false)
-    }
-  }
-
   const handleSaveTransactions = async () => {
     if (!selectedWalletId) {
       toast.error('Please select a wallet')
@@ -187,6 +164,33 @@ function TransactionsContent () {
     router.push(`/transactions${query}`)
   }
 
+  const handleTransactionDelete = async (transactionId: string) => {
+    try {
+      // First get the monobank_id
+      const { data: transaction } = await supabase
+        .from('transactions')
+        .select('monobank_id')
+        .eq('id', transactionId)
+        .single()
+
+      if (!transaction) throw new Error('Transaction not found')
+
+      // Then update is_deleted
+      const { error } = await supabase
+        .from('transactions')
+        .update({ is_deleted: true })
+        .eq('id', transactionId)
+
+      if (error) throw error
+
+      toast.success('Transaction removed')
+      setRefreshTrigger(Date.now())
+    } catch (error) {
+      console.error('Error deleting transaction:', error)
+      toast.error('Failed to remove transaction')
+    }
+  }
+
   if (loading) {
     return (
       <div className='flex min-h-screen flex-col items-center justify-center p-24'>
@@ -211,17 +215,6 @@ function TransactionsContent () {
         </CardHeader>
         <CardContent>
           <div className='mb-6 space-y-4'>
-            <div className='flex items-center gap-4'>
-              <Button
-                onClick={handleFetchMonobank}
-                disabled={isMonobankLoading}
-                variant='outline'
-              >
-                {isMonobankLoading
-                  ? 'Fetching Monobank...'
-                  : 'Fetch Last 24h Monobank Transactions'}
-              </Button>
-            </div>
             <div className='flex items-center gap-4'>
               <DatePicker
                 date={selectedDate}
@@ -311,6 +304,7 @@ function TransactionsContent () {
             selectedDate={selectedDate}
             searchQuery={searchQuery}
             selectedCategory={selectedCategory}
+            onDelete={handleTransactionDelete}
           />
 
           <Dialog open={showWalletDialog} onOpenChange={setShowWalletDialog}>

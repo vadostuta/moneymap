@@ -13,6 +13,7 @@ interface TransactionListProps {
   selectedDate?: Date
   searchQuery?: string
   selectedCategory?: string
+  onDelete: (id: string) => Promise<void>
 }
 
 const getRandomColor = () => {
@@ -53,6 +54,7 @@ export function TransactionList ({
         .from('transactions')
         .select('*')
         .eq('user_id', user?.id)
+        .eq('is_deleted', false)
         .order('date', { ascending: false })
 
       if (selectedDate) {
@@ -94,21 +96,21 @@ export function TransactionList ({
     try {
       const { error } = await supabase
         .from('transactions')
-        .delete()
+        .update({ is_deleted: true })
         .eq('id', id)
 
       if (error) throw error
 
       setTransactions(prev => prev.filter(t => t.id !== id))
       toast({
-        title: 'Transaction deleted',
-        description: 'The transaction has been successfully deleted.'
+        title: 'Transaction removed',
+        description: 'The transaction has been successfully removed.'
       })
     } catch (error) {
-      console.error('Error deleting transaction:', error)
+      console.error('Error removing transaction:', error)
       toast({
         title: 'Error',
-        description: 'Failed to delete transaction. Please try again.',
+        description: 'Failed to remove transaction. Please try again.',
         variant: 'destructive'
       })
     }

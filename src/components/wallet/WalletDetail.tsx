@@ -10,6 +10,7 @@ import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TransactionItem } from '@/components/transaction/TransactionItem'
 import Link from 'next/link'
+import { toast } from 'react-hot-toast'
 
 interface WalletDetailProps {
   wallet: Wallet
@@ -28,6 +29,7 @@ export function WalletDetail ({
     []
   )
   const [loading, setLoading] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const loadRecentTransactions = useCallback(async () => {
     try {
@@ -45,13 +47,22 @@ export function WalletDetail ({
   }, [loadRecentTransactions])
 
   const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this wallet?')) {
-      try {
-        await walletService.delete(wallet.id)
-        onDelete()
-      } catch (error) {
-        console.error('Failed to delete wallet:', error)
+    if (!confirm('Are you sure you want to delete this wallet?')) return
+
+    setIsDeleting(true)
+    try {
+      await walletService.delete(wallet.id)
+      toast.success('Wallet deleted successfully')
+      onDelete()
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        toast.error('Failed to delete wallet')
       }
+      console.error('Error deleting wallet:', error)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -122,8 +133,9 @@ export function WalletDetail ({
           variant='destructive'
           onClick={handleDelete}
           className='w-full sm:w-auto'
+          disabled={isDeleting}
         >
-          Delete Wallet
+          {isDeleting ? 'Deleting...' : 'Delete Wallet'}
         </Button>
       </div>
 

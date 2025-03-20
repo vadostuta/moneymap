@@ -8,6 +8,16 @@ import { WalletForm } from '@/components/wallet/WalletForm'
 import { WalletDetail } from '@/components/wallet/WalletDetail'
 import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
+import { supabase } from '@/lib/supabase/client'
+
+interface CreateWalletDTO {
+  name: string
+  currency: string
+  type: string
+  balance: number
+  is_primary: boolean
+  is_deleted: boolean
+}
 
 export default function WalletsPage () {
   const { user, loading } = useAuth()
@@ -37,6 +47,50 @@ export default function WalletsPage () {
     setEditingWallet(wallet)
     setShowForm(true)
     setShowMobileList(false)
+  }
+
+  const checkIsFirstWallet = async () => {
+    const { data: wallets, error } = await supabase
+      .from('wallets')
+      .select('id')
+      .eq('user_id', user?.id)
+      .eq('is_deleted', false)
+      .limit(1)
+
+    if (error) {
+      console.error('Error checking wallets:', error)
+      return false
+    }
+
+    return wallets.length === 0
+  }
+
+  const handleWalletCreate = async (
+    walletData: Partial<Wallet>
+  ): Promise<Wallet> => {
+    if (!user?.id) {
+      throw new Error('User not found')
+    }
+
+    const isFirst = await checkIsFirstWallet()
+
+    // Type check the required fields
+    if (!walletData.name || !walletData.currency || !walletData.type) {
+      throw new Error('Missing required wallet fields')
+    }
+
+    const createData: CreateWalletDTO = {
+      name: walletData.name,
+      currency: walletData.currency,
+      type: walletData.type,
+      balance: walletData.balance ?? 0,
+      is_primary: isFirst,
+      is_deleted: false
+    }
+
+    const wallet = await walletService.create(createData)
+    if (!wallet) throw new Error('Failed to create wallet')
+    return wallet
   }
 
   if (loading) {
@@ -99,6 +153,7 @@ export default function WalletsPage () {
           {showForm ? (
             <WalletForm
               initialData={editingWallet || undefined}
+              onCreateWallet={handleWalletCreate}
               onCancel={() => {
                 setShowForm(false)
                 setEditingWallet(null)

@@ -90,8 +90,9 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
           .from('transactions')
           .select('*')
           .eq('user_id', user.id)
-          .gte('date', firstDayOfMonth) // Greater than or equal to first day of month
-          .lte('date', lastDayOfMonth)  // Less than or equal to last day of month
+          .eq('is_deleted', false)
+          .gte('date', firstDayOfMonth)
+          .lte('date', lastDayOfMonth)
           .order('date', { ascending: true });
 
         if (error) {
@@ -99,7 +100,7 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
           return;
         }
 
-        // Process transactions into chart data format
+
         const processedData = processTransactions(transactions as Transaction[]);
         setChartData(processedData);
       } catch (error) {
@@ -133,25 +134,26 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
   // Process transactions into chart data
   const processTransactions = (transactions: Transaction[]) => {
     // Group transactions by date
-    const groupedByDate = transactions.reduce((acc: Record<string, { expenses: number, income: number }>, transaction: Transaction) => {
-      const date = transaction.date.split('T')[0]; // Get YYYY-MM-DD format
-      
-      if (!acc[date]) {
-        acc[date] = {
-          expenses: 0,
-          income: 0
-        };
-      }
-      
-      // Add to appropriate category based on transaction type
-      if (transaction.type === 'expense') {
-        acc[date].expenses += transaction.amount;
-      } else if (transaction.type === 'income') {
-        acc[date].income += transaction.amount;
-      }
-      
-      return acc;
-    }, {});
+    const groupedByDate = transactions
+      .reduce((acc: Record<string, { expenses: number, income: number }>, transaction: Transaction) => {
+        const date = transaction.date.split('T')[0];
+        
+        if (!acc[date]) {
+          acc[date] = {
+            expenses: 0,
+            income: 0
+          };
+        }
+        
+        // Add to appropriate category based on transaction type
+        if (transaction.type === 'expense') {
+          acc[date].expenses += transaction.amount;
+        } else if (transaction.type === 'income') {
+          acc[date].income += transaction.amount;
+        }
+        
+        return acc;
+      }, {});
 
     // Convert to array format for chart
     return Object.keys(groupedByDate).map(date => ({
@@ -161,7 +163,7 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
     }));
   };
 
-  // First, uncomment and modify the total calculation
+  // Update the total calculation to filter out deleted transactions
   const total = React.useMemo(
     () => chartData.reduce((acc, curr) => acc + curr[activeChart], 0),
     [chartData, activeChart]
