@@ -100,7 +100,7 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
           return;
         }
 
-
+        console.log(transactions)
         const processedData = processTransactions(transactions as Transaction[]);
         setChartData(processedData);
       } catch (error) {

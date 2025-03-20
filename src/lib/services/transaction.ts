@@ -34,7 +34,7 @@ export const transactionService = {
   async getAll (): Promise<Transaction[]> {
     const { data, error } = await supabase
       .from('transactions')
-      .select('*, wallet:wallets(name)')
+      .select('*, wallet:wallets(id, name)')
       .order('date', { ascending: false })
 
     if (error) throw error
@@ -45,7 +45,7 @@ export const transactionService = {
   async getByWalletId (walletId: string): Promise<Transaction[]> {
     const { data, error } = await supabase
       .from('transactions')
-      .select('*, wallet:wallets(name)')
+      .select('*, wallet:wallets(id, name)')
       .eq('wallet_id', walletId)
       .order('date', { ascending: false })
 
@@ -57,7 +57,7 @@ export const transactionService = {
   async getById (id: string): Promise<Transaction | null> {
     const { data, error } = await supabase
       .from('transactions')
-      .select('*, wallet:wallets(name)')
+      .select('*, wallet:wallets(id, name)')
       .eq('id', id)
       .single()
 
@@ -74,7 +74,7 @@ export const transactionService = {
       .from('transactions')
       .update(updates)
       .eq('id', id)
-      .select('*, wallet:wallets(name)')
+      .select('*, wallet:wallets(id, name)')
       .single()
 
     if (error) throw error

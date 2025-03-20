@@ -61,7 +61,7 @@ export function TransactionList ({
 
       let query = supabase
         .from('transactions')
-        .select('*, wallet:wallets(name)')
+        .select('*, wallet:wallets(name, id)')
         .eq('user_id', user?.id)
         .eq('is_deleted', false)
 

@@ -68,6 +68,7 @@ export function TransactionItem ({
           {transaction.wallet && (
             <p className='text-xs text-gray-400'>
               Wallet: {transaction.wallet.name}
+              {` (ID: ${transaction.wallet.id})`}
             </p>
           )}
         </div>

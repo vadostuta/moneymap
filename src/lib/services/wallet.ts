@@ -70,19 +70,6 @@ export const walletService = {
 
   // Delete a wallet
   async delete (id: string): Promise<void> {
-    // First check if this is a primary wallet
-    const { data: wallet } = await supabase
-      .from('wallets')
-      .select('is_primary')
-      .eq('id', id)
-      .single()
-
-    if (wallet?.is_primary) {
-      throw new Error(
-        'Cannot delete primary wallet. Please set another wallet as primary first.'
-      )
-    }
-
     // Soft delete the wallet
     const { error } = await supabase
       .from('wallets')

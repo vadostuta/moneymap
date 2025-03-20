@@ -34,6 +34,7 @@ export interface Transaction {
   created_at: string
   updated_at: string
   wallet?: {
+    id: string
     name: string
   }
 }
