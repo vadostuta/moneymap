@@ -61,9 +61,10 @@ export function TransactionList ({
 
       let query = supabase
         .from('transactions')
-        .select('*, wallet:wallets(name, id)')
+        .select('*, wallet:wallets!inner(name, id)')
         .eq('user_id', user?.id)
         .eq('is_deleted', false)
+        .eq('wallets.is_deleted', false)
 
       if (selectedWalletId !== 'all') {
         query = query.eq('wallet_id', selectedWalletId)

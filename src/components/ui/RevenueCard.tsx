@@ -88,9 +88,10 @@ export function RevenueCard({ onDateSelect }: RevenueCardProps) {
         // Fetch transactions from Supabase with date range
         const { data: transactions, error } = await supabase
           .from('transactions')
-          .select('*')
+          .select('*, wallet:wallets!inner(id)')
           .eq('user_id', user.id)
           .eq('is_deleted', false)
+          .eq('wallets.is_deleted', false)
           .gte('date', firstDayOfMonth)
           .lte('date', lastDayOfMonth)
           .order('date', { ascending: true });

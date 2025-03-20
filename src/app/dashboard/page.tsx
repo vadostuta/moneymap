@@ -43,16 +43,18 @@ export default function DashboardPage () {
       // Fetch total expenses
       const { data: expenses, error: expensesError } = await supabase
         .from('transactions')
-        .select('amount')
+        .select('amount, wallet:wallets!inner(id)')
         .eq('user_id', user?.id)
         .eq('type', 'expense')
+        .eq('wallets.is_deleted', false)
 
       // Fetch total income
       const { data: income, error: incomeError } = await supabase
         .from('transactions')
-        .select('amount')
+        .select('amount, wallet:wallets!inner(id)')
         .eq('user_id', user?.id)
         .eq('type', 'income')
+        .eq('wallets.is_deleted', false)
 
       if (expensesError || incomeError) {
         console.error(
@@ -87,10 +89,11 @@ export default function DashboardPage () {
 
       const { data, error } = await supabase
         .from('transactions')
-        .select('*')
+        .select('*, wallet:wallets!inner(name, id)')
         .eq('user_id', user?.id)
         .gte('date', startDate.toISOString())
         .lte('date', endDate.toISOString())
+        .eq('wallets.is_deleted', false)
         .order('date', { ascending: false })
 
       if (error) {
