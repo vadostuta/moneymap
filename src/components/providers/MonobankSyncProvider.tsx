@@ -110,29 +110,44 @@ export function MonobankSyncProvider ({
       }
     } catch (error) {
       console.error('Failed to sync Monobank transactions:', error)
+
+      // Check if error is from Monobank API rate limit
+      if (
+        error instanceof Error &&
+        typeof error === 'object' &&
+        'errorDescription' in error &&
+        error.errorDescription === 'Too many requests'
+      ) {
+        // Silently fail for rate limit errors
+        return
+      }
+
+      // Show toast for other errors
       toast.error('Failed to sync transactions')
     }
   }
 
   useEffect(() => {
-    // Clear existing interval and localStorage when user changes
     if (!user) {
       localStorage.removeItem('lastMonobankFetch')
       setLastFetchTime(0)
       return
     }
 
-    // Force immediate sync on login
-    syncTransactions()
+    // Get last fetch time from storage
+    const lastFetch = localStorage.getItem('lastMonobankFetch')
+    const now = Date.now()
 
-    // Reset and start new interval
+    // Only sync if enough time has passed since last fetch
+    if (!lastFetch || now - parseInt(lastFetch) > FETCH_COOLDOWN) {
+      syncTransactions()
+    }
+
+    // Start interval for subsequent syncs
     const interval = setInterval(syncTransactions, FETCH_COOLDOWN)
 
-    // Cleanup on unmount or user change
-    return () => {
-      clearInterval(interval)
-    }
-  }, [user]) // Dependency on user ensures this runs on login/logout
+    return () => clearInterval(interval)
+  }, [user])
 
   return <>{children}</>
 }

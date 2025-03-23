@@ -13,6 +13,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import Link from 'next/link'
+import { subDays } from 'date-fns'
 
 interface Props {
   onSuccess?: () => void
@@ -50,7 +51,15 @@ export function MonobankIntegration ({ onSuccess }: Props) {
 
     try {
       await MonobankService.addIntegration(token, selectedWalletId)
-      toast.success('Monobank integration added successfully!')
+
+      // Force immediate sync after successful integration
+      localStorage.removeItem('lastMonobankFetch') // Reset last fetch time
+      await MonobankService.fetchTransactions(
+        subDays(new Date(), 30), // Get last 30 days
+        new Date()
+      )
+
+      toast.success('Monobank connected and transactions synced!')
       setToken('')
       setSelectedWalletId('')
       onSuccess?.()
@@ -103,7 +112,7 @@ export function MonobankIntegration ({ onSuccess }: Props) {
             <p className='text-sm text-muted-foreground mt-1'>
               You can get your API token from{' '}
               <a
-                href='https://api.monobank.ua/docs/'
+                href='https://api.monobank.ua/'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='text-primary hover:underline'

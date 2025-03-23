@@ -89,6 +89,13 @@ export const walletService = {
 
   // Delete a wallet
   async delete (id: string): Promise<void> {
+    const { error: integrationError } = await supabase
+      .from('bank_integrations')
+      .update({ is_active: false })
+      .eq('wallet_id', id)
+
+    if (integrationError) throw integrationError
+
     // Soft delete the wallet
     const { error } = await supabase
       .from('wallets')
