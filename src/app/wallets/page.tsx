@@ -9,15 +9,7 @@ import { WalletDetail } from '@/components/wallet/WalletDetail'
 import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase/client'
-
-interface CreateWalletDTO {
-  name: string
-  currency: string
-  type: string
-  balance: number
-  is_primary: boolean
-  is_deleted: boolean
-}
+import { CreateWalletDTO } from '@/lib/types/wallet'
 
 export default function WalletsPage () {
   const { user, loading } = useAuth()

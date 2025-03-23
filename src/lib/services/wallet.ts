@@ -10,12 +10,31 @@ export const walletService = {
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User must be logged in')
 
+    // First check if user has any non-deleted wallets
+    const { data: existingWallets } = await supabase
+      .from('wallets')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('is_deleted', false)
+
+    // If no existing wallets, this one should be primary
+    const shouldBePrimary = !existingWallets || existingWallets.length === 0
+
+    // If this will be primary, unset any existing primary wallets first
+    if (shouldBePrimary || wallet.is_primary) {
+      await supabase
+        .from('wallets')
+        .update({ is_primary: false })
+        .eq('user_id', user.id)
+    }
+
     const { data, error } = await supabase
       .from('wallets')
       .insert([
         {
           ...wallet,
-          user_id: user.id // Add the user_id to the wallet data
+          user_id: user.id,
+          is_primary: shouldBePrimary || wallet.is_primary
         }
       ])
       .select()

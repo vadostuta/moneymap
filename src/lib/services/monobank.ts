@@ -173,6 +173,7 @@ export class MonobankService {
       .from('transactions')
       .select('monobank_id')
       .eq('user_id', user.id)
+      .eq('wallet_id', walletId)
       .not('monobank_id', 'is', null)
 
     if (fetchError) throw fetchError

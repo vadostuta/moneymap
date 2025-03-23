@@ -20,26 +20,33 @@ export function MonobankSyncProvider ({
     if (!user) return
     if (Date.now() - lastFetchTime < FETCH_COOLDOWN) return
 
-    // Check for active Monobank integration
-    const { data: integration } = await supabase
+    // First, check if integration exists at all (without joins)
+    const { data: basicIntegration } = await supabase
       .from('bank_integrations')
-      .select('*')
+      .select('*') // Just get all fields first
       .eq('user_id', user.id)
       .eq('provider', 'monobank')
       .eq('is_active', true)
-      .single()
 
-    if (!integration) return
+    console.log('Basic integration check:', basicIntegration) // Debug log
 
-    // Check for primary wallet
-    const { data: primaryWallet } = await supabase
-      .from('wallets')
-      .select('id')
+    // Then try the wallet join
+    const { data: integrations, error: integrationError } = await supabase
+      .from('bank_integrations')
+      .select('wallet_id, wallet:wallets!inner(id)')
       .eq('user_id', user.id)
-      .eq('is_primary', true)
-      .single()
+      .eq('provider', 'monobank')
+      .eq('is_active', true)
 
-    if (!primaryWallet) return
+    console.log('Integrations with wallet:', integrations) // Debug log
+
+    // If no integrations or error, just return silently
+    if (integrationError || !integrations || integrations.length === 0) {
+      return
+    }
+
+    const connectedWallet = integrations[0] // Take the first active integration
+    if (!connectedWallet) return
 
     try {
       const to = new Date()
@@ -47,14 +54,18 @@ export function MonobankSyncProvider ({
       // Get last transaction date
       const { data: lastTransaction } = await supabase
         .from('transactions')
-        .select('date')
+        .select('date, wallet:wallets!inner(id)')
+        .eq('is_deleted', false)
+        .eq('wallets.is_deleted', false)
+        .not('monobank_id', 'is', null)
         .order('date', { ascending: false })
         .limit(1)
 
+      console.log('lastTransaction', lastTransaction)
       let from: Date
       if (!lastTransaction || lastTransaction.length === 0) {
-        // If no transactions, fetch last 24h
-        from = subDays(to, 1)
+        // If no transactions, fetch last 30 days instead of just 24h
+        from = subDays(to, 30)
       } else {
         // Start from last transaction, but don't exceed 30 days
         const thirtyDaysAgo = subDays(to, 30)
@@ -63,6 +74,9 @@ export function MonobankSyncProvider ({
           from = thirtyDaysAgo
         }
       }
+
+      console.log('from', from)
+      console.log('to', to)
 
       // Only fetch if there's a gap to fill
       if (from < to) {
@@ -87,7 +101,7 @@ export function MonobankSyncProvider ({
         if (filteredTransactions.length > 0) {
           await MonobankService.saveTransactions(
             filteredTransactions,
-            primaryWallet.id
+            connectedWallet.wallet_id
           )
         }
 
@@ -101,17 +115,24 @@ export function MonobankSyncProvider ({
   }
 
   useEffect(() => {
-    const lastFetch = localStorage.getItem('lastMonobankFetch')
-    const now = Date.now()
-
-    if (!lastFetch || now - parseInt(lastFetch) > FETCH_COOLDOWN) {
-      syncTransactions()
+    // Clear existing interval and localStorage when user changes
+    if (!user) {
+      localStorage.removeItem('lastMonobankFetch')
+      setLastFetchTime(0)
+      return
     }
 
-    // Set up interval for periodic syncing
+    // Force immediate sync on login
+    syncTransactions()
+
+    // Reset and start new interval
     const interval = setInterval(syncTransactions, FETCH_COOLDOWN)
-    return () => clearInterval(interval)
-  }, [user])
+
+    // Cleanup on unmount or user change
+    return () => {
+      clearInterval(interval)
+    }
+  }, [user]) // Dependency on user ensures this runs on login/logout
 
   return <>{children}</>
 }

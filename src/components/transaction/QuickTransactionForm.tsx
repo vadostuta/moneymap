@@ -120,6 +120,15 @@ export function QuickTransactionForm ({
         await transactionService.update(initialData.id, transaction)
       } else {
         await transactionService.create(transaction)
+        // Reset form after successful creation
+        setFormData({
+          type: 'expense',
+          amount: '',
+          wallet_id: formData.wallet_id, // Keep the same wallet selected
+          category: 'Other',
+          date: new Date().toISOString().split('T')[0], // Reset to today
+          description: ''
+        })
       }
 
       toast({

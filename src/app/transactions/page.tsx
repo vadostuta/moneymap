@@ -30,7 +30,6 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog'
-import { addDays, subDays } from 'date-fns'
 
 function TransactionsContent () {
   const { user, loading } = useAuth()
@@ -285,7 +284,11 @@ function TransactionsContent () {
                 ))}
               </div>
             </div>
+          </div>
+
+          <div className='flex justify-between items-center mb-6'>
             <div className='flex items-center gap-4'>
+              <h1 className='text-2xl font-bold'>Transactions</h1>
               <Select
                 value={selectedWalletId}
                 onValueChange={value => setSelectedWalletId(value)}
@@ -303,10 +306,6 @@ function TransactionsContent () {
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className='flex justify-between items-center mb-6'>
-            <h1 className='text-2xl font-bold'>Transactions</h1>
             <Button onClick={() => setShowForm(true)}>Add Transaction</Button>
           </div>
 

@@ -26,7 +26,7 @@ export function WalletForm ({
   const [formData, setFormData] = useState<CreateWalletDTO>({
     name: initialData?.name || '',
     type: initialData?.type || 'cash',
-    balance: initialData?.balance || 0,
+    balance: 0,
     currency: initialData?.currency || 'USD',
     is_primary: initialData?.is_primary || false,
     is_deleted: initialData?.is_deleted || false
@@ -80,6 +80,7 @@ export function WalletForm ({
         </select>
       </div>
 
+      {/* Temporarily commented out balance field
       <div>
         <label className='block text-sm font-medium mb-1'>Balance</label>
         <input
@@ -93,6 +94,7 @@ export function WalletForm ({
           required
         />
       </div>
+      */}
 
       <div>
         <label className='block text-sm font-medium mb-1'>Currency</label>
