@@ -109,7 +109,7 @@ export default function WalletsPage () {
           {!showMobileList && (
             <button
               onClick={() => setShowMobileList(true)}
-              className='md:hidden px-3 py-1 text-sm bg-gray-100 rounded-md'
+              className='md:hidden px-3 py-1 text-sm text-gray-500 bg-gray-100 rounded-md'
             >
               Back to list
             </button>

@@ -46,10 +46,41 @@ export function TransactionItem ({
 }: TransactionItemProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
+  const formatAmount = (
+    amount: number,
+    currency: string | undefined,
+    type: string
+  ) => {
+    if (!currency) {
+      console.warn('Missing currency for transaction:', transaction.id)
+      return `${type === 'expense' ? '-' : '+'}${amount.toFixed(2)}`
+    }
+
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency,
+        signDisplay: 'always'
+      }).format(type === 'expense' ? -Math.abs(amount) : Math.abs(amount))
+    } catch (error) {
+      console.error('Currency formatting error:', {
+        amount,
+        currency,
+        type,
+        error
+      })
+      return `${type === 'expense' ? '-' : '+'}${amount.toFixed(2)} ${currency}`
+    }
+  }
+
   const handleDelete = () => {
     onDelete?.(transaction.id)
     setShowDeleteDialog(false)
   }
+
+  // Also log the full transaction object to debug
+  console.log('Transaction:', transaction)
+  console.log('Wallet data:', transaction.wallet)
 
   return (
     <>
@@ -74,14 +105,17 @@ export function TransactionItem ({
           )}
         </div>
         <div className='flex items-center gap-4'>
-          <p
-            className={`font-bold ${
-              transaction.type === 'expense' ? 'text-white' : 'text-green-500'
+          <div
+            className={`text-base font-medium ${
+              transaction.type === 'income' ? 'text-green-500' : ''
             }`}
           >
-            {transaction.type === 'expense' ? '-' : '+'}
-            {transaction.amount.toLocaleString()}
-          </p>
+            {formatAmount(
+              transaction.amount,
+              transaction.wallet?.currency,
+              transaction.type
+            )}
+          </div>
 
           {showActions && onEdit && onDelete && (
             <div className='flex items-center gap-2'>

@@ -35,7 +35,6 @@ import { transactionService } from '@/lib/services/transaction'
 function TransactionsContent () {
   const { user, loading } = useAuth()
   const [showForm, setShowForm] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -44,11 +43,11 @@ function TransactionsContent () {
   const [selectedCategory, setSelectedCategory] = useState<
     TransactionCategory | ''
   >('')
-  const [isMonobankLoading, setIsMonobankLoading] = useState(false)
-  const [showWalletDialog, setShowWalletDialog] = useState(false)
   const [selectedWalletId, setSelectedWalletId] = useState<string | 'all'>(
     'all'
   )
+  const [isMonobankLoading, setIsMonobankLoading] = useState(false)
+  const [showWalletDialog, setShowWalletDialog] = useState(false)
   const [monobankTransactions, setMonobankTransactions] = useState<
     MonobankTransaction[]
   >([])
@@ -85,11 +84,20 @@ function TransactionsContent () {
   }
 
   useEffect(() => {
-    // Get date from URL params when component mounts
+    // Handle URL parameters when component mounts
     const dateParam = searchParams.get('date')
+    const walletParam = searchParams.get('wallet')
+
     if (dateParam) {
       const date = new Date(dateParam)
-      setSelectedDate(date)
+      // Check if the date is valid before setting it
+      if (!isNaN(date.getTime())) {
+        setSelectedDate(date)
+      }
+    }
+
+    if (walletParam) {
+      setSelectedWalletId(walletParam)
     }
   }, [searchParams])
 
@@ -111,8 +119,50 @@ function TransactionsContent () {
     }
   }, [user])
 
+  // Update URL when filters change
+  const updateUrlWithFilters = (
+    date: Date | undefined,
+    wallet: string | 'all'
+  ) => {
+    const params = new URLSearchParams(searchParams.toString())
+
+    if (date) {
+      params.set('date', date.toISOString().split('T')[0])
+    } else {
+      params.delete('date')
+    }
+
+    if (wallet && wallet !== 'all') {
+      params.set('wallet', wallet)
+    } else {
+      params.delete('wallet')
+    }
+
+    const query = params.toString() ? `?${params.toString()}` : ''
+    router.push(`/transactions${query}`, { scroll: false })
+  }
+
+  // Update the handleDateChange function
   const handleDateChange = (date: Date | undefined) => {
     setSelectedDate(date)
+    updateUrlWithFilters(date, selectedWalletId)
+  }
+
+  // Update the wallet selection handler
+  const handleWalletChange = (value: string) => {
+    setSelectedWalletId(value)
+    updateUrlWithFilters(selectedDate, value)
+  }
+
+  // Update the clear filters function
+  const handleClearFilters = () => {
+    setSelectedDate(undefined)
+    setSearchQuery('')
+    setSelectedCategory('')
+    setSelectedWalletId('all')
+
+    // Clear URL parameters
+    router.push('/transactions', { scroll: false })
   }
 
   const handleSaveTransactions = async () => {
@@ -146,6 +196,7 @@ function TransactionsContent () {
       // Force refresh the transaction list
       setRefreshTrigger(Date.now())
     } catch (error) {
+      console.error('Failed to import transactions:', error)
       toastService.error(
         'Failed to import transactions. Please check the file format.'
       )
@@ -154,28 +205,12 @@ function TransactionsContent () {
     }
   }
 
-  const handleClearFilters = () => {
-    // Clear the local state
-    handleDateChange(undefined)
-    setSearchQuery('')
-    setSelectedCategory('')
-    setSelectedWalletId('all')
-
-    // Remove query parameters from URL
-    const current = new URLSearchParams(Array.from(searchParams.entries()))
-    current.delete('date')
-    const search = current.toString()
-    const query = search ? `?${search}` : ''
-
-    router.push(`/transactions${query}`)
-  }
-
   const handleTransactionDelete = async (transactionId: string) => {
     try {
       // First get the monobank_id
       const { data: transaction } = await supabase
         .from('transactions')
-        .select('monobank_id')
+        .select('id, monobank_id')
         .eq('id', transactionId)
         .single()
 
@@ -295,7 +330,7 @@ function TransactionsContent () {
               <h1 className='text-2xl font-bold'>Transactions</h1>
               <Select
                 value={selectedWalletId}
-                onValueChange={value => setSelectedWalletId(value)}
+                onValueChange={handleWalletChange}
               >
                 <SelectTrigger className='w-[200px]'>
                   <SelectValue placeholder='Filter by wallet' />

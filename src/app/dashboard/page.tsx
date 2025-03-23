@@ -3,7 +3,6 @@
 import { useAuth } from '@/contexts/auth-context'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import Link from 'next/link'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RevenueCard } from '@/components/ui/RevenueCard'
@@ -13,6 +12,7 @@ import {
 } from '@/components/transaction/TransactionItem'
 import { Transaction } from '@/lib/types/transaction'
 import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
+import { Button } from '@/components/ui/button'
 
 export default function DashboardPage () {
   const { user, loading } = useAuth()
@@ -23,6 +23,8 @@ export default function DashboardPage () {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [dateTransactions, setDateTransactions] = useState<Transaction[]>([])
   const [loadingTransactions, setLoadingTransactions] = useState(false)
+  const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   useEffect(() => {
     if (user) {
@@ -36,7 +38,7 @@ export default function DashboardPage () {
     } else {
       setDateTransactions([])
     }
-  }, [user, selectedDate])
+  }, [user, selectedDate, selectedWalletId])
 
   async function fetchSummaryData () {
     try {
@@ -87,14 +89,20 @@ export default function DashboardPage () {
       const endDate = new Date(date)
       endDate.setHours(23, 59, 59, 999)
 
-      const { data, error } = await supabase
+      // Only fetch if we have a selectedWalletId
+      if (!selectedWalletId) return
+
+      const query = supabase
         .from('transactions')
-        .select('*, wallet:wallets!inner(name, id)')
+        .select('*, wallet:wallets!inner(name, id, currency)')
         .eq('user_id', user?.id)
+        .eq('wallet_id', selectedWalletId) // Always filter by wallet
         .gte('date', startDate.toISOString())
         .lte('date', endDate.toISOString())
         .eq('wallets.is_deleted', false)
         .order('date', { ascending: false })
+
+      const { data, error } = await query
 
       if (error) {
         console.error('Error fetching transactions for date:', error)
@@ -111,6 +119,16 @@ export default function DashboardPage () {
 
   const handleDateSelect = (date: string | null) => {
     setSelectedDate(date)
+  }
+
+  const handleWalletChange = (walletId: string) => {
+    setSelectedWalletId(walletId)
+    setSelectedDate(null)
+  }
+
+  const handleTransactionSuccess = () => {
+    // Increment refresh trigger to force re-fetch
+    setRefreshTrigger(prev => prev + 1)
   }
 
   if (loading) {
@@ -135,125 +153,109 @@ export default function DashboardPage () {
 
   return (
     <div className='container px-4 py-4 sm:py-6 mx-auto max-w-7xl'>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        <div className='w-full'>
-          <QuickTransactionForm />
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+        {/* Quick Transaction Form - takes 1/3 of the space on desktop */}
+        <div className='lg:col-span-1'>
+          <QuickTransactionForm onSuccess={handleTransactionSuccess} />
         </div>
-        <div className='w-full'>
-          {/* <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6'>
-          <Card className='w-full'>
-            <CardHeader className='pb-2'>
-              <CardTitle className='text-base sm:text-lg'>
-                Total expenses
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className='text-lg sm:text-xl font-bold text-white'>
-                - ${summary.totalExpenses.toLocaleString()}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className='w-full'>
-            <CardHeader className='pb-2'>
-              <CardTitle className='text-base sm:text-lg'>Total income</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className='text-lg sm:text-xl font-bold text-green-500'>
-                + ${summary.totalIncome.toLocaleString()}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className='w-full'>
-            <CardHeader className='pb-2'>
-              <CardTitle className='text-base sm:text-lg'>Balance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p
-                className={`text-lg sm:text-xl font-bold ${
-                  summary.totalIncome - summary.totalExpenses >= 0
-                    ? 'text-green-500'
-                    : 'text-white'
-                }`}
-              >
-                ${(summary.totalIncome - summary.totalExpenses).toLocaleString()}
-              </p>
-            </CardContent>
-          </Card>
-        </div> */}
 
-          <div className='mb-4 sm:mb-6'>
-            <RevenueCard onDateSelect={handleDateSelect} />
-          </div>
-
-          {/* Display transactions for the selected date */}
-          {selectedDate && (
-            <div className='mt-6'>
-              <Card>
-                <CardHeader className='flex flex-row items-center justify-between'>
-                  <CardTitle>
-                    Transactions for{' '}
-                    {new Date(selectedDate).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </CardTitle>
-                  <button
-                    onClick={() => setSelectedDate(null)}
-                    className='rounded-full p-2 hover:bg-muted transition-colors'
-                    aria-label='Close transactions'
-                  >
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      width='24'
-                      height='24'
-                      viewBox='0 0 24 24'
-                      fill='none'
-                      stroke='currentColor'
-                      strokeWidth='2'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    >
-                      <line x1='18' y1='6' x2='6' y2='18'></line>
-                      <line x1='6' y1='6' x2='18' y2='18'></line>
-                    </svg>
-                  </button>
-                </CardHeader>
-                <CardContent>
-                  {loadingTransactions ? (
-                    <p>Loading transactions...</p>
-                  ) : dateTransactions.length > 0 ? (
-                    <div className='space-y-4'>
-                      {dateTransactions.map(transaction => (
-                        <TransactionItem
-                          key={transaction.id}
-                          transaction={
-                            transaction as TransactionItemProps['transaction']
-                          }
-                          showActions={false}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <p className='text-center text-gray-500 py-8'>
-                      No transactions found for this date.
-                    </p>
-                  )}
-                  <div className='mt-6 text-center'>
-                    <Link
-                      href={`/transactions?date=${selectedDate}`}
-                      className='inline-flex items-center px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors'
-                    >
-                      View All Transactions
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+        {/* Revenue Card - takes 2/3 of the space on desktop */}
+        <div className='lg:col-span-2'>
+          <RevenueCard
+            onDateSelect={handleDateSelect}
+            selectedWalletId={selectedWalletId}
+            onWalletChange={handleWalletChange}
+            refreshTrigger={refreshTrigger}
+          />
         </div>
       </div>
+
+      {/* Display transactions for the selected date */}
+      {selectedDate && (
+        <div className='mt-6'>
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between'>
+              <CardTitle>
+                Transactions for{' '}
+                {new Date(selectedDate).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </CardTitle>
+              <button
+                onClick={() => setSelectedDate(null)}
+                className='rounded-full p-2 hover:bg-muted transition-colors'
+                aria-label='Close transactions'
+              >
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  width='24'
+                  height='24'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <line x1='18' y1='6' x2='6' y2='18'></line>
+                  <line x1='6' y1='6' x2='18' y2='18'></line>
+                </svg>
+              </button>
+            </CardHeader>
+            <CardContent>
+              {loadingTransactions ? (
+                <p>Loading transactions...</p>
+              ) : dateTransactions.length > 0 ? (
+                <div className='space-y-4'>
+                  {dateTransactions.map(transaction => (
+                    <TransactionItem
+                      key={transaction.id}
+                      transaction={
+                        transaction as TransactionItemProps['transaction']
+                      }
+                      showActions={false}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className='text-center text-gray-500 py-8'>
+                  No transactions found for this date.
+                </p>
+              )}
+              <div className='mt-6 text-center'>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    const params = new URLSearchParams()
+
+                    if (selectedDate) {
+                      params.append(
+                        'date',
+                        selectedDate.toString().split('T')[0]
+                      )
+                    }
+
+                    // Always add the wallet parameter if we have one
+                    if (selectedWalletId) {
+                      params.append('wallet', selectedWalletId)
+                    }
+
+                    const query = params.toString()
+                      ? `?${params.toString()}`
+                      : ''
+                    window.location.href = `/transactions${query}`
+                  }}
+                >
+                  View All Transactions
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

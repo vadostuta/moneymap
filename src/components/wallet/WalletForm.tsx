@@ -4,8 +4,8 @@ import { useState } from 'react'
 import {
   CreateWalletDTO,
   WalletType,
-  Currency,
-  Wallet
+  Wallet,
+  CurrencyType
 } from '@/lib/types/wallet'
 import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
@@ -101,7 +101,10 @@ export function WalletForm ({
         <select
           value={formData.currency}
           onChange={e =>
-            setFormData({ ...formData, currency: e.target.value as Currency })
+            setFormData({
+              ...formData,
+              currency: e.target.value as CurrencyType
+            })
           }
           className='w-full p-2 border rounded bg-secondary'
         >

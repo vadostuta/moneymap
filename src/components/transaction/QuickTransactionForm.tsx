@@ -24,7 +24,7 @@ import { transactionService } from '@/lib/services/transaction'
 import { walletService } from '@/lib/services/wallet'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { useToast } from '@/components/ui/use-toast'
+import { toastService } from '@/lib/services/toast'
 
 interface QuickTransactionFormProps {
   variant?: 'default' | 'wide'
@@ -39,7 +39,6 @@ export function QuickTransactionForm ({
   onSuccess,
   onCancel
 }: QuickTransactionFormProps) {
-  const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [formData, setFormData] = useState({
@@ -118,34 +117,27 @@ export function QuickTransactionForm ({
 
       if (initialData) {
         await transactionService.update(initialData.id, transaction)
+        toastService.success('Transaction updated successfully')
       } else {
         await transactionService.create(transaction)
+        toastService.success('Transaction added successfully')
+
         // Reset form after successful creation
         setFormData({
           type: 'expense',
           amount: '',
-          wallet_id: formData.wallet_id, // Keep the same wallet selected
+          wallet_id: formData.wallet_id,
           category: 'Other',
-          date: new Date().toISOString().split('T')[0], // Reset to today
+          date: new Date().toISOString().split('T')[0],
           description: ''
         })
       }
 
-      toast({
-        title: initialData ? 'Transaction updated' : 'Transaction added',
-        description: `${
-          formData.type === 'expense' ? 'Expense' : 'Income'
-        } has been ${initialData ? 'updated' : 'recorded'}.`
-      })
-
+      // Call onSuccess to trigger the refresh
       onSuccess?.()
     } catch (error) {
       console.error('Failed to save transaction:', error)
-      toast({
-        title: 'Error',
-        description: 'Failed to save transaction. Please try again.',
-        variant: 'destructive'
-      })
+      toastService.error('Failed to save transaction. Please try again.')
     } finally {
       setLoading(false)
     }
