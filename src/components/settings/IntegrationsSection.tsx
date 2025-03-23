@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { toast } from 'react-hot-toast'
+import { toastService } from '@/lib/services/toast'
 import { MonobankIcon } from '@/components/icons/MonobankIcon'
 import { MonobankService, BankIntegration } from '@/lib/services/monobank'
 
@@ -29,8 +29,8 @@ export function IntegrationsSection ({
       )
       onIntegrationsChange?.(hasMonobank)
     } catch (error) {
-      console.error('Error fetching bank integrations:', error)
-      toast.error('Failed to load bank integrations')
+      console.error('Failed to load bank integrations:', error)
+      toastService.error('Failed to load bank integrations')
     } finally {
       setIsLoading(false)
     }
@@ -51,13 +51,13 @@ export function IntegrationsSection ({
         return newIntegrations
       })
 
-      toast.success('Bank disconnected successfully')
+      toastService.success('Bank disconnected successfully')
     } catch (error) {
       console.error('Error disconnecting bank:', error)
       if (error instanceof Error) {
-        toast.error(error.message)
+        toastService.error(error.message)
       } else {
-        toast.error('Failed to disconnect bank')
+        toastService.error('Failed to disconnect bank')
       }
     } finally {
       setIsDisconnecting(null)

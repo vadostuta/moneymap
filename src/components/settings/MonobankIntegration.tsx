@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { toast } from 'react-hot-toast'
+import { toastService } from '@/lib/services/toast'
 import { MonobankIcon } from '@/components/icons/MonobankIcon'
 import { MonobankService } from '@/lib/services/monobank'
 import { supabase } from '@/lib/supabase/client'
@@ -43,7 +43,7 @@ export function MonobankIntegration ({ onSuccess }: Props) {
   const handleSaveMonobankToken = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedWalletId) {
-      toast.error('Please select a wallet for syncing')
+      toastService.error('Please select a wallet for syncing')
       return
     }
 
@@ -59,15 +59,15 @@ export function MonobankIntegration ({ onSuccess }: Props) {
         new Date()
       )
 
-      toast.success('Monobank connected and transactions synced!')
+      toastService.success('Monobank connected and transactions synced!')
       setToken('')
       setSelectedWalletId('')
       onSuccess?.()
     } catch (error: unknown) {
       if (error instanceof Error) {
-        toast.error(error.message || 'Failed to save Monobank token')
+        toastService.error(error.message || 'Failed to save Monobank token')
       } else {
-        toast.error('An unknown error occurred')
+        toastService.error('An unknown error occurred')
       }
       console.error(error)
     } finally {

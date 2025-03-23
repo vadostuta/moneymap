@@ -10,7 +10,7 @@ import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TransactionItem } from '@/components/transaction/TransactionItem'
 import Link from 'next/link'
-import { toast } from 'react-hot-toast'
+import { toastService } from '@/lib/services/toast'
 
 interface WalletDetailProps {
   wallet: Wallet
@@ -52,13 +52,13 @@ export function WalletDetail ({
     setIsDeleting(true)
     try {
       await walletService.delete(wallet.id)
-      toast.success('Wallet deleted successfully')
+      toastService.success('Wallet deleted successfully')
       onDelete()
     } catch (error) {
       if (error instanceof Error) {
-        toast.error(error.message)
+        toastService.error(error.message)
       } else {
-        toast.error('Failed to delete wallet')
+        toastService.error('Failed to delete wallet')
       }
       console.error('Error deleting wallet:', error)
     } finally {

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { supabase } from '@/lib/supabase/client'
 import { MonobankService } from '@/lib/services/monobank'
-import { toast } from 'react-hot-toast'
+import { toastService } from '@/lib/services/toast'
 import { subDays } from 'date-fns'
 
 export function MonobankSyncProvider ({
@@ -123,7 +123,7 @@ export function MonobankSyncProvider ({
       }
 
       // Show toast for other errors
-      toast.error('Failed to sync transactions')
+      toastService.error('Failed to sync transactions')
     }
   }
 

@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
 import { MonobankService } from '@/lib/services/monobank'
-import { toast } from 'react-hot-toast'
+import { toastService } from '@/lib/services/toast'
 import {
   Select,
   SelectContent,
@@ -30,6 +30,7 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog'
+import { transactionService } from '@/lib/services/transaction'
 
 function TransactionsContent () {
   const { user, loading } = useAuth()
@@ -116,7 +117,7 @@ function TransactionsContent () {
 
   const handleSaveTransactions = async () => {
     if (!selectedWalletId) {
-      toast.error('Please select a wallet')
+      toastService.error('Please select a wallet')
       return
     }
 
@@ -135,7 +136,9 @@ function TransactionsContent () {
         .eq('wallet_id', selectedWalletId)
         .gt('created_at', new Date(before).toISOString())
 
-      toast.success(`Saved ${count} new transactions`)
+      if (count && count > 0) {
+        toastService.success(`Saved ${count} new transactions`)
+      }
       setShowWalletDialog(false)
       setMonobankTransactions([])
       setSelectedWalletId('')
@@ -143,8 +146,8 @@ function TransactionsContent () {
       // Force refresh the transaction list
       setRefreshTrigger(Date.now())
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to save transactions'
+      toastService.error(
+        'Failed to import transactions. Please check the file format.'
       )
     } finally {
       setIsMonobankLoading(false)
@@ -186,11 +189,12 @@ function TransactionsContent () {
 
       if (error) throw error
 
-      toast.success('Transaction removed')
-      setRefreshTrigger(Date.now())
+      await transactionService.delete(transaction.id)
+      toastService.success('Transaction removed')
+      setRefreshTrigger(prev => prev + 1)
     } catch (error) {
-      console.error('Error deleting transaction:', error)
-      toast.error('Failed to remove transaction')
+      console.error('Failed to remove transaction:', error)
+      toastService.error('Failed to remove transaction')
     }
   }
 
