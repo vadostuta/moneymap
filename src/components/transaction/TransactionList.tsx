@@ -48,12 +48,12 @@ export function TransactionList ({
 
     try {
       setLoading(true)
-      console.log('Starting fetch with filters:', {
-        selectedDate,
-        selectedWalletId,
-        searchQuery,
-        selectedCategory
-      })
+      // console.log('Starting fetch with filters:', {
+      //   selectedDate,
+      //   selectedWalletId,
+      //   searchQuery,
+      //   selectedCategory
+      // })
 
       const fetchedTransactions =
         await transactionService.getFilteredTransactions({
@@ -106,6 +106,7 @@ export function TransactionList ({
 
   const handleEditSuccess = () => {
     setEditingTransaction(null)
+    // TODO: update store item
     fetchTransactions() // Refresh the list
     toast({
       title: 'Transaction updated',

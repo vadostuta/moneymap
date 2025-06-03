@@ -79,8 +79,8 @@ export function TransactionItem ({
   }
 
   // Also log the full transaction object to debug
-  console.log('Transaction:', transaction)
-  console.log('Wallet data:', transaction.wallet)
+  // console.log('Transaction:', transaction)
+  // console.log('Wallet data:', transaction.wallet)
 
   return (
     <>

@@ -16,43 +16,43 @@ import { format } from 'date-fns'
 
 export default function DashboardPage () {
   const { user, loading } = useAuth()
-  const [summary, setSummary] = useState({
-    totalExpenses: 0,
-    totalIncome: 0
-  })
+  // const [summary, setSummary] = useState({
+  //   totalExpenses: 0,
+  //   totalIncome: 0
+  // })
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [dateTransactions, setDateTransactions] = useState<Transaction[]>([])
   const [loadingTransactions, setLoadingTransactions] = useState(false)
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
-  const [isMounted, setIsMounted] = useState(false)
+  // const [isMounted, setIsMounted] = useState(false)
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  // useEffect(() => {
+  //   setIsMounted(true)
+  // }, [])
 
-  useEffect(() => {
-    if (user) {
-      fetchSummaryData()
-    }
-  }, [user])
+  // useEffect(() => {
+  //   if (user) {
+  //     fetchSummaryData()
+  //   }
+  // }, [user])
 
   useEffect(() => {
     if (user && selectedDate) {
-      fetchTransactionsForDate(selectedDate)
+      // fetchTransactionsForDate(selectedDate)
     } else {
-      setDateTransactions([])
+      // setDateTransactions([])
     }
   }, [user, selectedDate, selectedWalletId])
 
-  async function fetchSummaryData () {
-    try {
-      const summary = await transactionService.getSummary()
-      setSummary(summary)
-    } catch (error) {
-      console.error('Failed to fetch summary data:', error)
-    }
-  }
+  // async function fetchSummaryData () {
+  //   try {
+  //     const summary = await transactionService.getSummary()
+  //     setSummary(summary)
+  //   } catch (error) {
+  //     console.error('Failed to fetch summary data:', error)
+  //   }
+  // }
 
   async function fetchTransactionsForDate (date: string) {
     try {
@@ -77,22 +77,22 @@ export default function DashboardPage () {
     }
   }
 
-  const handleDateSelect = (date: string | null) => {
-    setSelectedDate(date)
-  }
+  // const handleDateSelect = (date: string | null) => {
+  //   setSelectedDate(date)
+  // }
 
-  const handleWalletChange = (walletId: string) => {
-    setSelectedWalletId(walletId)
-    setSelectedDate(null)
-  }
+  // const handleWalletChange = (walletId: string) => {
+  //   setSelectedWalletId(walletId)
+  //   setSelectedDate(null)
+  // }
 
-  const handleTransactionSuccess = () => {
-    setRefreshTrigger(prev => prev + 1)
-  }
+  // const handleTransactionSuccess = () => {
+  //   setRefreshTrigger(prev => prev + 1)
+  // }
 
-  if (!isMounted) {
-    return null
-  }
+  // if (!isMounted) {
+  //   return null
+  // }
 
   if (loading) {
     return (
@@ -118,20 +118,20 @@ export default function DashboardPage () {
     <div className='container px-4 py-4 sm:py-6 mx-auto max-w-7xl'>
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         <div className='lg:col-span-1'>
-          <QuickTransactionForm onSuccess={handleTransactionSuccess} />
+          {/* <QuickTransactionForm onSuccess={handleTransactionSuccess} /> */}
         </div>
 
         <div className='lg:col-span-2'>
-          <RevenueCard
+          {/* <RevenueCard
             onDateSelect={handleDateSelect}
             selectedWalletId={selectedWalletId}
             onWalletChange={handleWalletChange}
             refreshTrigger={refreshTrigger}
-          />
+          /> */}
         </div>
       </div>
 
-      {selectedDate && (
+      {/* {selectedDate && (
         <div className='mt-6'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between'>
@@ -209,7 +209,7 @@ export default function DashboardPage () {
             </CardContent>
           </Card>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

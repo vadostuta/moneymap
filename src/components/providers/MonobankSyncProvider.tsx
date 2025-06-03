@@ -18,11 +18,9 @@ export function MonobankSyncProvider ({
   const syncTransactions = async () => {
     if (!user) return
     if (Date.now() - lastFetchTime < FETCH_COOLDOWN) return
-
     try {
       const to = new Date()
       const lastTransaction = await MonobankService.getLastSyncedTransaction()
-
       let from: Date
       if (!lastTransaction) {
         // If no transactions, fetch last 30 days
@@ -35,7 +33,6 @@ export function MonobankSyncProvider ({
           from = thirtyDaysAgo
         }
       }
-
       // Only fetch if there's a gap to fill
       if (from < to) {
         await MonobankService.syncTransactionsForDateRange(from, to)
@@ -44,17 +41,18 @@ export function MonobankSyncProvider ({
       }
     } catch (error) {
       console.error('Failed to sync Monobank transactions:', error)
-
       if (error instanceof Error && error.message === 'RATE_LIMIT_EXCEEDED') {
         // Silently fail for rate limit errors
         return
       }
-
-      toastService.error('Failed to sync transactions')
+      console.log('error', error)
+      console.log('Failed to sync transactions')
+      // toastService.error('Failed to sync transactions')
     }
   }
 
   useEffect(() => {
+    console.log('user', user)
     if (!user) {
       localStorage.removeItem('lastMonobankFetch')
       setLastFetchTime(0)

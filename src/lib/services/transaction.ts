@@ -4,6 +4,7 @@ import {
   CreateTransactionDTO,
   UpdateTransactionDTO
 } from '@/lib/types/transaction'
+import { Wallet } from '../types/wallet'
 
 export const transactionService = {
   // Create a new transaction
@@ -270,5 +271,16 @@ export const transactionService = {
       expenses: groupedByDate[date].expenses,
       income: groupedByDate[date].income
     }))
+  },
+
+  async fetchWallets (userId: string): Promise<{ id: string; name: string }[]> {
+    const { data, error } = await supabase
+      .from('wallets')
+      .select('id, name')
+      .eq('user_id', userId)
+      .eq('is_deleted', false)
+
+    if (error) throw error
+    return data || []
   }
 }

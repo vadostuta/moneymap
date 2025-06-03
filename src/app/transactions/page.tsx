@@ -52,6 +52,7 @@ function TransactionsContent () {
     MonobankTransaction[]
   >([])
   const [wallets, setWallets] = useState<{ id: string; name: string }[]>([])
+  const [showFilters, setShowFilters] = useState(false)
 
   const categories: TransactionCategory[] = [
     'Food & Dining',
@@ -84,6 +85,8 @@ function TransactionsContent () {
   }
 
   useEffect(() => {
+    if (!user) return
+
     // Handle URL parameters when component mounts
     const dateParam = searchParams.get('date')
     const walletParam = searchParams.get('wallet')
@@ -101,23 +104,18 @@ function TransactionsContent () {
     }
   }, [searchParams])
 
-  useEffect(() => {
-    async function fetchWallets () {
-      const { data, error } = await supabase
-        .from('wallets')
-        .select('id, name')
-        .eq('user_id', user?.id)
-        .eq('is_deleted', false)
+  // TODO: needed for wallet filters, could be stored in store
+  // useEffect(() => {
+  //   async function fetchWallets () {
+  //     if (!user) return
+  //     const wallets = await transactionService.fetchWallets(user.id)
+  //     setWallets(wallets)
+  //   }
 
-      if (!error && data) {
-        setWallets(data)
-      }
-    }
-
-    if (user) {
-      fetchWallets()
-    }
-  }, [user])
+  //   if (user) {
+  //     fetchWallets()
+  //   }
+  // }, [user])
 
   // Update URL when filters change
   const updateUrlWithFilters = (
@@ -239,166 +237,177 @@ function TransactionsContent () {
 
   return (
     <div className='container mx-auto py-6'>
-      <Card>
-        <CardHeader>
-          <CardTitle>Transactions</CardTitle>
+      {/* <Card> */}
+      {/* <CardHeader>
+          <div className='flex items-center justify-between'>
+            <CardTitle
+              className='cursor-pointer hover:text-primary transition-colors'
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              Transactions filters {showFilters ? '▼' : '▶'}
+            </CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className='mb-6 space-y-4'>
-            <div className='flex items-center gap-4'>
-              <DatePicker
-                date={selectedDate}
-                onSelect={handleDateChange}
-                placeholder='Filter by date'
-              />
-              {selectedDate && (
-                <button
-                  onClick={handleClearFilters}
-                  className='text-sm text-muted-foreground hover:text-primary'
-                >
-                  Clear filter
-                </button>
-              )}
-            </div>
-            <div className='flex items-center gap-4'>
-              <Input
-                placeholder='Search by description...'
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className='max-w-sm'
-              />
-              {searchQuery && (
-                <button
-                  onClick={handleClearFilters}
-                  className='text-sm text-muted-foreground hover:text-primary'
-                >
-                  Clear search
-                </button>
-              )}
-            </div>
-            <div className='space-y-2'>
-              <div className='text-sm text-muted-foreground'>
-                Filter by category:
-              </div>
-              <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1.5'>
-                {categories.map(category => (
-                  <button
-                    key={category}
-                    type='button'
-                    onClick={() =>
-                      setSelectedCategory(
-                        selectedCategory === category ? '' : category
-                      )
-                    }
-                    className={cn(
-                      'transition-all duration-200 ease-in-out',
-                      selectedCategory === category ? 'scale-102' : ''
-                    )}
-                  >
-                    <Badge
-                      variant={
-                        selectedCategory === category ? 'selected' : 'secondary'
-                      }
-                      className={cn(
-                        'w-full py-1.5 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center',
-                        selectedCategory === category ? 'shadow-sm' : ''
-                      )}
+          <div className='mb-6'>
+            {showFilters && (
+              <div className='mb-6 space-y-4'>
+                <div className='flex items-center gap-4'>
+                  <DatePicker
+                    date={selectedDate}
+                    onSelect={handleDateChange}
+                    placeholder='Filter by date'
+                  />
+                  {selectedDate && (
+                    <button
+                      onClick={handleClearFilters}
+                      className='text-sm text-muted-foreground hover:text-primary'
                     >
-                      <span className='mr-1.5'>{categoryIcons[category]}</span>
-                      <span className='truncate'>{category}</span>
-                    </Badge>
-                  </button>
-                ))}
+                      Clear filter
+                    </button>
+                  )}
+                </div>
+                <div className='flex items-center gap-4'>
+                  <Input
+                    placeholder='Search by description...'
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className='max-w-sm'
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={handleClearFilters}
+                      className='text-sm text-muted-foreground hover:text-primary'
+                    >
+                      Clear search
+                    </button>
+                  )}
+                </div>
+                <div className='space-y-2'>
+                  <div className='text-sm text-muted-foreground'>
+                    Filter by category:
+                  </div>
+                  <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1.5'>
+                    {categories.map(category => (
+                      <button
+                        key={category}
+                        type='button'
+                        onClick={() =>
+                          setSelectedCategory(
+                            selectedCategory === category ? '' : category
+                          )
+                        }
+                        className={cn(
+                          'transition-all duration-200 ease-in-out',
+                          selectedCategory === category ? 'scale-102' : ''
+                        )}
+                      >
+                        <Badge
+                          variant={
+                            selectedCategory === category
+                              ? 'selected'
+                              : 'secondary'
+                          }
+                          className={cn(
+                            'w-full py-1.5 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center',
+                            selectedCategory === category ? 'shadow-sm' : ''
+                          )}
+                        >
+                          <span className='mr-1.5'>
+                            {categoryIcons[category]}
+                          </span>
+                          <span className='truncate'>{category}</span>
+                        </Badge>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-
-          <div className='flex justify-between items-center mb-6'>
-            <div className='flex items-center gap-4'>
-              <h1 className='text-2xl font-bold'>Transactions</h1>
-              <Select
-                value={selectedWalletId}
-                onValueChange={handleWalletChange}
-              >
-                <SelectTrigger className='w-[200px]'>
-                  <SelectValue placeholder='Filter by wallet' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>All Wallets</SelectItem>
-                  {wallets.map(wallet => (
-                    <SelectItem key={wallet.id} value={wallet.id}>
-                      {wallet.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={() => setShowForm(true)}>Add Transaction</Button>
-          </div>
-
-          {showForm ? (
-            <div className='mb-6'>
-              <QuickTransactionForm variant='wide' />
-              <div className='mt-4 text-center'>
-                <Button variant='ghost' onClick={() => setShowForm(false)}>
-                  Close
-                </Button>
-              </div>
-            </div>
-          ) : null}
-
-          <TransactionList
-            key={`${selectedDate?.toISOString()}-${searchQuery}-${selectedCategory}-${selectedWalletId}-${refreshTrigger}`}
-            selectedDate={selectedDate}
-            searchQuery={searchQuery}
-            selectedCategory={selectedCategory}
-            selectedWalletId={selectedWalletId}
-            onDelete={handleTransactionDelete}
-          />
-
-          <Dialog open={showWalletDialog} onOpenChange={setShowWalletDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Select Wallet</DialogTitle>
-                <DialogDescription>
-                  Choose which wallet to save {monobankTransactions.length}{' '}
-                  transactions to
-                </DialogDescription>
-              </DialogHeader>
-              <Select
-                value={selectedWalletId}
-                onValueChange={setSelectedWalletId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Select a wallet' />
-                </SelectTrigger>
-                <SelectContent>
-                  {wallets.map(wallet => (
-                    <SelectItem key={wallet.id} value={wallet.id}>
-                      {wallet.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className='flex justify-end gap-4'>
-                <Button
-                  variant='outline'
-                  onClick={() => setShowWalletDialog(false)}
-                  disabled={isMonobankLoading}
+            )}
+            <div className='flex justify-between items-center mb-6'>
+              <div className='flex items-center gap-4'>
+                <h1 className='text-2xl font-bold'>Transactions</h1>
+                <Select
+                  value={selectedWalletId}
+                  onValueChange={handleWalletChange}
                 >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSaveTransactions}
-                  disabled={!selectedWalletId || isMonobankLoading}
-                >
-                  {isMonobankLoading ? 'Saving...' : 'Save Transactions'}
-                </Button>
+                  <SelectTrigger className='w-[200px]'>
+                    <SelectValue placeholder='Filter by wallet' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Wallets</SelectItem>
+                    {wallets.map(wallet => (
+                      <SelectItem key={wallet.id} value={wallet.id}>
+                        {wallet.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </DialogContent>
-          </Dialog>
-        </CardContent>
-      </Card>
+              <Button onClick={() => setShowForm(true)}>Add Transaction</Button>
+            </div>
+            {showForm && (
+              <div className='mb-6'>
+                <QuickTransactionForm variant='wide' />
+                <div className='mt-4 text-center'>
+                  <Button variant='ghost' onClick={() => setShowForm(false)}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            )}
+            <Dialog open={showWalletDialog} onOpenChange={setShowWalletDialog}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Select Wallet</DialogTitle>
+                  <DialogDescription>
+                    Choose which wallet to save {monobankTransactions.length}{' '}
+                    transactions to
+                  </DialogDescription>
+                </DialogHeader>
+                <Select
+                  value={selectedWalletId}
+                  onValueChange={setSelectedWalletId}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder='Select a wallet' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {wallets.map(wallet => (
+                      <SelectItem key={wallet.id} value={wallet.id}>
+                        {wallet.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className='flex justify-end gap-4'>
+                  <Button
+                    variant='outline'
+                    onClick={() => setShowWalletDialog(false)}
+                    disabled={isMonobankLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSaveTransactions}
+                    disabled={!selectedWalletId || isMonobankLoading}
+                  >
+                    {isMonobankLoading ? 'Saving...' : 'Save Transactions'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardContent> */}
+      {/* </Card> */}
+      <TransactionList
+        key={`${selectedDate?.toISOString()}-${searchQuery}-${selectedCategory}-${selectedWalletId}-${refreshTrigger}`}
+        selectedDate={selectedDate}
+        searchQuery={searchQuery}
+        selectedCategory={selectedCategory}
+        selectedWalletId={selectedWalletId}
+        onDelete={handleTransactionDelete}
+      />
     </div>
   )
 }
