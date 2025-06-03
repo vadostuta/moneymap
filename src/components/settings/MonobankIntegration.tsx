@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { toastService } from '@/lib/services/toast'
 import { MonobankIcon } from '@/components/icons/MonobankIcon'
 import { MonobankService } from '@/lib/services/monobank'
-import { supabase } from '@/lib/supabase/client'
+import { walletService } from '@/lib/services/wallet'
 import {
   Select,
   SelectContent,
@@ -27,13 +27,12 @@ export function MonobankIntegration ({ onSuccess }: Props) {
 
   useEffect(() => {
     async function fetchWallets () {
-      const { data, error } = await supabase
-        .from('wallets')
-        .select('id, name')
-        .eq('is_deleted', false)
-
-      if (!error && data) {
-        setWallets(data)
+      try {
+        const walletData = await walletService.getAllActive()
+        setWallets(walletData)
+      } catch (error) {
+        console.error('Failed to fetch wallets:', error)
+        toastService.error('Failed to load wallets')
       }
     }
 
@@ -54,8 +53,10 @@ export function MonobankIntegration ({ onSuccess }: Props) {
 
       // Force immediate sync after successful integration
       localStorage.removeItem('lastMonobankFetch') // Reset last fetch time
-      await MonobankService.fetchTransactions(
-        subDays(new Date(), 30), // Get last 30 days
+
+      // Initial sync for the last 30 days
+      await MonobankService.syncTransactionsForDateRange(
+        subDays(new Date(), 30),
         new Date()
       )
 

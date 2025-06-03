@@ -10,31 +10,17 @@ export const walletService = {
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User must be logged in')
 
-    // First check if user has any non-deleted wallets
-    const { data: existingWallets } = await supabase
-      .from('wallets')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('is_deleted', false)
+    // Check if this is the first wallet
+    const isFirst = await this.hasNoWallets()
 
-    // If no existing wallets, this one should be primary
-    const shouldBePrimary = !existingWallets || existingWallets.length === 0
-
-    // If this will be primary, unset any existing primary wallets first
-    if (shouldBePrimary || wallet.is_primary) {
-      await supabase
-        .from('wallets')
-        .update({ is_primary: false })
-        .eq('user_id', user.id)
-    }
-
+    // Create the wallet with is_primary set based on isFirst
     const { data, error } = await supabase
       .from('wallets')
       .insert([
         {
           ...wallet,
           user_id: user.id,
-          is_primary: shouldBePrimary || wallet.is_primary
+          is_primary: isFirst || wallet.is_primary
         }
       ])
       .select()
@@ -117,5 +103,26 @@ export const walletService = {
     })
 
     if (error) throw error
+  },
+
+  async getAllActive (): Promise<{ id: string; name: string }[]> {
+    const { data, error } = await supabase
+      .from('wallets')
+      .select('id, name')
+      .eq('is_deleted', false)
+
+    if (error) throw error
+    return data || []
+  },
+
+  async hasNoWallets (): Promise<boolean> {
+    const { data, error } = await supabase
+      .from('wallets')
+      .select('id')
+      .eq('is_deleted', false)
+      .limit(1)
+
+    if (error) throw error
+    return data.length === 0
   }
 }

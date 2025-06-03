@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import { supabase } from "@/lib/supabase/client"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/chart"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { walletService } from "@/lib/services/wallet"
+import { transactionService } from "@/lib/services/transaction"
 import {
   Select,
   SelectContent,
@@ -109,13 +109,13 @@ export function RevenueCard({
     }
   }, [selectedWalletId, onWalletChange]);
 
-  // Fetch transaction data from Supabase
+  // Fetch transaction data
   React.useEffect(() => {
     async function fetchTransactionData() {
       try {
         setLoading(true);
         
-        if (!selectedWalletId) return; // Don't fetch if no wallet selected
+        if (!selectedWalletId) return;
 
         const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
           .toISOString()
@@ -123,28 +123,14 @@ export function RevenueCard({
         const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
           .toISOString()
           .split('T')[0];
-        
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
 
-        const query = supabase
-          .from('transactions')
-          .select('*, wallet:wallets!inner(id, currency)')
-          .eq('user_id', user.id)
-          .eq('wallet_id', selectedWalletId) // Always filter by selected wallet
-          .eq('is_deleted', false)
-          .eq('wallets.is_deleted', false)
-          .gte('date', firstDayOfMonth)
-          .lte('date', lastDayOfMonth);
+        const transactions = await transactionService.getMonthlyTransactions({
+          walletId: selectedWalletId,
+          startDate: firstDayOfMonth,
+          endDate: lastDayOfMonth
+        });
 
-        const { data: transactions, error } = await query.order('date', { ascending: true });
-
-        if (error) {
-          console.error('Error fetching transactions:', error);
-          return;
-        }
-
-        const processedData = processTransactions(transactions as Transaction[]);
+        const processedData = transactionService.processTransactionsForChart(transactions);
         setChartData(processedData);
       } catch (error) {
         console.error('Failed to fetch transaction data:', error);
@@ -179,38 +165,6 @@ export function RevenueCard({
 
     fetchWallets();
   }, []);
-
-  // Process transactions into chart data
-  const processTransactions = (transactions: Transaction[]) => {
-    // Group transactions by date
-    const groupedByDate = transactions
-      .reduce((acc: Record<string, { expenses: number, income: number }>, transaction: Transaction) => {
-        const date = transaction.date.split('T')[0];
-        
-        if (!acc[date]) {
-          acc[date] = {
-            expenses: 0,
-            income: 0
-          };
-        }
-        
-        // Add to appropriate category based on transaction type
-        if (transaction.type === 'expense') {
-          acc[date].expenses += transaction.amount;
-        } else if (transaction.type === 'income') {
-          acc[date].income += transaction.amount;
-        }
-        
-        return acc;
-      }, {});
-
-    // Convert to array format for chart
-    return Object.keys(groupedByDate).map(date => ({
-      date,
-      expenses: groupedByDate[date].expenses,
-      income: groupedByDate[date].income
-    }));
-  };
 
   // Update the total calculation to filter out deleted transactions
   const total = React.useMemo(

@@ -2,8 +2,7 @@
 
 import { useAuth } from '@/contexts/auth-context'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase/client'
-
+import { transactionService } from '@/lib/services/transaction'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RevenueCard } from '@/components/ui/RevenueCard'
 import {
@@ -13,6 +12,7 @@ import {
 import { Transaction } from '@/lib/types/transaction'
 import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
 import { Button } from '@/components/ui/button'
+import { format } from 'date-fns'
 
 export default function DashboardPage () {
   const { user, loading } = useAuth()
@@ -25,6 +25,11 @@ export default function DashboardPage () {
   const [loadingTransactions, setLoadingTransactions] = useState(false)
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
     if (user) {
@@ -42,38 +47,8 @@ export default function DashboardPage () {
 
   async function fetchSummaryData () {
     try {
-      // Fetch total expenses
-      const { data: expenses, error: expensesError } = await supabase
-        .from('transactions')
-        .select('amount, wallet:wallets!inner(id)')
-        .eq('user_id', user?.id)
-        .eq('type', 'expense')
-        .eq('wallets.is_deleted', false)
-
-      // Fetch total income
-      const { data: income, error: incomeError } = await supabase
-        .from('transactions')
-        .select('amount, wallet:wallets!inner(id)')
-        .eq('user_id', user?.id)
-        .eq('type', 'income')
-        .eq('wallets.is_deleted', false)
-
-      if (expensesError || incomeError) {
-        console.error(
-          'Error fetching summary data:',
-          expensesError || incomeError
-        )
-        return
-      }
-
-      // Calculate totals
-      const totalExpenses =
-        expenses?.reduce((sum, item) => sum + item.amount, 0) || 0
-      const totalIncome =
-        income?.reduce((sum, item) => sum + item.amount, 0) || 0
-
-      setSummary({ totalExpenses, totalIncome })
-      console.log(summary)
+      const summary = await transactionService.getSummary()
+      setSummary(summary)
     } catch (error) {
       console.error('Failed to fetch summary data:', error)
     }
@@ -82,34 +57,19 @@ export default function DashboardPage () {
   async function fetchTransactionsForDate (date: string) {
     try {
       setLoadingTransactions(true)
+      if (!selectedWalletId) return
 
       const startDate = new Date(date)
       startDate.setHours(0, 0, 0, 0)
-
       const endDate = new Date(date)
       endDate.setHours(23, 59, 59, 999)
 
-      // Only fetch if we have a selectedWalletId
-      if (!selectedWalletId) return
-
-      const query = supabase
-        .from('transactions')
-        .select('*, wallet:wallets!inner(name, id, currency)')
-        .eq('user_id', user?.id)
-        .eq('wallet_id', selectedWalletId) // Always filter by wallet
-        .gte('date', startDate.toISOString())
-        .lte('date', endDate.toISOString())
-        .eq('wallets.is_deleted', false)
-        .order('date', { ascending: false })
-
-      const { data, error } = await query
-
-      if (error) {
-        console.error('Error fetching transactions for date:', error)
-        return
-      }
-
-      setDateTransactions(data || [])
+      const transactions = await transactionService.getByWalletAndDateRange(
+        selectedWalletId,
+        startDate,
+        endDate
+      )
+      setDateTransactions(transactions)
     } catch (error) {
       console.error('Failed to fetch transactions for date:', error)
     } finally {
@@ -127,8 +87,11 @@ export default function DashboardPage () {
   }
 
   const handleTransactionSuccess = () => {
-    // Increment refresh trigger to force re-fetch
     setRefreshTrigger(prev => prev + 1)
+  }
+
+  if (!isMounted) {
+    return null
   }
 
   if (loading) {
@@ -154,12 +117,10 @@ export default function DashboardPage () {
   return (
     <div className='container px-4 py-4 sm:py-6 mx-auto max-w-7xl'>
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-        {/* Quick Transaction Form - takes 1/3 of the space on desktop */}
         <div className='lg:col-span-1'>
           <QuickTransactionForm onSuccess={handleTransactionSuccess} />
         </div>
 
-        {/* Revenue Card - takes 2/3 of the space on desktop */}
         <div className='lg:col-span-2'>
           <RevenueCard
             onDateSelect={handleDateSelect}
@@ -170,19 +131,13 @@ export default function DashboardPage () {
         </div>
       </div>
 
-      {/* Display transactions for the selected date */}
       {selectedDate && (
         <div className='mt-6'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between'>
               <CardTitle>
                 Transactions for{' '}
-                {new Date(selectedDate).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
+                {format(new Date(selectedDate), 'EEEE, MMMM d, yyyy')}
               </CardTitle>
               <button
                 onClick={() => setSelectedDate(null)}
@@ -238,7 +193,6 @@ export default function DashboardPage () {
                       )
                     }
 
-                    // Always add the wallet parameter if we have one
                     if (selectedWalletId) {
                       params.append('wallet', selectedWalletId)
                     }

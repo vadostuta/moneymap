@@ -2,19 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/auth-context'
-import { supabase } from '@/lib/supabase/client'
 import { TransactionItem } from './TransactionItem'
 import { QuickTransactionForm } from './QuickTransactionForm'
-import type { Transaction } from '@/lib/types/transaction'
+import { Transaction } from '@/lib/types/transaction'
 import { format } from 'date-fns'
 import { useToast } from '@/components/ui/use-toast'
+import { transactionService } from '@/lib/services/transaction'
 
 interface TransactionListProps {
   selectedDate?: Date
   searchQuery?: string
   selectedCategory?: string
   selectedWalletId: string | 'all'
-  onDelete: (id: string) => Promise<void>
+  onDelete?: (id: string) => Promise<void>
 }
 
 const getRandomColor = () => {
@@ -43,13 +43,9 @@ export function TransactionList ({
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null)
 
-  useEffect(() => {
-    if (user) {
-      fetchTransactions()
-    }
-  }, [user, selectedDate, searchQuery, selectedCategory, selectedWalletId])
+  const fetchTransactions = async () => {
+    if (!user) return
 
-  async function fetchTransactions () {
     try {
       setLoading(true)
       console.log('Starting fetch with filters:', {
@@ -59,57 +55,36 @@ export function TransactionList ({
         selectedCategory
       })
 
-      let query = supabase
-        .from('transactions')
-        .select('*, wallet:wallets!inner(name, id, currency)')
-        .eq('user_id', user?.id)
-        .eq('is_deleted', false)
-        .eq('wallets.is_deleted', false)
+      const fetchedTransactions =
+        await transactionService.getFilteredTransactions({
+          userId: user.id,
+          walletId: selectedWalletId,
+          searchQuery,
+          category: selectedCategory
+        })
 
-      if (selectedWalletId !== 'all') {
-        query = query.eq('wallet_id', selectedWalletId)
-      }
-
-      if (searchQuery) {
-        query = query.ilike('description', `%${searchQuery}%`)
-      }
-
-      if (selectedCategory) {
-        query = query.eq('category', selectedCategory)
-      }
-
-      const { data, error } = await query
-        .order('date', { ascending: false })
-        .order('id', { ascending: false })
-
-      console.log('Full query response:', {
-        data,
-        error,
-        count: data?.length
-      })
-
-      if (error) {
-        console.error('Error fetching transactions:', error)
-        return
-      }
-
-      setTransactions(data || [])
+      setTransactions(fetchedTransactions)
     } catch (error) {
       console.error('Failed to fetch transactions:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to load transactions. Please try again.',
+        variant: 'destructive'
+      })
     } finally {
       setLoading(false)
     }
   }
 
+  useEffect(() => {
+    if (user) {
+      fetchTransactions()
+    }
+  }, [user, selectedDate, searchQuery, selectedCategory, selectedWalletId])
+
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('transactions')
-        .update({ is_deleted: true })
-        .eq('id', id)
-
-      if (error) throw error
-
+      await transactionService.softDelete(id)
       setTransactions(prev => prev.filter(t => t.id !== id))
       toast({
         title: 'Transaction removed',

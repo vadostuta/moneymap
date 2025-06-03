@@ -205,4 +205,74 @@ export class MonobankService {
       if (error) throw error
     }
   }
+
+  static async getActiveIntegration () {
+    const { data: integrations, error } = await supabase
+      .from('bank_integrations')
+      .select('wallet_id, wallet:wallets!inner(id)')
+      .eq('provider', 'monobank')
+      .eq('is_active', true)
+      .eq('wallets.is_deleted', false)
+
+    if (error || !integrations || integrations.length === 0) return null
+    return integrations[0]
+  }
+
+  static async getLastSyncedTransaction () {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('date, wallet:wallets!inner(id)')
+      .eq('is_deleted', false)
+      .eq('wallets.is_deleted', false)
+      .not('monobank_id', 'is', null)
+      .order('date', { ascending: false })
+      .limit(1)
+
+    if (error || !data || data.length === 0) return null
+    return data[0]
+  }
+
+  static async getDeletedTransactionIds () {
+    const { data } = await supabase
+      .from('transactions')
+      .select('monobank_id')
+      .eq('is_deleted', true)
+      .not('monobank_id', 'is', null)
+
+    return new Set(data?.map(t => t.monobank_id) || [])
+  }
+
+  static async syncTransactionsForDateRange (
+    from: Date,
+    to: Date
+  ): Promise<void> {
+    const integration = await MonobankService.getActiveIntegration()
+    if (!integration) return
+
+    try {
+      const response = await MonobankService.fetchTransactions(from, to)
+      const deletedIds = await this.getDeletedTransactionIds()
+
+      // Filter transactions
+      const filteredTransactions = response.transactions.filter(
+        t => !t.description.includes('На charity') && !deletedIds.has(t.id)
+      )
+
+      if (filteredTransactions.length > 0) {
+        await MonobankService.saveTransactions(
+          filteredTransactions,
+          integration.wallet_id
+        )
+      }
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        'errorDescription' in error &&
+        (error as any).errorDescription === 'Too many requests'
+      ) {
+        throw new Error('RATE_LIMIT_EXCEEDED')
+      }
+      throw error
+    }
+  }
 }

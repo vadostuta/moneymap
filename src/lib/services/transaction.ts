@@ -8,26 +8,42 @@ import {
 export const transactionService = {
   // Create a new transaction
   async create (transaction: CreateTransactionDTO): Promise<Transaction | null> {
-    // Get the current user
-    const {
-      data: { user }
-    } = await supabase.auth.getUser()
-    if (!user) throw new Error('User must be logged in')
+    try {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
+      if (!user) throw new Error('User must be logged in')
 
-    const { data, error } = await supabase
-      .from('transactions')
-      .insert([
-        {
-          ...transaction,
-          user_id: user.id,
-          date: transaction.date || new Date().toISOString()
-        }
-      ])
-      .select()
-      .single()
+      console.log('Authenticated user:', user.id)
+      console.log('Creating transaction:', {
+        ...transaction,
+        user_id: user.id,
+        date: transaction.date || new Date().toISOString()
+      })
 
-    if (error) throw error
-    return data
+      const { data, error } = await supabase
+        .from('transactions')
+        .insert([
+          {
+            ...transaction,
+            user_id: user.id,
+            date: transaction.date || new Date().toISOString()
+          }
+        ])
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
+
+      console.log('Transaction created:', data)
+      return data
+    } catch (error) {
+      console.error('Transaction creation failed:', error)
+      throw error
+    }
   },
 
   // Get all transactions for the current user
@@ -86,5 +102,173 @@ export const transactionService = {
     const { error } = await supabase.from('transactions').delete().eq('id', id)
 
     if (error) throw error
+  },
+
+  // Add new method for fetching summary
+  async getSummary (): Promise<{ totalExpenses: number; totalIncome: number }> {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('amount, type, wallet:wallets!inner(id)')
+      .eq('wallets.is_deleted', false)
+
+    if (error) throw error
+
+    const transactions = data || []
+    return {
+      totalExpenses: transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0),
+      totalIncome: transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0)
+    }
+  },
+
+  // Add new method for fetching transactions by date range and wallet
+  async getByWalletAndDateRange (
+    walletId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<Transaction[]> {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*, wallet:wallets(id, name, currency)')
+      .eq('wallet_id', walletId)
+      .gte('date', startDate.toISOString())
+      .lte('date', endDate.toISOString())
+      .eq('wallets.is_deleted', false)
+      .order('date', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  },
+
+  async countNewTransactions (
+    walletId: string,
+    timestamp: number
+  ): Promise<number> {
+    const { count } = await supabase
+      .from('transactions')
+      .select('*', { count: 'exact', head: true })
+      .eq('wallet_id', walletId)
+      .gt('created_at', new Date(timestamp).toISOString())
+
+    return count || 0
+  },
+
+  async getFilteredTransactions ({
+    userId,
+    walletId,
+    searchQuery,
+    category
+  }: {
+    userId: string
+    walletId?: string
+    searchQuery?: string
+    category?: string
+  }): Promise<Transaction[]> {
+    let query = supabase
+      .from('transactions')
+      .select('*, wallet:wallets!inner(name, id, currency)')
+      .eq('user_id', userId)
+      .eq('is_deleted', false)
+      .eq('wallets.is_deleted', false)
+
+    if (walletId && walletId !== 'all') {
+      query = query.eq('wallet_id', walletId)
+    }
+
+    if (searchQuery) {
+      query = query.ilike('description', `%${searchQuery}%`)
+    }
+
+    if (category) {
+      query = query.eq('category', category)
+    }
+
+    const { data, error } = await query
+      .order('date', { ascending: false })
+      .order('id', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  },
+
+  async getTransactionForDelete (id: string) {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('id, monobank_id')
+      .eq('id', id)
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  async softDelete (id: string): Promise<void> {
+    const { error } = await supabase
+      .from('transactions')
+      .update({ is_deleted: true })
+      .eq('id', id)
+
+    if (error) throw error
+  },
+
+  async getMonthlyTransactions (params: {
+    walletId: string
+    startDate: string
+    endDate: string
+  }): Promise<Transaction[]> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*, wallet:wallets!inner(id, currency)')
+      .eq('user_id', user.id)
+      .eq('wallet_id', params.walletId)
+      .eq('is_deleted', false)
+      .eq('wallets.is_deleted', false)
+      .gte('date', params.startDate)
+      .lte('date', params.endDate)
+      .order('date', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  },
+
+  processTransactionsForChart (transactions: Transaction[]): TransactionData[] {
+    const groupedByDate = transactions.reduce(
+      (
+        acc: Record<string, { expenses: number; income: number }>,
+        transaction
+      ) => {
+        const date = transaction.date.split('T')[0]
+
+        if (!acc[date]) {
+          acc[date] = {
+            expenses: 0,
+            income: 0
+          }
+        }
+
+        if (transaction.type === 'expense') {
+          acc[date].expenses += transaction.amount
+        } else if (transaction.type === 'income') {
+          acc[date].income += transaction.amount
+        }
+
+        return acc
+      },
+      {}
+    )
+
+    return Object.keys(groupedByDate).map(date => ({
+      date,
+      expenses: groupedByDate[date].expenses,
+      income: groupedByDate[date].income
+    }))
   }
 }

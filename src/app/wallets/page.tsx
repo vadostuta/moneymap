@@ -8,8 +8,8 @@ import { WalletForm } from '@/components/wallet/WalletForm'
 import { WalletDetail } from '@/components/wallet/WalletDetail'
 import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase/client'
 import { CreateWalletDTO } from '@/lib/types/wallet'
+import { toastService } from '@/lib/services/toast'
 
 export default function WalletsPage () {
   const { user, loading } = useAuth()
@@ -22,16 +22,21 @@ export default function WalletsPage () {
   const onSelectWallet = (wallet: Wallet) => {
     setSelectedWallet(wallet)
     setShowForm(false)
-    setShowMobileList(false) // Hide list on mobile when wallet is selected
+    setShowMobileList(false)
   }
 
   const refreshWallet = async () => {
-    if (selectedWallet) {
-      const updatedWallet = await walletService.getById(selectedWallet.id)
-      if (updatedWallet) {
-        setSelectedWallet(updatedWallet)
+    try {
+      if (selectedWallet) {
+        const updatedWallet = await walletService.getById(selectedWallet.id)
+        if (updatedWallet) {
+          setSelectedWallet(updatedWallet)
+        }
+        setRefreshTrigger(prev => prev + 1)
       }
-      setRefreshTrigger(prev => prev + 1) // This will refresh the wallet list
+    } catch (error) {
+      console.error('Failed to refresh wallet:', error)
+      toastService.error('Failed to refresh wallet details')
     }
   }
 
@@ -41,48 +46,31 @@ export default function WalletsPage () {
     setShowMobileList(false)
   }
 
-  const checkIsFirstWallet = async () => {
-    const { data: wallets, error } = await supabase
-      .from('wallets')
-      .select('id')
-      .eq('user_id', user?.id)
-      .eq('is_deleted', false)
-      .limit(1)
-
-    if (error) {
-      console.error('Error checking wallets:', error)
-      return false
-    }
-
-    return wallets.length === 0
-  }
-
   const handleWalletCreate = async (
     walletData: Partial<Wallet>
   ): Promise<Wallet> => {
-    if (!user?.id) {
-      throw new Error('User not found')
+    try {
+      // Type check the required fields
+      if (!walletData.name || !walletData.currency || !walletData.type) {
+        throw new Error('Missing required wallet fields')
+      }
+
+      const createData: CreateWalletDTO = {
+        name: walletData.name,
+        currency: walletData.currency,
+        type: walletData.type,
+        balance: walletData.balance ?? 0,
+        is_primary: false, // The service will handle if this should be primary
+        is_deleted: false
+      }
+
+      const wallet = await walletService.create(createData)
+      if (!wallet) throw new Error('Failed to create wallet')
+      return wallet
+    } catch (error) {
+      console.error('Failed to create wallet:', error)
+      throw error // Re-throw to be handled by the form component
     }
-
-    const isFirst = await checkIsFirstWallet()
-
-    // Type check the required fields
-    if (!walletData.name || !walletData.currency || !walletData.type) {
-      throw new Error('Missing required wallet fields')
-    }
-
-    const createData: CreateWalletDTO = {
-      name: walletData.name,
-      currency: walletData.currency,
-      type: walletData.type,
-      balance: walletData.balance ?? 0,
-      is_primary: isFirst,
-      is_deleted: false
-    }
-
-    const wallet = await walletService.create(createData)
-    if (!wallet) throw new Error('Failed to create wallet')
-    return wallet
   }
 
   if (loading) {

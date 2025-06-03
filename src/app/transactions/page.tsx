@@ -173,27 +173,25 @@ function TransactionsContent () {
 
     setIsMonobankLoading(true)
     try {
-      const before = Date.now()
+      const timestamp = Date.now()
       await MonobankService.saveTransactions(
         monobankTransactions,
         selectedWalletId
       )
 
-      // Fetch the count of transactions created after our save operation started
-      const { count } = await supabase
-        .from('transactions')
-        .select('*', { count: 'exact', head: true })
-        .eq('wallet_id', selectedWalletId)
-        .gt('created_at', new Date(before).toISOString())
+      const newTransactionsCount =
+        await transactionService.countNewTransactions(
+          selectedWalletId,
+          timestamp
+        )
 
-      if (count && count > 0) {
-        toastService.success(`Saved ${count} new transactions`)
+      if (newTransactionsCount > 0) {
+        toastService.success(`Saved ${newTransactionsCount} new transactions`)
       }
+
       setShowWalletDialog(false)
       setMonobankTransactions([])
       setSelectedWalletId('')
-
-      // Force refresh the transaction list
       setRefreshTrigger(Date.now())
     } catch (error) {
       console.error('Failed to import transactions:', error)
@@ -207,24 +205,14 @@ function TransactionsContent () {
 
   const handleTransactionDelete = async (transactionId: string) => {
     try {
-      // First get the monobank_id
-      const { data: transaction } = await supabase
-        .from('transactions')
-        .select('id, monobank_id')
-        .eq('id', transactionId)
-        .single()
-
+      const transaction = await transactionService.getTransactionForDelete(
+        transactionId
+      )
       if (!transaction) throw new Error('Transaction not found')
 
-      // Then update is_deleted
-      const { error } = await supabase
-        .from('transactions')
-        .update({ is_deleted: true })
-        .eq('id', transactionId)
-
-      if (error) throw error
-
+      await transactionService.softDelete(transaction.id)
       await transactionService.delete(transaction.id)
+
       toastService.success('Transaction removed')
       setRefreshTrigger(prev => prev + 1)
     } catch (error) {
