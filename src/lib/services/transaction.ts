@@ -4,7 +4,7 @@ import {
   CreateTransactionDTO,
   UpdateTransactionDTO
 } from '@/lib/types/transaction'
-import { Wallet } from '../types/wallet'
+// import { Wallet } from '../types/wallet'
 
 export const transactionService = {
   // Create a new transaction
@@ -240,7 +240,9 @@ export const transactionService = {
     return data || []
   },
 
-  processTransactionsForChart (transactions: Transaction[]): TransactionData[] {
+  processTransactionsForChart (
+    transactions: Transaction[]
+  ): { date: string; expenses: number; income: number }[] {
     const groupedByDate = transactions.reduce(
       (
         acc: Record<string, { expenses: number; income: number }>,
@@ -282,5 +284,45 @@ export const transactionService = {
 
     if (error) throw error
     return data || []
+  },
+
+  async getCurrentMonthExpensesByCategory (): Promise<
+    { category: string; amount: number }[]
+  > {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    // Get first and last day of current month
+    const now = new Date()
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+
+    console.log('firstDayOfMonth', firstDayOfMonth)
+    console.log('lastDayOfMonth', lastDayOfMonth)
+
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('category, amount')
+      .eq('user_id', user.id)
+      .eq('type', 'expense')
+      .eq('is_deleted', false)
+      .gte('date', firstDayOfMonth.toISOString())
+      .lte('date', lastDayOfMonth.toISOString())
+
+    if (error) throw error
+
+    // Group by category and sum amounts
+    const categoryTotals = (data || []).reduce((acc, transaction) => {
+      const category = transaction.category || 'Uncategorized'
+      acc[category] = (acc[category] || 0) + transaction.amount
+      return acc
+    }, {} as Record<string, number>)
+
+    return Object.entries(categoryTotals).map(([category, amount]) => ({
+      category,
+      amount
+    }))
   }
 }

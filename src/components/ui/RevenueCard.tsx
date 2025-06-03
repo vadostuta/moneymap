@@ -45,11 +45,11 @@ interface TransactionData {
 }
 
 // Interface for transaction
-interface Transaction {
-  date: string
-  type: string
-  amount: number
-}
+// interface Transaction {
+//   date: string
+//   type: string
+//   amount: number
+// }
 
 // First, update the wallet interface to include currency
 interface Wallet {

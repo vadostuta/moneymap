@@ -2,87 +2,85 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useAuth } from '@/contexts/auth-context'
-import { Button } from '@/components/ui/button'
+// import { Button } from '@/components/ui/button'
 import { TransactionList } from '@/components/transaction/TransactionList'
-import { useSearchParams, useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DatePicker } from '@/components/ui/date-picker'
-import { Input } from '@/components/ui/input'
+import { useSearchParams } from 'next/navigation'
+// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+// import { DatePicker } from '@/components/ui/date-picker'
+// import { Input } from '@/components/ui/input'
 import { TransactionCategory } from '@/lib/types/transaction'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
-import { MonobankService } from '@/lib/services/monobank'
+// import { Badge } from '@/components/ui/badge'
+// import { cn } from '@/lib/utils'
+// import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
+// import { MonobankService } from '@/lib/services/monobank'
 import { toastService } from '@/lib/services/toast'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { supabase } from '@/lib/supabase/client'
-import { MonobankTransaction } from '@/lib/services/monobank'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription
-} from '@/components/ui/dialog'
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue
+// } from '@/components/ui/select'
+// import { supabase } from '@/lib/supabase/client'
+// import { MonobankTransaction } from '@/lib/services/monobank'
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogDescription
+// } from '@/components/ui/dialog'
 import { transactionService } from '@/lib/services/transaction'
 
 function TransactionsContent () {
   const { user, loading } = useAuth()
-  const [showForm, setShowForm] = useState(false)
+  // const [showForm, setShowForm] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const searchParams = useSearchParams()
-  const router = useRouter()
+  // const router = useRouter()
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<
-    TransactionCategory | ''
-  >('')
+  const [searchQuery] = useState('')
+  const [selectedCategory] = useState<TransactionCategory | ''>('')
   const [selectedWalletId, setSelectedWalletId] = useState<string | 'all'>(
     'all'
   )
-  const [isMonobankLoading, setIsMonobankLoading] = useState(false)
-  const [showWalletDialog, setShowWalletDialog] = useState(false)
-  const [monobankTransactions, setMonobankTransactions] = useState<
-    MonobankTransaction[]
-  >([])
-  const [wallets, setWallets] = useState<{ id: string; name: string }[]>([])
-  const [showFilters, setShowFilters] = useState(false)
+  // const [isMonobankLoading, setIsMonobankLoading] = useState(false)
+  // const [showWalletDialog, setShowWalletDialog] = useState(false)
+  // const [monobankTransactions, setMonobankTransactions] = useState<
+  //   MonobankTransaction[]
+  // >([])
+  // const [wallets, setWallets] = useState<{ id: string; name: string }[]>([])
+  // const [showFilters, setShowFilters] = useState(false)
 
-  const categories: TransactionCategory[] = [
-    'Food & Dining',
-    'Shopping',
-    'Transportation',
-    'Bills & Utilities',
-    'Entertainment',
-    'Healthcare',
-    'Education',
-    'Travel',
-    'Presents',
-    'Other',
-    'Donations',
-    'Subscriptions'
-  ]
+  // const categories: TransactionCategory[] = [
+  //   'Food & Dining',
+  //   'Shopping',
+  //   'Transportation',
+  //   'Bills & Utilities',
+  //   'Entertainment',
+  //   'Healthcare',
+  //   'Education',
+  //   'Travel',
+  //   'Presents',
+  //   'Other',
+  //   'Donations',
+  //   'Subscriptions'
+  // ]
 
-  const categoryIcons: Record<TransactionCategory, string> = {
-    'Food & Dining': '🍽️',
-    Shopping: '🛍️',
-    Transportation: '🚗',
-    'Bills & Utilities': '📱',
-    Entertainment: '🎮',
-    Healthcare: '🏥',
-    Education: '📚',
-    Travel: '✈️',
-    Presents: '🎁',
-    Other: '📌',
-    Donations: '🤝',
-    Subscriptions: '📅'
-  }
+  // const categoryIcons: Record<TransactionCategory, string> = {
+  //   'Food & Dining': '🍽️',
+  //   Shopping: '🛍️',
+  //   Transportation: '🚗',
+  //   'Bills & Utilities': '📱',
+  //   Entertainment: '🎮',
+  //   Healthcare: '🏥',
+  //   Education: '📚',
+  //   Travel: '✈️',
+  //   Presents: '🎁',
+  //   Other: '📌',
+  //   Donations: '🤝',
+  //   Subscriptions: '📅'
+  // }
 
   useEffect(() => {
     if (!user) return
@@ -118,88 +116,88 @@ function TransactionsContent () {
   // }, [user])
 
   // Update URL when filters change
-  const updateUrlWithFilters = (
-    date: Date | undefined,
-    wallet: string | 'all'
-  ) => {
-    const params = new URLSearchParams(searchParams.toString())
+  // const updateUrlWithFilters = (
+  //   date: Date | undefined,
+  //   wallet: string | 'all'
+  // ) => {
+  //   const params = new URLSearchParams(searchParams.toString())
 
-    if (date) {
-      params.set('date', date.toISOString().split('T')[0])
-    } else {
-      params.delete('date')
-    }
+  //   if (date) {
+  //     params.set('date', date.toISOString().split('T')[0])
+  //   } else {
+  //     params.delete('date')
+  //   }
 
-    if (wallet && wallet !== 'all') {
-      params.set('wallet', wallet)
-    } else {
-      params.delete('wallet')
-    }
+  //   if (wallet && wallet !== 'all') {
+  //     params.set('wallet', wallet)
+  //   } else {
+  //     params.delete('wallet')
+  //   }
 
-    const query = params.toString() ? `?${params.toString()}` : ''
-    router.push(`/transactions${query}`, { scroll: false })
-  }
+  //   const query = params.toString() ? `?${params.toString()}` : ''
+  //   router.push(`/transactions${query}`, { scroll: false })
+  // }
 
   // Update the handleDateChange function
-  const handleDateChange = (date: Date | undefined) => {
-    setSelectedDate(date)
-    updateUrlWithFilters(date, selectedWalletId)
-  }
+  // const handleDateChange = (date: Date | undefined) => {
+  //   setSelectedDate(date)
+  //   updateUrlWithFilters(date, selectedWalletId)
+  // }
 
-  // Update the wallet selection handler
-  const handleWalletChange = (value: string) => {
-    setSelectedWalletId(value)
-    updateUrlWithFilters(selectedDate, value)
-  }
+  // // Update the wallet selection handler
+  // const handleWalletChange = (value: string) => {
+  //   setSelectedWalletId(value)
+  //   updateUrlWithFilters(selectedDate, value)
+  // }
 
-  // Update the clear filters function
-  const handleClearFilters = () => {
-    setSelectedDate(undefined)
-    setSearchQuery('')
-    setSelectedCategory('')
-    setSelectedWalletId('all')
+  // // Update the clear filters function
+  // const handleClearFilters = () => {
+  //   setSelectedDate(undefined)
+  //   setSearchQuery('')
+  //   setSelectedCategory('')
+  //   setSelectedWalletId('all')
 
-    // Clear URL parameters
-    router.push('/transactions', { scroll: false })
-  }
+  //   // Clear URL parameters
+  //   router.push('/transactions', { scroll: false })
+  // }
 
-  const handleSaveTransactions = async () => {
-    if (!selectedWalletId) {
-      toastService.error('Please select a wallet')
-      return
-    }
+  // const handleSaveTransactions = async () => {
+  //   if (!selectedWalletId) {
+  //     toastService.error('Please select a wallet')
+  //     return
+  //   }
 
-    setIsMonobankLoading(true)
-    try {
-      const timestamp = Date.now()
-      await MonobankService.saveTransactions(
-        monobankTransactions,
-        selectedWalletId
-      )
+  //   setIsMonobankLoading(true)
+  //   try {
+  //     const timestamp = Date.now()
+  //     await MonobankService.saveTransactions(
+  //       monobankTransactions,
+  //       selectedWalletId
+  //     )
 
-      const newTransactionsCount =
-        await transactionService.countNewTransactions(
-          selectedWalletId,
-          timestamp
-        )
+  //     const newTransactionsCount =
+  //       await transactionService.countNewTransactions(
+  //         selectedWalletId,
+  //         timestamp
+  //       )
 
-      if (newTransactionsCount > 0) {
-        toastService.success(`Saved ${newTransactionsCount} new transactions`)
-      }
+  //     if (newTransactionsCount > 0) {
+  //       toastService.success(`Saved ${newTransactionsCount} new transactions`)
+  //     }
 
-      setShowWalletDialog(false)
-      setMonobankTransactions([])
-      setSelectedWalletId('')
-      setRefreshTrigger(Date.now())
-    } catch (error) {
-      console.error('Failed to import transactions:', error)
-      toastService.error(
-        'Failed to import transactions. Please check the file format.'
-      )
-    } finally {
-      setIsMonobankLoading(false)
-    }
-  }
+  //     setShowWalletDialog(false)
+  //     setMonobankTransactions([])
+  //     setSelectedWalletId('')
+  //     setRefreshTrigger(Date.now())
+  //   } catch (error) {
+  //     console.error('Failed to import transactions:', error)
+  //     toastService.error(
+  //       'Failed to import transactions. Please check the file format.'
+  //     )
+  //   } finally {
+  //     setIsMonobankLoading(false)
+  //   }
+  // }
 
   const handleTransactionDelete = async (transactionId: string) => {
     try {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { MonobankService } from '@/lib/services/monobank'
-import { toastService } from '@/lib/services/toast'
+// import { toastService } from '@/lib/services/toast'
 import { subDays } from 'date-fns'
 
 export function MonobankSyncProvider ({

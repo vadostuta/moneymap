@@ -268,7 +268,8 @@ export class MonobankService {
       if (
         error instanceof Error &&
         'errorDescription' in error &&
-        (error as any).errorDescription === 'Too many requests'
+        (error as { errorDescription: string }).errorDescription ===
+          'Too many requests'
       ) {
         throw new Error('RATE_LIMIT_EXCEEDED')
       }

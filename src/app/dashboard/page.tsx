@@ -1,18 +1,19 @@
 'use client'
 
 import { useAuth } from '@/contexts/auth-context'
-import { useEffect, useState } from 'react'
-import { transactionService } from '@/lib/services/transaction'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { RevenueCard } from '@/components/ui/RevenueCard'
-import {
-  TransactionItem,
-  TransactionItemProps
-} from '@/components/transaction/TransactionItem'
-import { Transaction } from '@/lib/types/transaction'
-import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
-import { Button } from '@/components/ui/button'
-import { format } from 'date-fns'
+// import { useEffect, useState } from 'react'
+// import { transactionService } from '@/lib/services/transaction'
+// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+// import { RevenueCard } from '@/components/ui/RevenueCard'
+// import {
+//   TransactionItem,
+//   TransactionItemProps
+// } from '@/components/transaction/TransactionItem'
+// import { Transaction } from '@/lib/types/transaction'
+// import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
+// import { Button } from '@/components/ui/button'
+// import { format } from 'date-fns'
+import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
 
 export default function DashboardPage () {
   const { user, loading } = useAuth()
@@ -20,11 +21,11 @@ export default function DashboardPage () {
   //   totalExpenses: 0,
   //   totalIncome: 0
   // })
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  const [dateTransactions, setDateTransactions] = useState<Transaction[]>([])
-  const [loadingTransactions, setLoadingTransactions] = useState(false)
-  const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  // const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  // const [dateTransactions, setDateTransactions] = useState<Transaction[]>([])
+  // const [loadingTransactions, setLoadingTransactions] = useState(false)
+  // const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
+  // const [refreshTrigger, setRefreshTrigger] = useState(0)
   // const [isMounted, setIsMounted] = useState(false)
 
   // useEffect(() => {
@@ -37,13 +38,13 @@ export default function DashboardPage () {
   //   }
   // }, [user])
 
-  useEffect(() => {
-    if (user && selectedDate) {
-      // fetchTransactionsForDate(selectedDate)
-    } else {
-      // setDateTransactions([])
-    }
-  }, [user, selectedDate, selectedWalletId])
+  // useEffect(() => {
+  //   if (user && selectedDate) {
+  //     // fetchTransactionsForDate(selectedDate)
+  //   } else {
+  //     // setDateTransactions([])
+  //   }
+  // }, [user, selectedDate, selectedWalletId])
 
   // async function fetchSummaryData () {
   //   try {
@@ -54,28 +55,28 @@ export default function DashboardPage () {
   //   }
   // }
 
-  async function fetchTransactionsForDate (date: string) {
-    try {
-      setLoadingTransactions(true)
-      if (!selectedWalletId) return
+  // async function fetchTransactionsForDate (date: string) {
+  //   try {
+  //     setLoadingTransactions(true)
+  //     if (!selectedWalletId) return
 
-      const startDate = new Date(date)
-      startDate.setHours(0, 0, 0, 0)
-      const endDate = new Date(date)
-      endDate.setHours(23, 59, 59, 999)
+  //     const startDate = new Date(date)
+  //     startDate.setHours(0, 0, 0, 0)
+  //     const endDate = new Date(date)
+  //     endDate.setHours(23, 59, 59, 999)
 
-      const transactions = await transactionService.getByWalletAndDateRange(
-        selectedWalletId,
-        startDate,
-        endDate
-      )
-      setDateTransactions(transactions)
-    } catch (error) {
-      console.error('Failed to fetch transactions for date:', error)
-    } finally {
-      setLoadingTransactions(false)
-    }
-  }
+  //     const transactions = await transactionService.getByWalletAndDateRange(
+  //       selectedWalletId,
+  //       startDate,
+  //       endDate
+  //     )
+  //     setDateTransactions(transactions)
+  //   } catch (error) {
+  //     console.error('Failed to fetch transactions for date:', error)
+  //   } finally {
+  //     setLoadingTransactions(false)
+  //   }
+  // }
 
   // const handleDateSelect = (date: string | null) => {
   //   setSelectedDate(date)
@@ -119,6 +120,7 @@ export default function DashboardPage () {
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         <div className='lg:col-span-1'>
           {/* <QuickTransactionForm onSuccess={handleTransactionSuccess} /> */}
+          <ExpensePieChart />
         </div>
 
         <div className='lg:col-span-2'>
