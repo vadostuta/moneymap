@@ -3,9 +3,8 @@
 import * as React from 'react'
 import { PieChart, Pie, Cell } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ChartContainer, ChartTooltip } from '@/components/ui/chart'
 import { transactionService } from '@/lib/services/transaction'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ResponsiveContainer } from 'recharts'
 import { Tooltip } from 'recharts'
 import { TransactionCategory } from '@/lib/types/transaction'
@@ -148,7 +147,11 @@ export function ExpensePieChart ({
             <div
               key={entry.category}
               className='flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity'
-              onClick={() => handlePieClick(entry)}
+              onClick={() =>
+                handlePieClick({
+                  category: entry.category as TransactionCategory
+                })
+              }
             >
               <div
                 className='w-3 h-3 rounded-full border border-white/30'
