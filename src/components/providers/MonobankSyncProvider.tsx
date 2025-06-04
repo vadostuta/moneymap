@@ -57,8 +57,8 @@ export function MonobankSyncProvider ({
 
   useEffect(() => {
     if (!user) {
-      // Clear all queries when user logs out
-      queryClient.clear()
+      queryClient.removeQueries({ queryKey: ['transactions'] })
+      queryClient.removeQueries({ queryKey: ['last-synced-transaction'] })
       return
     }
 
