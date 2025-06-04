@@ -163,7 +163,7 @@ export function ExpensePieChart ({
               <span className='text-base text-muted-foreground'>
                 {entry.category}
               </span>
-              <span className='text-base font-semibold ml-auto text-white'>
+              <span className='text-sm font-semibold ml-auto text-white'>
                 {formatCurrency(entry.amount)}
               </span>
             </div>
