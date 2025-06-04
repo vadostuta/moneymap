@@ -21,7 +21,7 @@ export function Header () {
       <div className='container flex h-16 items-center justify-between px-4'>
         <div className='flex items-center gap-4 md:gap-8'>
           <Link
-            href='/dashboard'
+            href='/hello'
             className='font-bold hover:text-primary transition-colors'
           >
             MoneyMap
@@ -36,7 +36,7 @@ export function Header () {
               >
                 Hello
               </Link>
-              <Link
+              {/* <Link
                 href='/dashboard'
                 className={`hover:text-primary transition-colors ${
                   pathname === '/dashboard'
@@ -45,8 +45,8 @@ export function Header () {
                 }`}
               >
                 Dashboard
-              </Link>
-              <Link
+              </Link> */}
+              {/* <Link
                 href='/transactions'
                 className={`hover:text-primary transition-colors ${
                   pathname === '/transactions'
@@ -55,7 +55,7 @@ export function Header () {
                 }`}
               >
                 Transactions
-              </Link>
+              </Link> */}
               <Link
                 href='/wallets'
                 className={`hover:text-primary transition-colors ${
@@ -111,17 +111,17 @@ export function Header () {
         <div className='md:hidden fixed top-16 left-0 right-0 bg-background border-b z-50'>
           <nav className='flex flex-col p-4 px-6'>
             <Link
-              href='/dashboard'
+              href='/hello'
               className={`py-2 hover:text-primary transition-colors ${
-                pathname === '/dashboard'
+                pathname === '/hello'
                   ? 'text-primary font-medium'
                   : 'text-muted-foreground'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Dashboard
+              Hello
             </Link>
-            <Link
+            {/* <Link
               href='/transactions'
               className={`py-2 hover:text-primary transition-colors ${
                 pathname === '/transactions'
@@ -131,7 +131,7 @@ export function Header () {
               onClick={() => setMobileMenuOpen(false)}
             >
               Transactions
-            </Link>
+            </Link> */}
             <Link
               href='/wallets'
               className={`py-2 hover:text-primary transition-colors ${
