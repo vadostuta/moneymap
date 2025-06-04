@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/auth-context'
 // import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
 // import { Button } from '@/components/ui/button'
 // import { format } from 'date-fns'
-import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
+// import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
 
 export default function DashboardPage () {
   const { user, loading } = useAuth()
@@ -120,7 +120,7 @@ export default function DashboardPage () {
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         <div className='lg:col-span-1'>
           {/* <QuickTransactionForm onSuccess={handleTransactionSuccess} /> */}
-          <ExpensePieChart />
+          {/* <ExpensePieChart /> */}
         </div>
 
         <div className='lg:col-span-2'>
