@@ -31,6 +31,12 @@ export function Header () {
           {user && (
             <nav className='hidden md:flex gap-4'>
               <Link
+                href='/hello'
+                className='hover:text-primary transition-colors'
+              >
+                Hello
+              </Link>
+              <Link
                 href='/dashboard'
                 className={`hover:text-primary transition-colors ${
                   pathname === '/dashboard'

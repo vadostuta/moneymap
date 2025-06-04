@@ -324,5 +324,20 @@ export const transactionService = {
       category,
       amount
     }))
+  },
+
+  async getRecentTransactions (
+    offset: number = 0,
+    limit: number = 5
+  ): Promise<Transaction[]> {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*, wallet:wallets(id, name, currency)')
+      .order('date', { ascending: false })
+      .range(offset, offset + limit - 1)
+      .eq('is_deleted', false)
+
+    if (error) throw error
+    return data || []
   }
 }

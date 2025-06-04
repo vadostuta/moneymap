@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart'
 import { transactionService } from '@/lib/services/transaction'
+import { useQuery } from '@tanstack/react-query'
 
 // Define colors for different categories
 const COLORS = [
@@ -30,29 +31,12 @@ const chartConfig = {
 }
 
 export function ExpensePieChart () {
-  const [data, setData] = React.useState<
-    { category: string; amount: number }[]
-  >([])
-  const [loading, setLoading] = React.useState(true)
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['expenses-by-category'],
+    queryFn: () => transactionService.getCurrentMonthExpensesByCategory()
+  })
 
-  React.useEffect(() => {
-    async function fetchData () {
-      try {
-        setLoading(true)
-        const expenses =
-          await transactionService.getCurrentMonthExpensesByCategory()
-        setData(expenses)
-      } catch (error) {
-        console.error('Failed to fetch expense data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardHeader>
@@ -65,7 +49,20 @@ export function ExpensePieChart () {
     )
   }
 
-  if (data.length === 0) {
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Expenses by Category</CardTitle>
+        </CardHeader>
+        <CardContent className='flex items-center justify-center h-[300px]'>
+          <p>Error loading expense data</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (!data || data.length === 0) {
     return (
       <Card>
         <CardHeader>
