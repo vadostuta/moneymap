@@ -334,6 +334,7 @@ export const transactionService = {
       .from('transactions')
       .select('*, wallet:wallets(id, name, currency)')
       .order('date', { ascending: false })
+      .order('id', { ascending: false })
       .range(offset, offset + limit - 1)
       .eq('is_deleted', false)
 

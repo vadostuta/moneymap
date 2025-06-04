@@ -14,14 +14,41 @@ import {
   Gift,
   HelpCircle,
   CreditCard,
-  HandHeart
+  HandHeart,
+  ChevronDown
 } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { transactionService } from '@/lib/services/transaction'
+import { toastService } from '@/lib/services/toast'
 
 export function RecentTransactionItem ({
   transaction
 }: {
   transaction: Transaction
 }) {
+  const queryClient = useQueryClient()
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: async (newCategory: TransactionCategory) => {
+      await transactionService.update(transaction.id, {
+        category: newCategory
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      toastService.success('Category updated successfully')
+    },
+    onError: () => {
+      toastService.error('Failed to update category')
+    }
+  })
+
   const getCategoryColor = (category: TransactionCategory) => {
     const colors: Record<TransactionCategory, { bg: string; text: string }> = {
       'Food & Dining': { bg: 'bg-orange-500/10', text: 'text-orange-500' },
@@ -63,6 +90,25 @@ export function RecentTransactionItem ({
   const categoryColors = getCategoryColor(transaction.category)
   const categoryIcon = getCategoryIcon(transaction.category)
 
+  const handleCategoryChange = (newCategory: TransactionCategory) => {
+    updateCategoryMutation.mutate(newCategory)
+  }
+
+  const categories: TransactionCategory[] = [
+    'Food & Dining',
+    'Shopping',
+    'Transportation',
+    'Bills & Utilities',
+    'Entertainment',
+    'Healthcare',
+    'Education',
+    'Travel',
+    'Presents',
+    'Other',
+    'Donations',
+    'Subscriptions'
+  ]
+
   return (
     <div className='flex items-start justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors'>
       <div className='flex flex-col gap-2'>
@@ -76,12 +122,29 @@ export function RecentTransactionItem ({
         </div>
 
         <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-          <div
-            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${categoryColors.bg} ${categoryColors.text}`}
-          >
-            {categoryIcon}
-            {transaction.category}
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${categoryColors.bg} ${categoryColors.text} hover:opacity-80 transition-opacity`}
+              >
+                {categoryIcon}
+                {transaction.category}
+                <ChevronDown className='w-3 h-3 ml-1' />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='start' className='w-48'>
+              {categories.map(category => (
+                <DropdownMenuItem
+                  key={category}
+                  onClick={() => handleCategoryChange(category)}
+                  className='flex items-center gap-2'
+                >
+                  {getCategoryIcon(category)}
+                  {category}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <span>•</span>
           <div className='flex items-center gap-1'>
             <span>{format(new Date(transaction.date), 'MMM d, yyyy')}</span>
