@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { MonobankService } from '@/lib/services/monobank'
 // import { toastService } from '@/lib/services/toast'
 import { subDays } from 'date-fns'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 
 export function MonobankSyncProvider ({
   children
@@ -12,16 +13,25 @@ export function MonobankSyncProvider ({
   children: React.ReactNode
 }) {
   const { user } = useAuth()
-  const [lastFetchTime, setLastFetchTime] = useState<number>(0)
+  const queryClient = useQueryClient()
   const FETCH_COOLDOWN = 60000 // 1 minute cooldown
 
-  const syncTransactions = async () => {
-    if (!user) return
-    if (Date.now() - lastFetchTime < FETCH_COOLDOWN) return
-    try {
+  // Query to get the last synced transaction
+  const { data: lastTransaction } = useQuery({
+    queryKey: ['last-synced-transaction'],
+    queryFn: () => MonobankService.getLastSyncedTransaction(),
+    enabled: !!user,
+    staleTime: FETCH_COOLDOWN // Consider data stale after 1 minute
+  })
+
+  // Change useQuery to useMutation for sync operation
+  const { mutate: syncTransactions } = useMutation({
+    mutationFn: async () => {
+      if (!user) return
+
       const to = new Date()
-      const lastTransaction = await MonobankService.getLastSyncedTransaction()
       let from: Date
+
       if (!lastTransaction) {
         // If no transactions, fetch last 30 days
         from = subDays(to, 30)
@@ -33,46 +43,33 @@ export function MonobankSyncProvider ({
           from = thirtyDaysAgo
         }
       }
+
       // Only fetch if there's a gap to fill
       if (from < to) {
         await MonobankService.syncTransactionsForDateRange(from, to)
-        setLastFetchTime(Date.now())
-        localStorage.setItem('lastMonobankFetch', Date.now().toString())
       }
-    } catch (error) {
-      console.error('Failed to sync Monobank transactions:', error)
-      if (error instanceof Error && error.message === 'RATE_LIMIT_EXCEEDED') {
-        // Silently fail for rate limit errors
-        return
-      }
-      console.log('error', error)
-      console.log('Failed to sync transactions')
-      // toastService.error('Failed to sync transactions')
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['last-synced-transaction'] })
     }
-  }
+  })
 
   useEffect(() => {
-    console.log('user', user)
     if (!user) {
-      localStorage.removeItem('lastMonobankFetch')
-      setLastFetchTime(0)
+      // Clear all queries when user logs out
+      queryClient.clear()
       return
     }
 
-    // Get last fetch time from storage
-    const lastFetch = localStorage.getItem('lastMonobankFetch')
-    const now = Date.now()
+    // Initial sync
+    syncTransactions()
 
-    // Only sync if enough time has passed since last fetch
-    if (!lastFetch || now - parseInt(lastFetch) > FETCH_COOLDOWN) {
-      syncTransactions()
-    }
-
-    // Start interval for subsequent syncs
+    // Set up interval for subsequent syncs
     const interval = setInterval(syncTransactions, FETCH_COOLDOWN)
 
     return () => clearInterval(interval)
-  }, [user])
+  }, [user, syncTransactions])
 
   return <>{children}</>
 }

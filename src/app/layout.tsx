@@ -34,14 +34,14 @@ export default function RootLayout ({
       >
         <QueryProvider>
           <AuthProvider>
-            {/* <MonobankSyncProvider> */}
-            <div className='flex flex-col h-screen mx-auto max-w-7xl'>
-              <Header />
-              <main className='flex-1 flex justify-center'>
-                <div className='w-full'>{children}</div>
-              </main>
-            </div>
-            {/* </MonobankSyncProvider> */}
+            <MonobankSyncProvider>
+              <div className='flex flex-col h-screen mx-auto max-w-7xl'>
+                <Header />
+                <main className='flex-1 flex justify-center'>
+                  <div className='w-full'>{children}</div>
+                </main>
+              </div>
+            </MonobankSyncProvider>
           </AuthProvider>
         </QueryProvider>
         <ClientToaster />
