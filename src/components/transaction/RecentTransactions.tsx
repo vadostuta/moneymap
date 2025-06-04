@@ -6,8 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import React from 'react'
 import { RecentTransactionItem } from './RecentTransactionItem'
+import { TransactionCategory } from '@/lib/types/transaction'
+import { useAuth } from '@/contexts/auth-context'
 
-export function RecentTransactions () {
+interface RecentTransactionsProps {
+  selectedCategory?: TransactionCategory
+  onResetCategory?: () => void
+}
+
+export function RecentTransactions ({
+  selectedCategory,
+  onResetCategory
+}: RecentTransactionsProps) {
+  const { user, loading: authLoading } = useAuth()
   const ITEMS_PER_PAGE = 10
 
   const {
@@ -18,14 +29,18 @@ export function RecentTransactions () {
     hasNextPage,
     isFetchingNextPage
   } = useInfiniteQuery({
-    queryKey: ['recent-transactions'],
+    queryKey: ['recent-transactions', selectedCategory],
     queryFn: async ({ pageParam = 0 }) => {
+      if (!user) return []
       const offset = pageParam * ITEMS_PER_PAGE
-      return await transactionService.getRecentTransactions(
+      return await transactionService.getFilteredTransactions({
+        userId: user.id,
         offset,
-        ITEMS_PER_PAGE
-      )
+        limit: ITEMS_PER_PAGE,
+        category: selectedCategory
+      })
     },
+    enabled: !!user && !authLoading,
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage || lastPage.length === 0) {
         return undefined
@@ -52,8 +67,13 @@ export function RecentTransactions () {
   if (isLoading) {
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className='flex flex-row items-center justify-between'>
           <CardTitle>Recent Transactions</CardTitle>
+          {selectedCategory && onResetCategory && (
+            <Button variant='ghost' size='sm' onClick={onResetCategory}>
+              Reset Filter
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           <p>Loading transactions...</p>
@@ -65,8 +85,13 @@ export function RecentTransactions () {
   if (error) {
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className='flex flex-row items-center justify-between'>
           <CardTitle>Recent Transactions</CardTitle>
+          {selectedCategory && onResetCategory && (
+            <Button variant='ghost' size='sm' onClick={onResetCategory}>
+              Reset Filter
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           <p>Error loading transactions</p>
@@ -78,8 +103,13 @@ export function RecentTransactions () {
   if (!transactions || transactions.length === 0) {
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className='flex flex-row items-center justify-between'>
           <CardTitle>Recent Transactions</CardTitle>
+          {selectedCategory && onResetCategory && (
+            <Button variant='ghost' size='sm' onClick={onResetCategory}>
+              Reset Filter
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           <p>No transactions found</p>
@@ -90,8 +120,13 @@ export function RecentTransactions () {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className='flex flex-row items-center justify-between'>
         <CardTitle>Recent Transactions</CardTitle>
+        {selectedCategory && onResetCategory && (
+          <Button variant='ghost' size='sm' onClick={onResetCategory}>
+            Reset Filter
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         <div className='space-y-4'>

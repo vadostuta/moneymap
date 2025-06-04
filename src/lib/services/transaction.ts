@@ -161,12 +161,16 @@ export const transactionService = {
     userId,
     walletId,
     searchQuery,
-    category
+    category,
+    offset = 0,
+    limit = 10
   }: {
     userId: string
     walletId?: string
     searchQuery?: string
     category?: string
+    offset?: number
+    limit?: number
   }): Promise<Transaction[]> {
     let query = supabase
       .from('transactions')
@@ -190,6 +194,7 @@ export const transactionService = {
     const { data, error } = await query
       .order('date', { ascending: false })
       .order('id', { ascending: false })
+      .range(offset, offset + limit - 1)
 
     if (error) throw error
     return data || []
