@@ -15,7 +15,8 @@ import {
   HelpCircle,
   CreditCard,
   HandHeart,
-  ChevronDown
+  ChevronDown,
+  Trash2
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { transactionService } from '@/lib/services/transaction'
 import { toastService } from '@/lib/services/toast'
+import { Button } from '@/components/ui/button'
 
 export function RecentTransactionItem ({
   transaction
@@ -46,6 +48,19 @@ export function RecentTransactionItem ({
     },
     onError: () => {
       toastService.error('Failed to update category')
+    }
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      await transactionService.delete(transaction.id)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      toastService.success('Transaction deleted successfully')
+    },
+    onError: () => {
+      toastService.error('Failed to delete transaction')
     }
   })
 
@@ -152,20 +167,31 @@ export function RecentTransactionItem ({
         </div>
       </div>
 
-      <div
-        className={`flex items-center gap-1 text-lg font-semibold ${
-          transaction.type === 'expense' ? 'text-white' : 'text-emerald-500'
-        }`}
-      >
-        {transaction.type === 'expense' ? (
-          <ArrowDown className='w-5 h-5' />
-        ) : (
-          <ArrowUp className='w-5 h-5' />
-        )}
-        {new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: transaction.wallet?.currency || 'USD'
-        }).format(transaction.amount)}
+      <div className='flex items-center gap-2'>
+        <div
+          className={`flex items-center gap-1 text-lg font-semibold ${
+            transaction.type === 'expense' ? 'text-white' : 'text-emerald-500'
+          }`}
+        >
+          {transaction.type === 'expense' ? (
+            <ArrowDown className='w-5 h-5' />
+          ) : (
+            <ArrowUp className='w-5 h-5' />
+          )}
+          {new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: transaction.wallet?.currency || 'USD'
+          }).format(transaction.amount)}
+        </div>
+        <Button
+          variant='ghost'
+          size='icon'
+          className='h-8 w-8 text-muted-foreground hover:text-destructive'
+          onClick={() => deleteMutation.mutate()}
+          disabled={deleteMutation.isPending}
+        >
+          <Trash2 className='h-4 w-4' />
+        </Button>
       </div>
     </div>
   )

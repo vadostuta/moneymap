@@ -19,12 +19,12 @@ import {
   CreateTransactionDTO,
   Transaction
 } from '@/lib/types/transaction'
-import { Wallet } from '@/lib/types/wallet'
 import { transactionService } from '@/lib/services/transaction'
 import { walletService } from '@/lib/services/wallet'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { toastService } from '@/lib/services/toast'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface QuickTransactionFormProps {
   variant?: 'default' | 'wide'
@@ -39,8 +39,35 @@ export function QuickTransactionForm ({
   onSuccess,
   onCancel
 }: QuickTransactionFormProps) {
-  const [loading, setLoading] = useState(false)
-  const [wallets, setWallets] = useState<Wallet[]>([])
+  const queryClient = useQueryClient()
+
+  const { data: wallets = [] } = useQuery({
+    queryKey: ['wallets'],
+    queryFn: walletService.getAll
+  })
+
+  const transactionMutation = useMutation({
+    mutationFn: async (transaction: CreateTransactionDTO) => {
+      if (initialData) {
+        await transactionService.update(initialData.id, transaction)
+      } else {
+        await transactionService.create(transaction)
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      toastService.success(
+        initialData
+          ? 'Transaction updated successfully'
+          : 'Transaction added successfully'
+      )
+      onSuccess?.()
+    },
+    onError: () => {
+      toastService.error('Failed to save transaction. Please try again.')
+    }
+  })
+
   const [formData, setFormData] = useState({
     type: initialData?.type || ('expense' as TransactionType),
     amount: initialData?.amount?.toString() || '',
@@ -83,73 +110,28 @@ export function QuickTransactionForm ({
   }
 
   useEffect(() => {
-    loadWallets()
-  }, [])
-
-  const loadWallets = async () => {
-    try {
-      const data = await walletService.getAll()
-      setWallets(data)
-      // Only set wallet_id if it's not already set (for new transactions)
-      if (!formData.wallet_id && data.length > 0) {
-        const primaryWallet = data.find(w => w.is_primary) || data[0]
-        setFormData(prev => ({ ...prev, wallet_id: primaryWallet.id }))
-      }
-    } catch (error) {
-      console.error('Failed to load wallets:', error)
+    if (!formData.wallet_id && wallets.length > 0) {
+      const primaryWallet = wallets.find(w => w.is_primary) || wallets[0]
+      setFormData(prev => ({ ...prev, wallet_id: primaryWallet.id }))
     }
-  }
+  }, [wallets])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-
-    try {
-      const transaction: CreateTransactionDTO = {
-        type: formData.type,
-        amount: parseFloat(formData.amount),
-        wallet_id: formData.wallet_id,
-        category: formData.category || ('Other' as TransactionCategory),
-        label: 'Personal',
-        date: new Date(formData.date).toISOString(),
-        description: formData.description
-      }
-
-      if (initialData) {
-        await transactionService.update(initialData.id, transaction)
-        toastService.success('Transaction updated successfully')
-      } else {
-        await transactionService.create(transaction)
-        toastService.success('Transaction added successfully')
-
-        // Reset form after successful creation
-        setFormData({
-          type: 'expense',
-          amount: '',
-          wallet_id: formData.wallet_id,
-          category: 'Other',
-          date: new Date().toISOString().split('T')[0],
-          description: ''
-        })
-      }
-
-      // Call onSuccess to trigger the refresh
-      onSuccess?.()
-    } catch (error) {
-      console.error('Failed to save transaction:', error)
-      toastService.error('Failed to save transaction. Please try again.')
-    } finally {
-      setLoading(false)
+    const transaction: CreateTransactionDTO = {
+      type: formData.type,
+      amount: parseFloat(formData.amount),
+      wallet_id: formData.wallet_id,
+      category: formData.category || ('Other' as TransactionCategory),
+      label: 'Personal',
+      date: new Date(formData.date).toISOString(),
+      description: formData.description
     }
+    transactionMutation.mutate(transaction)
   }
 
   return (
-    <Card
-      className={cn(
-        'mx-auto',
-        variant === 'default' ? 'w-full max-w-md' : 'w-full'
-      )}
-    >
+    <Card className={cn('mx-auto')}>
       <form onSubmit={handleSubmit}>
         <CardContent className='space-y-3 pt-6 px-4'>
           <Tabs
@@ -283,9 +265,13 @@ export function QuickTransactionForm ({
                   Cancel
                 </Button>
               )}
-              <Button type='submit' className='flex-1' disabled={loading}>
+              <Button
+                type='submit'
+                className='flex-1'
+                disabled={transactionMutation.isPending}
+              >
                 <Plus className='mr-2 h-5 w-5' />
-                {loading
+                {transactionMutation.isPending
                   ? 'Saving...'
                   : initialData
                   ? 'Update Transaction'
