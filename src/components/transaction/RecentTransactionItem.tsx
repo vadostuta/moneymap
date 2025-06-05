@@ -16,7 +16,8 @@ import {
   CreditCard,
   HandHeart,
   ChevronDown,
-  Trash2
+  Trash2,
+  Wallet
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -131,8 +132,9 @@ export function RecentTransactionItem ({
           <span className='text-base sm:text-lg font-semibold truncate'>
             {transaction.description}
           </span>
-          <span className='text-xs sm:text-sm text-muted-foreground'>
-            ({transaction.wallet?.name})
+          <span className='text-xs sm:text-sm text-muted-foreground flex items-center gap-1'>
+            <Wallet className='w-3 h-3 sm:w-4 sm:h-4' />
+            {transaction.wallet?.name}
           </span>
         </div>
 
