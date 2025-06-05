@@ -103,7 +103,7 @@ export function ExpensePieChart ({
     <Card>
       <CardHeader>
         <CardTitle className='text-lg text-muted-foreground font-medium'>
-          Expenses by Category
+          Current Month Expenses
         </CardTitle>
         <div className='text-4xl font-extrabold mt-2 text-white tracking-tight'>
           {formatCurrency(totalExpense)}
@@ -142,11 +142,11 @@ export function ExpensePieChart ({
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className='grid grid-cols-2 gap-4 mt-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4'>
           {data.map((entry, index) => (
             <div
               key={entry.category}
-              className='flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity'
+              className='flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity p-2 rounded-lg hover:bg-white/5'
               onClick={() =>
                 handlePieClick({
                   category: entry.category as TransactionCategory
@@ -154,7 +154,7 @@ export function ExpensePieChart ({
               }
             >
               <div
-                className='w-3 h-3 rounded-full border border-white/30'
+                className='w-3 h-3 rounded-full border border-white/30 flex-shrink-0'
                 style={{
                   backgroundColor: COLORS[index % COLORS.length],
                   opacity:
@@ -163,10 +163,10 @@ export function ExpensePieChart ({
                       : 0.5
                 }}
               />
-              <span className='text-base text-muted-foreground'>
+              <span className='text-sm sm:text-base text-muted-foreground truncate'>
                 {entry.category}
               </span>
-              <span className='text-sm font-semibold ml-auto text-white'>
+              <span className='text-sm font-semibold ml-auto text-white whitespace-nowrap'>
                 {formatCurrency(entry.amount)}
               </span>
             </div>
