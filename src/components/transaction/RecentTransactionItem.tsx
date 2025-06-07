@@ -45,6 +45,7 @@ export function RecentTransactionItem ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
       toastService.success('Category updated successfully')
     },
     onError: () => {
@@ -58,6 +59,7 @@ export function RecentTransactionItem ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
       toastService.success('Transaction deleted successfully')
     },
     onError: () => {

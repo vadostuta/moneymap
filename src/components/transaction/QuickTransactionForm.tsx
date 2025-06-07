@@ -56,6 +56,7 @@ export function QuickTransactionForm ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
       toastService.success(
         initialData
           ? 'Transaction updated successfully'
