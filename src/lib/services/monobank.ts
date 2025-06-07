@@ -168,33 +168,40 @@ export class MonobankService {
     if (userError) throw userError
     if (!user) throw new Error('No user found')
 
-    // First, get existing monobank transactions for this user
+    // Get both existing and deleted transactions in one query
     const { data: existingTransactions, error: fetchError } = await supabase
       .from('transactions')
-      .select('monobank_id')
+      .select('monobank_id, is_deleted')
       .eq('user_id', user.id)
       .eq('wallet_id', walletId)
       .not('monobank_id', 'is', null)
 
     if (fetchError) throw fetchError
 
-    // Create a Set of existing monobank_ids for faster lookup
+    // Create Sets for faster lookup
     const existingIds = new Set(
-      existingTransactions?.map(t => t.monobank_id) || []
+      existingTransactions
+        ?.filter(t => !t.is_deleted)
+        .map(t => t.monobank_id) || []
+    )
+    const deletedIds = new Set(
+      existingTransactions?.filter(t => t.is_deleted).map(t => t.monobank_id) ||
+        []
     )
 
-    // Filter out transactions that already exist
+    // Single filter pass for all conditions
     const newTransactions = transactions
       .filter(t => !t.description.includes('На charity'))
       .filter(t => !existingIds.has(t.id))
+      .filter(t => !deletedIds.has(t.id))
       .map(t => ({
         ...this.transformTransaction(t, walletId),
         user_id: user.id,
-        monobank_id: t.id // Store the original Monobank ID
+        monobank_id: t.id
       }))
 
     if (newTransactions.length === 0) {
-      return // No new transactions to save
+      return
     }
 
     // Insert only new transactions in batches
@@ -202,7 +209,16 @@ export class MonobankService {
     for (let i = 0; i < newTransactions.length; i += batchSize) {
       const batch = newTransactions.slice(i, i + batchSize)
       const { error } = await supabase.from('transactions').insert(batch)
-      if (error) throw error
+
+      // Handle potential unique constraint violations
+      if (error) {
+        if (error.code === '23505') {
+          // PostgreSQL unique violation code
+          console.warn('Duplicate transaction detected, skipping...')
+          continue
+        }
+        throw error
+      }
     }
   }
 
@@ -251,16 +267,9 @@ export class MonobankService {
 
     try {
       const response = await MonobankService.fetchTransactions(from, to)
-      const deletedIds = await this.getDeletedTransactionIds()
-
-      // Filter transactions
-      const filteredTransactions = response.transactions.filter(
-        t => !t.description.includes('На charity') && !deletedIds.has(t.id)
-      )
-
-      if (filteredTransactions.length > 0) {
+      if (response.transactions.length > 0) {
         await MonobankService.saveTransactions(
-          filteredTransactions,
+          response.transactions,
           integration.wallet_id
         )
       }

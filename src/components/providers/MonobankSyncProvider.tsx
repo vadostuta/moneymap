@@ -41,6 +41,7 @@ export function MonobankSyncProvider ({
         from = new Date(lastTransaction.date)
         if (from < thirtyDaysAgo) {
           from = thirtyDaysAgo
+          console.log('from ' + from)
         }
       }
 
@@ -52,7 +53,11 @@ export function MonobankSyncProvider ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['last-synced-transaction'] })
-    }
+    },
+    // Add retry configuration to prevent multiple simultaneous syncs
+    retry: false,
+    // Add mutation key to prevent multiple simultaneous syncs
+    mutationKey: ['sync-transactions']
   })
 
   useEffect(() => {
