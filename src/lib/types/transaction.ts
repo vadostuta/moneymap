@@ -1,8 +1,8 @@
 export type TransactionType = 'expense' | 'income'
 
 export type TransactionCategory =
-  | 'Food & Dining'
-  | 'Shopping'
+  | 'Restaurants & Cafés'
+  | 'Clothing'
   | 'Transportation'
   | 'Bills & Utilities'
   | 'Entertainment'

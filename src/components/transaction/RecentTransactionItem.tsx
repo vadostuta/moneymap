@@ -69,8 +69,11 @@ export function RecentTransactionItem ({
 
   const getCategoryColor = (category: TransactionCategory) => {
     const colors: Record<TransactionCategory, { bg: string; text: string }> = {
-      'Food & Dining': { bg: 'bg-orange-500/10', text: 'text-orange-500' },
-      Shopping: { bg: 'bg-blue-500/10', text: 'text-blue-500' },
+      'Restaurants & Cafés': {
+        bg: 'bg-orange-500/10',
+        text: 'text-orange-500'
+      },
+      Clothing: { bg: 'bg-blue-500/10', text: 'text-blue-500' },
       Transportation: { bg: 'bg-green-500/10', text: 'text-green-500' },
       'Bills & Utilities': { bg: 'bg-purple-500/10', text: 'text-purple-500' },
       Entertainment: { bg: 'bg-pink-500/10', text: 'text-pink-500' },
@@ -88,8 +91,8 @@ export function RecentTransactionItem ({
 
   const getCategoryIcon = (category: TransactionCategory) => {
     const icons: Record<TransactionCategory, React.ReactNode> = {
-      'Food & Dining': <Utensils className='w-3 h-3' />,
-      Shopping: <ShoppingBag className='w-3 h-3' />,
+      'Restaurants & Cafés': <Utensils className='w-3 h-3' />,
+      Clothing: <ShoppingBag className='w-3 h-3' />,
       Transportation: <Car className='w-3 h-3' />,
       'Bills & Utilities': <Receipt className='w-3 h-3' />,
       Entertainment: <Film className='w-3 h-3' />,
@@ -113,8 +116,8 @@ export function RecentTransactionItem ({
   }
 
   const categories: TransactionCategory[] = [
-    'Food & Dining',
-    'Shopping',
+    'Restaurants & Cafés',
+    'Clothing',
     'Transportation',
     'Bills & Utilities',
     'Entertainment',

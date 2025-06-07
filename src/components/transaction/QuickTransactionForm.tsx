@@ -62,6 +62,14 @@ export function QuickTransactionForm ({
           ? 'Transaction updated successfully'
           : 'Transaction added successfully'
       )
+      setFormData({
+        type: 'expense',
+        amount: '',
+        wallet_id: formData.wallet_id, // Keep the same wallet
+        category: '' as TransactionCategory,
+        date: new Date().toISOString().split('T')[0],
+        description: ''
+      })
       onSuccess?.()
     },
     onError: () => {
@@ -81,8 +89,8 @@ export function QuickTransactionForm ({
   })
 
   const categories: TransactionCategory[] = [
-    'Food & Dining',
-    'Shopping',
+    'Restaurants & Cafés',
+    'Clothing',
     'Transportation',
     'Bills & Utilities',
     'Entertainment',
@@ -96,8 +104,8 @@ export function QuickTransactionForm ({
   ]
 
   const categoryIcons: Record<TransactionCategory, React.ReactNode> = {
-    'Food & Dining': '🍽️',
-    Shopping: '🛍️',
+    'Restaurants & Cafés': '🍽️',
+    Clothing: '🛍️',
     Transportation: '🚗',
     'Bills & Utilities': '📱',
     Entertainment: '🎮',

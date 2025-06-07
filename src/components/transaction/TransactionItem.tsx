@@ -24,8 +24,8 @@ export interface TransactionItemProps {
 
 // Add categoryIcons map
 const categoryIcons: Record<TransactionCategory, string> = {
-  'Food & Dining': '🍽️',
-  Shopping: '🛍️',
+  'Restaurants & Cafés': '🍽️',
+  Clothing: '👕',
   Transportation: '🚗',
   'Bills & Utilities': '📱',
   Entertainment: '🎮',

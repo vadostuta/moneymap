@@ -42,7 +42,7 @@ export function TransactionForm ({
       type: 'expense',
       amount: 0,
       wallet_id: '',
-      category: 'Food & Dining',
+      category: 'Restaurants & Cafés',
       label: 'Personal',
       date: new Date().toISOString(),
       description: ''
@@ -84,8 +84,8 @@ export function TransactionForm ({
 
   const transactionTypes: TransactionType[] = ['expense', 'income']
   const categories: TransactionCategory[] = [
-    'Food & Dining',
-    'Shopping',
+    'Restaurants & Cafés',
+    'Clothing',
     'Transportation',
     'Bills & Utilities',
     'Entertainment',
