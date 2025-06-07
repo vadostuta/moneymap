@@ -100,7 +100,19 @@ export function QuickTransactionForm ({
     'Presents',
     'Other',
     'Donations',
-    'Subscriptions'
+    'Subscriptions',
+    'Groceries',
+    'Car',
+    'Home',
+    'Taxes',
+    'Electronics',
+    'Children',
+    'Parents',
+    'Pets',
+    'Sport',
+    'Style and Beauty',
+    'Extra',
+    'Salary'
   ]
 
   const categoryIcons: Record<TransactionCategory, React.ReactNode> = {
@@ -115,7 +127,19 @@ export function QuickTransactionForm ({
     Presents: '🎁',
     Other: '📌',
     Donations: '🤝',
-    Subscriptions: '📅'
+    Subscriptions: '📅',
+    Groceries: '🛒',
+    Car: '🚘',
+    Home: '🏠',
+    Taxes: '📝',
+    Electronics: '💻',
+    Children: '👶',
+    Parents: '👨‍👩‍👧‍👦',
+    Pets: '🐾',
+    Sport: '🏋️',
+    'Style and Beauty': '💇',
+    Extra: '➕',
+    Salary: '💰'
   }
 
   useEffect(() => {

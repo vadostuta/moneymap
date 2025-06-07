@@ -17,7 +17,16 @@ import {
   HandHeart,
   ChevronDown,
   Trash2,
-  Wallet
+  Wallet,
+  ShoppingCart,
+  Home,
+  Smartphone,
+  Baby,
+  Users,
+  PawPrint,
+  Dumbbell,
+  Scissors,
+  Plus
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -83,7 +92,19 @@ export function RecentTransactionItem ({
       Presents: { bg: 'bg-yellow-500/10', text: 'text-yellow-500' },
       Other: { bg: 'bg-gray-500/10', text: 'text-gray-500' },
       Donations: { bg: 'bg-teal-500/10', text: 'text-teal-500' },
-      Subscriptions: { bg: 'bg-violet-500/10', text: 'text-violet-500' }
+      Subscriptions: { bg: 'bg-violet-500/10', text: 'text-violet-500' },
+      Groceries: { bg: 'bg-emerald-500/10', text: 'text-emerald-500' },
+      Car: { bg: 'bg-blue-600/10', text: 'text-blue-600' },
+      Home: { bg: 'bg-amber-500/10', text: 'text-amber-500' },
+      Taxes: { bg: 'bg-red-600/10', text: 'text-red-600' },
+      Electronics: { bg: 'bg-slate-500/10', text: 'text-slate-500' },
+      Children: { bg: 'bg-pink-400/10', text: 'text-pink-400' },
+      Parents: { bg: 'bg-purple-400/10', text: 'text-purple-400' },
+      Pets: { bg: 'bg-orange-400/10', text: 'text-orange-400' },
+      Sport: { bg: 'bg-green-600/10', text: 'text-green-600' },
+      'Style and Beauty': { bg: 'bg-fuchsia-500/10', text: 'text-fuchsia-500' },
+      Extra: { bg: 'bg-gray-400/10', text: 'text-gray-400' },
+      Salary: { bg: 'bg-green-600/10', text: 'text-green-600' }
     }
 
     return colors[category] || colors['Other']
@@ -102,7 +123,19 @@ export function RecentTransactionItem ({
       Presents: <Gift className='w-3 h-3' />,
       Other: <HelpCircle className='w-3 h-3' />,
       Donations: <HandHeart className='w-3 h-3' />,
-      Subscriptions: <CreditCard className='w-3 h-3' />
+      Subscriptions: <CreditCard className='w-3 h-3' />,
+      Groceries: <ShoppingCart className='w-3 h-3' />,
+      Car: <Car className='w-3 h-3' />,
+      Home: <Home className='w-3 h-3' />,
+      Taxes: <Receipt className='w-3 h-3' />,
+      Electronics: <Smartphone className='w-3 h-3' />,
+      Children: <Baby className='w-3 h-3' />,
+      Parents: <Users className='w-3 h-3' />,
+      Pets: <PawPrint className='w-3 h-3' />,
+      Sport: <Dumbbell className='w-3 h-3' />,
+      'Style and Beauty': <Scissors className='w-3 h-3' />,
+      Extra: <Plus className='w-3 h-3' />,
+      Salary: <Wallet className='w-3 h-3' />
     }
 
     return icons[category] || icons['Other']
@@ -127,7 +160,19 @@ export function RecentTransactionItem ({
     'Presents',
     'Other',
     'Donations',
-    'Subscriptions'
+    'Subscriptions',
+    'Groceries',
+    'Car',
+    'Home',
+    'Taxes',
+    'Electronics',
+    'Children',
+    'Parents',
+    'Pets',
+    'Sport',
+    'Style and Beauty',
+    'Extra',
+    'Salary'
   ]
 
   return (

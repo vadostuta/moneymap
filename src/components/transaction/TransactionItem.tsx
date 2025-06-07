@@ -35,7 +35,19 @@ const categoryIcons: Record<TransactionCategory, string> = {
   Presents: '🎁',
   Other: '📌',
   Donations: '🤝',
-  Subscriptions: '📅'
+  Subscriptions: '📅',
+  Groceries: '🛒',
+  Car: '🚘',
+  Home: '🏠',
+  Taxes: '📝',
+  Electronics: '💻',
+  Children: '👶',
+  Parents: '👨‍👩‍👧‍👦',
+  Pets: '🐾',
+  Sport: '🏋️',
+  'Style and Beauty': '💇',
+  Extra: '➕',
+  Salary: '💰'
 }
 
 export function TransactionItem ({

@@ -13,6 +13,18 @@ export type TransactionCategory =
   | 'Other'
   | 'Donations'
   | 'Subscriptions'
+  | 'Groceries'
+  | 'Car'
+  | 'Home'
+  | 'Taxes'
+  | 'Electronics'
+  | 'Children'
+  | 'Parents'
+  | 'Pets'
+  | 'Sport'
+  | 'Style and Beauty'
+  | 'Extra'
+  | 'Salary'
 
 export type TransactionLabel =
   | 'Personal'
