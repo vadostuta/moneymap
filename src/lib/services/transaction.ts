@@ -291,9 +291,9 @@ export const transactionService = {
     return data || []
   },
 
-  async getCurrentMonthExpensesByCategory (): Promise<
-    { category: string; amount: number }[]
-  > {
+  async getCurrentMonthExpensesByCategory (
+    walletId?: string
+  ): Promise<{ category: string; amount: number }[]> {
     const {
       data: { user }
     } = await supabase.auth.getUser()
@@ -304,10 +304,7 @@ export const transactionService = {
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
-    console.log('firstDayOfMonth', firstDayOfMonth)
-    console.log('lastDayOfMonth', lastDayOfMonth)
-
-    const { data, error } = await supabase
+    let query = supabase
       .from('transactions')
       .select('category, amount')
       .eq('user_id', user.id)
@@ -315,6 +312,13 @@ export const transactionService = {
       .eq('is_deleted', false)
       .gte('date', firstDayOfMonth.toISOString())
       .lte('date', lastDayOfMonth.toISOString())
+
+    // Add wallet filter if specified
+    if (walletId && walletId !== 'all') {
+      query = query.eq('wallet_id', walletId)
+    }
+
+    const { data, error } = await query
 
     if (error) throw error
 

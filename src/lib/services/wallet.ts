@@ -105,10 +105,12 @@ export const walletService = {
     if (error) throw error
   },
 
-  async getAllActive (): Promise<{ id: string; name: string }[]> {
+  async getAllActive (): Promise<
+    { id: string; name: string; currency: string; is_primary: boolean }[]
+  > {
     const { data, error } = await supabase
       .from('wallets')
-      .select('id, name')
+      .select('id, name, currency, is_primary')
       .eq('is_deleted', false)
 
     if (error) throw error

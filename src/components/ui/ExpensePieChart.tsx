@@ -8,6 +8,14 @@ import { useQuery } from '@tanstack/react-query'
 import { ResponsiveContainer } from 'recharts'
 import { Tooltip } from 'recharts'
 import { TransactionCategory } from '@/lib/types/transaction'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { walletService } from '@/lib/services/wallet'
 
 // Define colors for different categories
 const COLORS = [
@@ -34,12 +42,35 @@ export function ExpensePieChart ({
   onCategorySelect,
   selectedCategory
 }: ExpensePieChartProps) {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['expenses-by-category'],
-    queryFn: () => transactionService.getCurrentMonthExpensesByCategory()
+  // Fetch available wallets with currency information
+  const { data: wallets } = useQuery({
+    queryKey: ['wallets'],
+    queryFn: () => walletService.getAllActive()
   })
 
-  const currency = 'UAH'
+  // Set default wallet ID when wallets are loaded
+  const [selectedWalletId, setSelectedWalletId] = React.useState<string>('')
+
+  // Update selectedWalletId when wallets are loaded
+  React.useEffect(() => {
+    if (wallets && wallets.length > 0 && !selectedWalletId) {
+      setSelectedWalletId(
+        wallets.find(wallet => wallet.is_primary)?.id || wallets[0].id
+      )
+    }
+  }, [wallets, selectedWalletId])
+
+  // Get the selected wallet's currency
+  const selectedWallet = wallets?.find(wallet => wallet.id === selectedWalletId)
+  const currency = selectedWallet?.currency || 'UAH' // Fallback to UAH if no wallet selected
+
+  // Fetch expenses by category with wallet filter
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['expenses-by-category', selectedWalletId],
+    queryFn: () =>
+      transactionService.getCurrentMonthExpensesByCategory(selectedWalletId)
+  })
+
   const totalExpense = data?.reduce((sum, item) => sum + item.amount, 0) || 0
 
   // Format currency consistently
@@ -60,11 +91,32 @@ export function ExpensePieChart ({
     }
   }
 
+  const handleWalletChange = (value: string) => {
+    setSelectedWalletId(value)
+  }
+
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Current Month Expenses</CardTitle>
+          <CardTitle className='text-lg text-muted-foreground font-medium flex flex-col items-center gap-2'>
+            <div>
+              <div>Current Month Expenses</div>
+            </div>
+            <Select value={selectedWalletId} onValueChange={handleWalletChange}>
+              <SelectTrigger className='w-[180px]'>
+                <SelectValue placeholder='Select wallet' />
+              </SelectTrigger>
+              <SelectContent>
+                {/* <SelectItem value='all'>All Wallets</SelectItem> */}
+                {wallets?.map(wallet => (
+                  <SelectItem key={wallet.id} value={wallet.id}>
+                    {wallet.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardTitle>
         </CardHeader>
         <CardContent className='flex items-center justify-center h-[180px]'>
           <p>Loading expense data...</p>
@@ -77,7 +129,24 @@ export function ExpensePieChart ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Current Month Expenses</CardTitle>
+          <CardTitle className='text-lg text-muted-foreground font-medium flex flex-col items-center gap-2'>
+            <div>
+              <div>Current Month Expenses</div>
+            </div>
+            <Select value={selectedWalletId} onValueChange={handleWalletChange}>
+              <SelectTrigger className='w-[180px]'>
+                <SelectValue placeholder='Select wallet' />
+              </SelectTrigger>
+              <SelectContent>
+                {/* <SelectItem value='all'>All Wallets</SelectItem> */}
+                {wallets?.map(wallet => (
+                  <SelectItem key={wallet.id} value={wallet.id}>
+                    {wallet.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardTitle>
         </CardHeader>
         <CardContent className='flex items-center justify-center h-[180px]'>
           <p>Error loading expense data</p>
@@ -90,7 +159,24 @@ export function ExpensePieChart ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Current Month Expenses</CardTitle>
+          <CardTitle className='text-lg text-muted-foreground font-medium flex flex-col items-center gap-2'>
+            <div>
+              <div>Current Month Expenses</div>
+            </div>
+            <Select value={selectedWalletId} onValueChange={handleWalletChange}>
+              <SelectTrigger className='w-[180px]'>
+                <SelectValue placeholder='Select wallet' />
+              </SelectTrigger>
+              <SelectContent>
+                {/* <SelectItem value='all'>All Wallets</SelectItem> */}
+                {wallets?.map(wallet => (
+                  <SelectItem key={wallet.id} value={wallet.id}>
+                    {wallet.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardTitle>
         </CardHeader>
         <CardContent className='flex items-center justify-center h-[180px]'>
           <p>No expense data available for last month.</p>
@@ -102,9 +188,26 @@ export function ExpensePieChart ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-lg text-muted-foreground font-medium'>
-          Current Month Expenses
-        </CardTitle>
+        <div className='flex justify-between items-center'>
+          <CardTitle className='text-lg text-muted-foreground font-medium flex flex-col items-center gap-2'>
+            <div>
+              <div>Current Month Expenses</div>
+            </div>
+            <Select value={selectedWalletId} onValueChange={handleWalletChange}>
+              <SelectTrigger className='w-[180px]'>
+                <SelectValue placeholder='Select wallet' />
+              </SelectTrigger>
+              <SelectContent>
+                {/* <SelectItem value='all'>All Wallets</SelectItem> */}
+                {wallets?.map(wallet => (
+                  <SelectItem key={wallet.id} value={wallet.id}>
+                    {wallet.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardTitle>
+        </div>
         <div className='text-4xl font-extrabold mt-2 text-white tracking-tight'>
           {formatCurrency(totalExpense)}
         </div>
