@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { toastService } from '@/lib/services/toast'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { categoryService } from '@/lib/services/category'
 
 interface QuickTransactionFormProps {
   variant?: 'default' | 'wide'
@@ -44,6 +45,11 @@ export function QuickTransactionForm ({
   const { data: wallets = [] } = useQuery({
     queryKey: ['wallets'],
     queryFn: walletService.getAll
+  })
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: categoryService.getAllCategories
   })
 
   const transactionMutation = useMutation({
@@ -87,60 +93,6 @@ export function QuickTransactionForm ({
       new Date().toISOString().split('T')[0],
     description: initialData?.description || ''
   })
-
-  const categories: TransactionCategory[] = [
-    'Restaurants & Cafés',
-    'Clothing',
-    'Transportation',
-    'Bills & Utilities',
-    'Entertainment',
-    'Healthcare',
-    'Education',
-    'Travel',
-    'Presents',
-    'Other',
-    'Donations',
-    'Subscriptions',
-    'Groceries',
-    'Car',
-    'Home',
-    'Taxes',
-    'Electronics',
-    'Children',
-    'Parents',
-    'Pets',
-    'Sport',
-    'Style and Beauty',
-    'Extra',
-    'Salary'
-  ]
-
-  const categoryIcons: Record<TransactionCategory, React.ReactNode> = {
-    'Restaurants & Cafés': '🍽️',
-    Clothing: '🛍️',
-    Transportation: '🚗',
-    'Bills & Utilities': '📱',
-    Entertainment: '🎮',
-    Healthcare: '🏥',
-    Education: '📚',
-    Travel: '✈️',
-    Presents: '🎁',
-    Other: '📌',
-    Donations: '🤝',
-    Subscriptions: '📅',
-    Groceries: '🛒',
-    Car: '🚘',
-    Home: '🏠',
-    Taxes: '📝',
-    Electronics: '💻',
-    Children: '👶',
-    Parents: '👨‍👩‍👧‍👦',
-    Pets: '🐾',
-    Sport: '🏋️',
-    'Style and Beauty': '💇',
-    Extra: '➕',
-    Salary: '💰'
-  }
 
   useEffect(() => {
     if (!formData.wallet_id && wallets.length > 0) {
@@ -260,30 +212,41 @@ export function QuickTransactionForm ({
                 : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'
             )}
           >
-            {categories.map(category => (
-              <button
-                key={category}
-                type='button'
-                onClick={() => setFormData({ ...formData, category })}
-                className={cn(
-                  'transition-all duration-200 ease-in-out',
-                  formData.category === category ? 'scale-102' : ''
-                )}
-              >
-                <Badge
-                  variant={
-                    formData.category === category ? 'selected' : 'secondary'
+            {categories
+              .filter(category => category.is_active)
+              .map(category => (
+                <button
+                  key={category.id}
+                  type='button'
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      category: category.name as TransactionCategory
+                    })
                   }
                   className={cn(
-                    'w-full py-1.5 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center',
-                    formData.category === category ? 'shadow-sm' : ''
+                    'transition-all duration-200 ease-in-out',
+                    formData.category === category.name ? 'scale-102' : ''
                   )}
                 >
-                  <span className='mr-1.5'>{categoryIcons[category]}</span>
-                  <span className='truncate'>{category}</span>
-                </Badge>
-              </button>
-            ))}
+                  <Badge
+                    variant={
+                      formData.category === category.name
+                        ? 'selected'
+                        : 'secondary'
+                    }
+                    className={cn(
+                      'w-full py-1.5 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center',
+                      formData.category === category.name ? 'shadow-sm' : ''
+                    )}
+                  >
+                    <span className={cn('mr-1.5', category.color_text)}>
+                      {category.icon}
+                    </span>
+                    <span className='truncate'>{category.name}</span>
+                  </Badge>
+                </button>
+              ))}
           </div>
 
           <CardFooter className='px-0 pb-0'>

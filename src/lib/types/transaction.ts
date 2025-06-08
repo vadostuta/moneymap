@@ -1,30 +1,6 @@
 export type TransactionType = 'expense' | 'income'
 
-export type TransactionCategory =
-  | 'Restaurants & Cafés'
-  | 'Clothing'
-  | 'Transportation'
-  | 'Bills & Utilities'
-  | 'Entertainment'
-  | 'Healthcare'
-  | 'Education'
-  | 'Travel'
-  | 'Presents'
-  | 'Other'
-  | 'Donations'
-  | 'Subscriptions'
-  | 'Groceries'
-  | 'Car'
-  | 'Home'
-  | 'Taxes'
-  | 'Electronics'
-  | 'Children'
-  | 'Parents'
-  | 'Pets'
-  | 'Sport'
-  | 'Style and Beauty'
-  | 'Extra'
-  | 'Salary'
+export type TransactionCategory = string
 
 export type TransactionLabel =
   | 'Personal'

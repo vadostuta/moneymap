@@ -1,43 +1,30 @@
 import { format } from 'date-fns'
 import { Transaction, TransactionCategory } from '@/lib/types/transaction'
-import {
-  ArrowDown,
-  ArrowUp,
-  Utensils,
-  ShoppingBag,
-  Car,
-  Receipt,
-  Film,
-  Heart,
-  GraduationCap,
-  Plane,
-  Gift,
-  HelpCircle,
-  CreditCard,
-  HandHeart,
-  ChevronDown,
-  Trash2,
-  Wallet,
-  ShoppingCart,
-  Home,
-  Smartphone,
-  Baby,
-  Users,
-  PawPrint,
-  Dumbbell,
-  Scissors,
-  Plus
-} from 'lucide-react'
+import { ArrowDown, ArrowUp, ChevronDown, Trash2, Wallet } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { transactionService } from '@/lib/services/transaction'
 import { toastService } from '@/lib/services/toast'
 import { Button } from '@/components/ui/button'
+import { categoryService } from '@/lib/services/category'
+
+function hexToRgba (hex: string, alpha: number) {
+  let c = hex.replace('#', '')
+  if (c.length === 3)
+    c = c
+      .split('')
+      .map(x => x + x)
+      .join('')
+  const num = parseInt(c, 16)
+  return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${
+    num & 255
+  }, ${alpha})`
+}
 
 export function RecentTransactionItem ({
   transaction
@@ -45,6 +32,12 @@ export function RecentTransactionItem ({
   transaction: Transaction
 }) {
   const queryClient = useQueryClient()
+
+  // Add categories query
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: categoryService.getAllCategories
+  })
 
   const updateCategoryMutation = useMutation({
     mutationFn: async (newCategory: TransactionCategory) => {
@@ -76,104 +69,14 @@ export function RecentTransactionItem ({
     }
   })
 
-  const getCategoryColor = (category: TransactionCategory) => {
-    const colors: Record<TransactionCategory, { bg: string; text: string }> = {
-      'Restaurants & Cafés': {
-        bg: 'bg-orange-500/10',
-        text: 'text-orange-500'
-      },
-      Clothing: { bg: 'bg-blue-500/10', text: 'text-blue-500' },
-      Transportation: { bg: 'bg-green-500/10', text: 'text-green-500' },
-      'Bills & Utilities': { bg: 'bg-purple-500/10', text: 'text-purple-500' },
-      Entertainment: { bg: 'bg-pink-500/10', text: 'text-pink-500' },
-      Healthcare: { bg: 'bg-red-500/10', text: 'text-red-500' },
-      Education: { bg: 'bg-indigo-500/10', text: 'text-indigo-500' },
-      Travel: { bg: 'bg-cyan-500/10', text: 'text-cyan-500' },
-      Presents: { bg: 'bg-yellow-500/10', text: 'text-yellow-500' },
-      Other: { bg: 'bg-gray-500/10', text: 'text-gray-500' },
-      Donations: { bg: 'bg-teal-500/10', text: 'text-teal-500' },
-      Subscriptions: { bg: 'bg-violet-500/10', text: 'text-violet-500' },
-      Groceries: { bg: 'bg-emerald-500/10', text: 'text-emerald-500' },
-      Car: { bg: 'bg-blue-600/10', text: 'text-blue-600' },
-      Home: { bg: 'bg-amber-500/10', text: 'text-amber-500' },
-      Taxes: { bg: 'bg-red-600/10', text: 'text-red-600' },
-      Electronics: { bg: 'bg-slate-500/10', text: 'text-slate-500' },
-      Children: { bg: 'bg-pink-400/10', text: 'text-pink-400' },
-      Parents: { bg: 'bg-purple-400/10', text: 'text-purple-400' },
-      Pets: { bg: 'bg-orange-400/10', text: 'text-orange-400' },
-      Sport: { bg: 'bg-green-600/10', text: 'text-green-600' },
-      'Style and Beauty': { bg: 'bg-fuchsia-500/10', text: 'text-fuchsia-500' },
-      Extra: { bg: 'bg-gray-400/10', text: 'text-gray-400' },
-      Salary: { bg: 'bg-green-600/10', text: 'text-green-600' }
-    }
-
-    return colors[category] || colors['Other']
-  }
-
-  const getCategoryIcon = (category: TransactionCategory) => {
-    const icons: Record<TransactionCategory, React.ReactNode> = {
-      'Restaurants & Cafés': <Utensils className='w-3 h-3' />,
-      Clothing: <ShoppingBag className='w-3 h-3' />,
-      Transportation: <Car className='w-3 h-3' />,
-      'Bills & Utilities': <Receipt className='w-3 h-3' />,
-      Entertainment: <Film className='w-3 h-3' />,
-      Healthcare: <Heart className='w-3 h-3' />,
-      Education: <GraduationCap className='w-3 h-3' />,
-      Travel: <Plane className='w-3 h-3' />,
-      Presents: <Gift className='w-3 h-3' />,
-      Other: <HelpCircle className='w-3 h-3' />,
-      Donations: <HandHeart className='w-3 h-3' />,
-      Subscriptions: <CreditCard className='w-3 h-3' />,
-      Groceries: <ShoppingCart className='w-3 h-3' />,
-      Car: <Car className='w-3 h-3' />,
-      Home: <Home className='w-3 h-3' />,
-      Taxes: <Receipt className='w-3 h-3' />,
-      Electronics: <Smartphone className='w-3 h-3' />,
-      Children: <Baby className='w-3 h-3' />,
-      Parents: <Users className='w-3 h-3' />,
-      Pets: <PawPrint className='w-3 h-3' />,
-      Sport: <Dumbbell className='w-3 h-3' />,
-      'Style and Beauty': <Scissors className='w-3 h-3' />,
-      Extra: <Plus className='w-3 h-3' />,
-      Salary: <Wallet className='w-3 h-3' />
-    }
-
-    return icons[category] || icons['Other']
-  }
-
-  const categoryColors = getCategoryColor(transaction.category)
-  const categoryIcon = getCategoryIcon(transaction.category)
-
   const handleCategoryChange = (newCategory: TransactionCategory) => {
     updateCategoryMutation.mutate(newCategory)
   }
 
-  const categories: TransactionCategory[] = [
-    'Restaurants & Cafés',
-    'Clothing',
-    'Transportation',
-    'Bills & Utilities',
-    'Entertainment',
-    'Healthcare',
-    'Education',
-    'Travel',
-    'Presents',
-    'Other',
-    'Donations',
-    'Subscriptions',
-    'Groceries',
-    'Car',
-    'Home',
-    'Taxes',
-    'Electronics',
-    'Children',
-    'Parents',
-    'Pets',
-    'Sport',
-    'Style and Beauty',
-    'Extra',
-    'Salary'
-  ]
+  // Find the current category from the fetched categories
+  const currentCategory = categories.find(
+    cat => cat.name === transaction.category
+  )
 
   return (
     <div className='flex flex-col sm:flex-row sm:items-start justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent/5 transition-colors gap-3'>
@@ -192,27 +95,56 @@ export function RecentTransactionItem ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${categoryColors.bg} ${categoryColors.text} hover:opacity-80 transition-opacity`}
+                className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity'
+                type='button'
+                style={{
+                  backgroundColor: currentCategory?.color_bg?.includes('#')
+                    ? hexToRgba(currentCategory.color_bg, 0.15)
+                    : currentCategory?.color_bg || '#374151'
+                }}
               >
-                {categoryIcon}
-                <span className='hidden sm:inline'>{transaction.category}</span>
-                <span className='sm:hidden'>
+                <span style={{ color: '#fff' }} className='flex items-center'>
+                  {currentCategory?.icon || '📌'}
+                </span>
+                <span className='hidden sm:inline' style={{ color: '#fff' }}>
+                  {transaction.category}
+                </span>
+                <span className='sm:hidden' style={{ color: '#fff' }}>
                   {transaction.category.split(' ')[0]}
                 </span>
-                <ChevronDown className='w-3 h-3 ml-1' />
+                <ChevronDown
+                  className='w-3 h-3 ml-1'
+                  style={{ color: '#fff' }}
+                />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='start' className='w-48'>
-              {categories.map(category => (
-                <DropdownMenuItem
-                  key={category}
-                  onClick={() => handleCategoryChange(category)}
-                  className='flex items-center gap-2'
-                >
-                  {getCategoryIcon(category)}
-                  {category}
-                </DropdownMenuItem>
-              ))}
+              {categories
+                .filter(category => category.is_active)
+                .map(category => {
+                  const isSelected = category.name === transaction.category
+                  return (
+                    <DropdownMenuItem
+                      key={category.id}
+                      onClick={() =>
+                        handleCategoryChange(
+                          category.name as TransactionCategory
+                        )
+                      }
+                      className={`flex items-center gap-2 rounded-md`}
+                      style={{
+                        backgroundColor: isSelected
+                          ? category.color_bg?.includes('#')
+                            ? hexToRgba(category.color_bg, 0.15)
+                            : undefined
+                          : undefined
+                      }}
+                    >
+                      <span style={{ color: '#fff' }}>{category.icon}</span>
+                      <span style={{ color: '#fff' }}>{category.name}</span>
+                    </DropdownMenuItem>
+                  )
+                })}
             </DropdownMenuContent>
           </DropdownMenu>
           <span className='hidden sm:inline'>•</span>
