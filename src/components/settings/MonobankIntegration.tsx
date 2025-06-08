@@ -77,7 +77,7 @@ export function MonobankIntegration ({ onSuccess }: Props) {
   }
 
   return (
-    <div className='bg-card rounded-lg shadow p-6'>
+    <div className='bg-card rounded-lg shadow'>
       <div className='flex items-center gap-4 mb-6'>
         <div className='bg-white rounded-full p-1.5'>
           <MonobankIcon className='w-24 h-8' />

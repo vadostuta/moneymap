@@ -70,7 +70,7 @@ export function IntegrationsSection ({
 
   if (isLoading) {
     return (
-      <div className='bg-card rounded-lg shadow p-6'>
+      <div className='bg-card rounded-lg shadow'>
         <div className='animate-pulse space-y-4'>
           <div className='h-6 w-48 bg-secondary rounded'></div>
           <div className='h-20 bg-secondary rounded'></div>
@@ -85,7 +85,7 @@ export function IntegrationsSection ({
 
   return (
     <div className='space-y-6'>
-      <div className='bg-card rounded-lg shadow p-6'>
+      <div className='bg-card rounded-lg shadow'>
         <h2 className='text-xl font-semibold mb-4 text-foreground'>
           Connected Banks
         </h2>

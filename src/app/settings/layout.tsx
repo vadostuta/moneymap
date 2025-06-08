@@ -14,12 +14,17 @@ export default function SettingsLayout ({
         <aside className='w-64 flex-shrink-0'>
           <nav className='space-y-1 bg-card rounded-lg p-4'>
             <Link
-              href='/settings'
+              href='/settings/bank-integrations'
               className='block px-4 py-2 rounded-md text-foreground hover:bg-secondary transition-colors'
             >
               Bank Integrations
             </Link>
-            {/* We can add more settings sections here later */}
+            <Link
+              href='/settings/categories'
+              className='block px-4 py-2 rounded-md text-foreground hover:bg-secondary transition-colors'
+            >
+              Categories
+            </Link>
           </nav>
         </aside>
         <main className='flex-1 max-w-3xl'>{children}</main>
