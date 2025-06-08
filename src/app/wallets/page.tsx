@@ -90,7 +90,7 @@ export default function WalletsPage () {
   }
 
   return (
-    <div className='container py-4 md:py-6 px-4 md:px-6'>
+    <div className='container py-4 md:py-6 px-4 md:px-6 mx-auto max-w-7xl'>
       <div className='flex items-center justify-between mb-4 md:mb-6'>
         <h1 className='text-xl md:text-2xl font-bold'>My Wallets</h1>
         <div className='flex items-center gap-2'>
