@@ -197,7 +197,7 @@ export function QuickTransactionForm ({
                 })
               }
               required
-              className='text-base h-12 w-full'
+              className='text-base h-12 w-full min-w-0'
               onClick={e => {
                 ;(e.target as HTMLInputElement).showPicker()
               }}
