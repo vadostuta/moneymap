@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { TransactionItem } from '@/components/transaction/TransactionItem'
-import Link from 'next/link'
 import { toastService } from '@/lib/services/toast'
 
 interface WalletDetailProps {
@@ -108,13 +107,6 @@ export function WalletDetail ({
       </div>
 
       <div className='mb-4 md:mb-6'>
-        <h3 className='text-lg md:text-xl font-semibold mb-2'>Balance</h3>
-        <p className='text-2xl md:text-3xl'>
-          {wallet.balance} {wallet.currency}
-        </p>
-      </div>
-
-      <div className='mb-4 md:mb-6'>
         <p className='text-xs md:text-sm text-gray-500'>
           Created: {new Date(wallet.created_at).toLocaleDateString()}
         </p>
@@ -124,11 +116,6 @@ export function WalletDetail ({
       </div>
 
       <div className='flex gap-4 flex-col sm:flex-row mb-6'>
-        <Link href='/transactions' className='flex-1 sm:flex-none'>
-          <Button variant='secondary' className='w-full'>
-            View All Transactions
-          </Button>
-        </Link>
         <Button
           variant='destructive'
           onClick={handleDelete}

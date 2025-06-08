@@ -38,7 +38,7 @@ export function WalletList ({
   if (loading) return <div className='p-4'>Loading wallets...</div>
 
   return (
-    <div className='flex flex-col h-full border rounded-lg md:rounded-none md:border-r md:border-l-0 md:border-t-0 md:border-b-0'>
+    <div className='flex flex-col h-full border-0 rounded-lg md:rounded-none'>
       <div className='flex-1 overflow-y-auto max-h-[60vh] md:max-h-none'>
         {wallets.length > 0 ? (
           wallets.map(wallet => (
@@ -51,10 +51,9 @@ export function WalletList ({
               )}
             >
               <div className='flex-1'>
-                <h3 className='font-medium'>{wallet.name}</h3>
-                <p className='text-sm text-muted-foreground'>
-                  {wallet.balance} {wallet.currency}
-                </p>
+                <h3 className='font-medium'>
+                  {wallet.name} ({wallet.currency})
+                </h3>
               </div>
               {wallet.is_primary && (
                 <Star
