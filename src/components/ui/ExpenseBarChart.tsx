@@ -1,6 +1,5 @@
 'use client'
 
-import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, XAxis, YAxis, Cell } from "recharts"
 import { useQuery } from "@tanstack/react-query"
 import { transactionService } from "@/lib/services/transaction"
@@ -9,7 +8,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
