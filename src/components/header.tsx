@@ -21,7 +21,7 @@ export function Header () {
       <div className='container flex h-16 items-center justify-between px-4'>
         <div className='flex items-center gap-4 md:gap-8'>
           <Link
-            href='/hello'
+            href='/overview'
             className='font-bold hover:text-primary transition-colors'
           >
             MoneyMap
@@ -31,14 +31,14 @@ export function Header () {
           {user && (
             <nav className='hidden md:flex gap-4'>
               <Link
-                href='/hello'
+                href='/overview'
                 className={`hover:text-primary transition-colors ${
-                  pathname === '/hello'
+                  pathname === '/overview'
                     ? 'text-primary font-medium'
                     : 'text-muted-foreground'
                 }`}
               >
-                Hello
+                Overview
               </Link>
               {/* <Link
                 href='/dashboard'
@@ -115,15 +115,15 @@ export function Header () {
         <div className='md:hidden fixed top-16 left-0 right-0 bg-background border-b z-50'>
           <nav className='flex flex-col p-4 px-6'>
             <Link
-              href='/hello'
+              href='/overview'
               className={`py-2 hover:text-primary transition-colors ${
-                pathname === '/hello'
+                pathname === '/overview'
                   ? 'text-primary font-medium'
                   : 'text-muted-foreground'
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Hello
+              Overview
             </Link>
             {/* <Link
               href='/transactions'

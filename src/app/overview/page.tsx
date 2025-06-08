@@ -6,7 +6,7 @@ import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
 import { useState } from 'react'
 import { TransactionCategory } from '@/lib/types/transaction'
 
-export default function Hello () {
+export default function Overview () {
   const [selectedCategory, setSelectedCategory] =
     useState<TransactionCategory>()
 
