@@ -3,7 +3,6 @@
 import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
 import { RecentTransactions } from '@/components/transaction/RecentTransactions'
 import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
-import { ExpenseBarChart } from '@/components/ui/ExpenseBarChart'
 import { useState } from 'react'
 import { TransactionCategory } from '@/lib/types/transaction'
 
