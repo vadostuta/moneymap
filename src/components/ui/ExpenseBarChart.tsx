@@ -118,12 +118,11 @@ export function ExpenseBarChart() {
     <Card>
       <CardHeader>
         <div>
-          <CardTitle>Wallet Expenses</CardTitle>
-          <CardDescription>Current month expenses by wallet</CardDescription>
+          <CardTitle>Current month expenses by wallet</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="h-[80px]">
           <BarChart
             data={transactions}
             layout="vertical"
@@ -136,8 +135,10 @@ export function ExpenseBarChart() {
               dataKey="wallet"
               type="category"
               tickLine={false}
-              tickMargin={10}
+              tickMargin={0}
               axisLine={false}
+              height={10}
+              width={100}
             />
             <ChartTooltip
               cursor={false}
@@ -151,7 +152,7 @@ export function ExpenseBarChart() {
                 />
               }
             />
-            <Bar dataKey="expenses" radius={5} fillOpacity={0.8}>
+            <Bar dataKey="expenses" radius={5} fillOpacity={0.8} barSize={24}>
               {transactions.map((entry, index) => (
                 <Cell key={index} fill={BAR_COLORS[index % BAR_COLORS.length]} />
               ))}

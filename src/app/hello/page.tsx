@@ -19,7 +19,7 @@ export default function Hello () {
             onCategorySelect={setSelectedCategory}
             selectedCategory={selectedCategory}
           />
-          <ExpenseBarChart />
+          {/* <ExpenseBarChart /> */}
           <QuickTransactionForm />
         </div>
 

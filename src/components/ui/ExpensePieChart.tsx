@@ -245,7 +245,7 @@ export function ExpensePieChart ({
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-1 mt-4'>
           {data.map((entry, index) => (
             <div
               key={entry.category}
