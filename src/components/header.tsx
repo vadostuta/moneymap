@@ -32,7 +32,11 @@ export function Header () {
             <nav className='hidden md:flex gap-4'>
               <Link
                 href='/hello'
-                className='hover:text-primary transition-colors'
+                className={`hover:text-primary transition-colors ${
+                  pathname === '/hello'
+                    ? 'text-primary font-medium'
+                    : 'text-muted-foreground'
+                }`}
               >
                 Hello
               </Link>
@@ -69,7 +73,7 @@ export function Header () {
               <Link
                 href='/settings'
                 className={`hover:text-primary transition-colors ${
-                  pathname === '/settings'
+                  pathname.startsWith('/settings')
                     ? 'text-primary font-medium'
                     : 'text-muted-foreground'
                 }`}
@@ -146,7 +150,7 @@ export function Header () {
             <Link
               href='/settings'
               className={`py-2 hover:text-primary transition-colors ${
-                pathname === '/settings'
+                pathname.startsWith('/settings')
                   ? 'text-primary font-medium'
                   : 'text-muted-foreground'
               }`}
