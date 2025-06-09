@@ -1,6 +1,5 @@
 'use client'
 
-import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
 import { RecentTransactions } from '@/components/transaction/RecentTransactions'
 import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
 import { useState } from 'react'
@@ -19,7 +18,7 @@ export default function Overview () {
             selectedCategory={selectedCategory}
           />
           {/* <ExpenseBarChart /> */}
-          <QuickTransactionForm />
+          {/* <QuickTransactionForm /> */}
         </div>
 
         <div className='col-span-12 lg:col-span-7'>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils'
 import { toastService } from '@/lib/services/toast'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { categoryService } from '@/lib/services/category'
+import { usePathname } from 'next/navigation'
 
 interface QuickTransactionFormProps {
   variant?: 'default' | 'wide'
@@ -41,6 +42,7 @@ export function QuickTransactionForm ({
   onCancel
 }: QuickTransactionFormProps) {
   const queryClient = useQueryClient()
+  const pathname = usePathname()
 
   const { data: wallets = [] } = useQuery({
     queryKey: ['wallets'],
@@ -52,6 +54,9 @@ export function QuickTransactionForm ({
     queryFn: categoryService.getAllCategories
   })
 
+  // Get primary wallet or first wallet if no primary exists
+  const defaultWallet = wallets.find(w => w.is_primary) || wallets[0]
+
   const transactionMutation = useMutation({
     mutationFn: async (transaction: CreateTransactionDTO) => {
       if (initialData) {
@@ -61,8 +66,13 @@ export function QuickTransactionForm ({
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
-      queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
+      if (pathname === '/overview') {
+        queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+        queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
+      } else if (pathname === '/transactions') {
+        queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
+      }
+
       toastService.success(
         initialData
           ? 'Transaction updated successfully'
@@ -86,20 +96,13 @@ export function QuickTransactionForm ({
   const [formData, setFormData] = useState({
     type: initialData?.type || ('expense' as TransactionType),
     amount: initialData?.amount?.toString() || '',
-    wallet_id: initialData?.wallet_id || '',
+    wallet_id: initialData?.wallet_id || defaultWallet?.id || '',
     category: initialData?.category || ('' as TransactionCategory),
     date:
       initialData?.date?.split('T')[0] ||
       new Date().toISOString().split('T')[0],
     description: initialData?.description || ''
   })
-
-  useEffect(() => {
-    if (!formData.wallet_id && wallets.length > 0) {
-      const primaryWallet = wallets.find(w => w.is_primary) || wallets[0]
-      setFormData(prev => ({ ...prev, wallet_id: primaryWallet.id }))
-    }
-  }, [wallets])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

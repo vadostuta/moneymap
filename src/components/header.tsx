@@ -5,12 +5,21 @@ import { useAuth } from '@/contexts/auth-context'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Plus } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
 
 export function Header () {
   const { user, signInWithGoogle, signOut } = useAuth()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
@@ -84,19 +93,27 @@ export function Header () {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        {user && (
-          <button
-            className='md:hidden p-2 mr-2'
-            onClick={toggleMobileMenu}
-            aria-label='Toggle menu'
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        )}
-
-        {/* Desktop Auth */}
-        <div className='hidden md:block'>
+        {/* Desktop Actions */}
+        <div className='hidden md:flex items-center gap-4'>
+          {user && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size='sm' className='gap-2'>
+                  <Plus className='h-4 w-4' />
+                  Add Transaction
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[600px]'>
+                <DialogHeader>
+                  <DialogTitle>Add New Transaction</DialogTitle>
+                </DialogHeader>
+                <QuickTransactionForm
+                  onSuccess={() => setDialogOpen(false)}
+                  onCancel={() => setDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
           {user ? (
             <div className='flex items-center gap-4'>
               <span className='hidden lg:inline'>{user.email}</span>
@@ -108,6 +125,17 @@ export function Header () {
             <Button onClick={signInWithGoogle}>Sign In with Google</Button>
           )}
         </div>
+
+        {/* Mobile Menu Button */}
+        {user && (
+          <button
+            className='md:hidden p-2 mr-2'
+            onClick={toggleMobileMenu}
+            aria-label='Toggle menu'
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        )}
       </div>
 
       {/* Mobile Menu */}
