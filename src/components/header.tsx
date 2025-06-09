@@ -93,8 +93,8 @@ export function Header () {
           )}
         </div>
 
-        {/* Desktop Actions */}
         <div className='hidden md:flex items-center gap-4'>
+          {/* Desktop Actions */}
           {user && (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
@@ -114,6 +114,7 @@ export function Header () {
               </DialogContent>
             </Dialog>
           )}
+
           {user ? (
             <div className='flex items-center gap-4'>
               <span className='hidden lg:inline'>{user.email}</span>
@@ -127,6 +128,28 @@ export function Header () {
         </div>
 
         {/* Mobile Menu Button */}
+        <div className='md:hidden'>
+          {user && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size='sm' className='gap-2'>
+                  <Plus className='h-4 w-4' />
+                  Add Transaction
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[600px]'>
+                <DialogHeader>
+                  <DialogTitle>Add New Transaction</DialogTitle>
+                </DialogHeader>
+                <QuickTransactionForm
+                  onSuccess={() => setDialogOpen(false)}
+                  onCancel={() => setDialogOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+
         {user && (
           <button
             className='md:hidden p-2 mr-2'
