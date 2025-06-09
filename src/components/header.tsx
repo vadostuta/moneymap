@@ -50,7 +50,7 @@ export function Header () {
               >
                 Dashboard
               </Link> */}
-              {/* <Link
+              <Link
                 href='/transactions'
                 className={`hover:text-primary transition-colors ${
                   pathname === '/transactions'
@@ -59,7 +59,7 @@ export function Header () {
                 }`}
               >
                 Transactions
-              </Link> */}
+              </Link>
               <Link
                 href='/wallets'
                 className={`hover:text-primary transition-colors ${
@@ -125,7 +125,7 @@ export function Header () {
             >
               Overview
             </Link>
-            {/* <Link
+            <Link
               href='/transactions'
               className={`py-2 hover:text-primary transition-colors ${
                 pathname === '/transactions'
@@ -135,7 +135,7 @@ export function Header () {
               onClick={() => setMobileMenuOpen(false)}
             >
               Transactions
-            </Link> */}
+            </Link>
             <Link
               href='/wallets'
               className={`py-2 hover:text-primary transition-colors ${
