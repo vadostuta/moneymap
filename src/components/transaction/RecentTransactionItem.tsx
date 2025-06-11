@@ -1,6 +1,17 @@
 import { format } from 'date-fns'
-import { Transaction, TransactionCategory } from '@/lib/types/transaction'
-import { ArrowDown, ArrowUp, ChevronDown, Trash2, Wallet } from 'lucide-react'
+import {
+  Transaction,
+  TransactionCategory,
+  TransactionType
+} from '@/lib/types/transaction'
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowRightLeft,
+  ChevronDown,
+  Trash2,
+  Wallet
+} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +23,7 @@ import { transactionService } from '@/lib/services/transaction'
 import { toastService } from '@/lib/services/toast'
 import { Button } from '@/components/ui/button'
 import { categoryService } from '@/lib/services/category'
+import { usePathname } from 'next/navigation'
 
 function hexToRgba (hex: string, alpha: number) {
   let c = hex.replace('#', '')
@@ -32,6 +44,7 @@ export function RecentTransactionItem ({
   transaction: Transaction
 }) {
   const queryClient = useQueryClient()
+  const pathname = usePathname()
 
   // Add categories query
   const { data: categories = [] } = useQuery({
@@ -68,6 +81,33 @@ export function RecentTransactionItem ({
       toastService.error('Failed to delete transaction')
     }
   })
+
+  const updateTypeMutation = useMutation({
+    mutationFn: async (newType: TransactionType) => {
+      await transactionService.update(transaction.id, {
+        type: newType
+      })
+    },
+    onSuccess: () => {
+      if (pathname === '/overview') {
+        queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+        queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
+      } else if (pathname === '/transactions') {
+        queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
+      }
+      toastService.success('Transaction type updated successfully')
+    },
+    onError: () => {
+      toastService.error('Failed to update transaction type')
+    }
+  })
+
+  const cycleTransactionType = () => {
+    const types: TransactionType[] = ['expense', 'income', 'transfer']
+    const currentIndex = types.indexOf(transaction.type)
+    const nextIndex = (currentIndex + 1) % types.length
+    updateTypeMutation.mutate(types[nextIndex])
+  }
 
   const handleCategoryChange = (newCategory: TransactionCategory) => {
     updateCategoryMutation.mutate(newCategory)
@@ -160,11 +200,19 @@ export function RecentTransactionItem ({
             transaction.type === 'expense' ? 'text-white' : 'text-emerald-500'
           }`}
         >
-          {transaction.type === 'expense' ? (
-            <ArrowDown className='w-4 h-4 sm:w-5 sm:h-5' />
-          ) : (
-            <ArrowUp className='w-4 h-4 sm:w-5 sm:h-5' />
-          )}
+          <button
+            onClick={cycleTransactionType}
+            disabled={updateTypeMutation.isPending}
+            className='flex items-center gap-1 hover:opacity-80 transition-opacity'
+          >
+            {transaction.type === 'expense' ? (
+              <ArrowDown className='w-4 h-4 sm:w-5 sm:h-5' />
+            ) : transaction.type === 'income' ? (
+              <ArrowUp className='w-4 h-4 sm:w-5 sm:h-5' />
+            ) : (
+              <ArrowRightLeft className='w-4 h-4 sm:w-5 sm:h-5' />
+            )}
+          </button>
           {new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: transaction.wallet?.currency || 'USD'

@@ -82,7 +82,7 @@ export function TransactionForm ({
     }
   }
 
-  const transactionTypes: TransactionType[] = ['expense', 'income']
+  const transactionTypes: TransactionType[] = ['expense', 'income', 'transfer']
   const categories: TransactionCategory[] = [
     'Restaurants & Cafés',
     'Clothing',

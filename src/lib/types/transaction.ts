@@ -1,4 +1,4 @@
-export type TransactionType = 'expense' | 'income'
+export type TransactionType = 'expense' | 'income' | 'transfer'
 
 export type TransactionCategory = string
 
