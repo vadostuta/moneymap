@@ -60,7 +60,10 @@ export default function EditWalletPage ({
       <h2 className='text-xl font-bold mb-4'>Edit Wallet</h2>
       <WalletForm
         initialData={wallet}
-        onCreateWallet={updateWalletMutation.mutate}
+        onCreateWallet={async (walletData: Partial<Wallet>) => {
+          await updateWalletMutation.mutateAsync(walletData)
+          return wallet
+        }}
         onCancel={() => router.push(`/wallets/${wallet.id}`)}
         onSuccess={() => router.push(`/wallets/${wallet.id}`)}
       />

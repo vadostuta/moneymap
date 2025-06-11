@@ -1,8 +1,5 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { Wallet } from '@/lib/types/wallet'
-import { Transaction } from '@/lib/types/transaction'
 import { walletService } from '@/lib/services/wallet'
 import { transactionService } from '@/lib/services/transaction'
 import { Button } from '@/components/ui/button'

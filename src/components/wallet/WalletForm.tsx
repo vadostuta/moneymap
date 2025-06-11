@@ -43,7 +43,7 @@ export function WalletForm ({
       queryClient.invalidateQueries({ queryKey: ['wallets'] })
       onSuccess()
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Failed to create wallet:', error)
     }
   })
@@ -58,7 +58,7 @@ export function WalletForm ({
       queryClient.invalidateQueries({ queryKey: ['wallet'] })
       onSuccess()
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Failed to update wallet:', error)
     }
   })
