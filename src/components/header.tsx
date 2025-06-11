@@ -72,7 +72,7 @@ export function Header () {
               <Link
                 href='/wallets'
                 className={`hover:text-primary transition-colors ${
-                  pathname === '/wallets'
+                  pathname.startsWith('/wallets')
                     ? 'text-primary font-medium'
                     : 'text-muted-foreground'
                 }`}

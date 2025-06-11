@@ -23,7 +23,7 @@ import { transactionService } from '@/lib/services/transaction'
 import { toastService } from '@/lib/services/toast'
 import { Button } from '@/components/ui/button'
 import { categoryService } from '@/lib/services/category'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 function hexToRgba (hex: string, alpha: number) {
   let c = hex.replace('#', '')
@@ -45,6 +45,7 @@ export function RecentTransactionItem ({
 }) {
   const queryClient = useQueryClient()
   const pathname = usePathname()
+  const router = useRouter()
 
   // Add categories query
   const { data: categories = [] } = useQuery({
@@ -125,7 +126,22 @@ export function RecentTransactionItem ({
           <span className='text-base sm:text-lg font-semibold truncate'>
             {transaction.description}
           </span>
-          <span className='text-xs sm:text-sm text-muted-foreground flex items-center gap-1'>
+          <span
+            className='text-xs sm:text-sm text-muted-foreground flex items-center gap-1 cursor-pointer hover:underline'
+            onClick={() => {
+              if (transaction.wallet?.id) {
+                router.push(`/wallets/${transaction.wallet.id}`)
+              }
+            }}
+            title='Go to wallet'
+            tabIndex={0}
+            role='button'
+            onKeyDown={e => {
+              if (e.key === 'Enter' && transaction.wallet?.id) {
+                router.push(`/wallets/${transaction.wallet.id}`)
+              }
+            }}
+          >
             <Wallet className='w-3 h-3 sm:w-4 sm:h-4' />
             {transaction.wallet?.name}
           </span>

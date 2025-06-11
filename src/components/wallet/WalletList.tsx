@@ -1,41 +1,50 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Wallet } from '@/lib/types/wallet'
 import { walletService } from '@/lib/services/wallet'
 import { cn } from '@/lib/utils'
-import { Star } from 'lucide-react'
+import { Star, Wallet as WalletIcon, Plus } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
 
 interface WalletListProps {
   onSelectWallet: (wallet: Wallet) => void
-  refreshTrigger?: number
+  onAddWallet?: () => void
   selectedWalletId?: string
 }
 
 export function WalletList ({
   onSelectWallet,
-  refreshTrigger,
+  onAddWallet,
   selectedWalletId
 }: WalletListProps) {
-  const [wallets, setWallets] = useState<Wallet[]>([])
-  const [loading, setLoading] = useState(true)
+  const pathname = usePathname()
 
+  const {
+    data: wallets = [],
+    isLoading,
+    isError
+  } = useQuery({
+    queryKey: ['wallets'],
+    queryFn: walletService.getAll
+  })
+
+  // If on main wallets page and no selected wallet, select primary or first wallet
   useEffect(() => {
-    loadWallets()
-  }, [refreshTrigger])
-
-  const loadWallets = async () => {
-    try {
-      const data = await walletService.getAll()
-      setWallets(data)
-    } catch (error) {
-      console.error('Failed to load wallets:', error)
-    } finally {
-      setLoading(false)
+    if (pathname === '/wallets' && !selectedWalletId && wallets.length > 0) {
+      const primaryWallet = wallets.find(w => w.is_primary) || wallets[0]
+      onSelectWallet(primaryWallet)
     }
+  }, [pathname, selectedWalletId, wallets, onSelectWallet])
+
+  const handleWalletClick = (wallet: Wallet) => {
+    onSelectWallet(wallet)
   }
 
-  if (loading) return <div className='p-4'>Loading wallets...</div>
+  if (isLoading) return <div className='p-4'>Loading wallets...</div>
+  if (isError)
+    return <div className='p-4 text-red-500'>Failed to load wallets.</div>
 
   return (
     <div className='flex flex-col h-full border-0 rounded-lg md:rounded-none'>
@@ -44,16 +53,48 @@ export function WalletList ({
           wallets.map(wallet => (
             <div
               key={wallet.id}
-              onClick={() => onSelectWallet(wallet)}
+              onClick={() => handleWalletClick(wallet)}
               className={cn(
-                'flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-secondary/50',
-                selectedWalletId === wallet.id ? 'bg-secondary' : ''
+                'group flex items-center justify-between gap-3 p-3 mb-2 rounded-lg cursor-pointer transition-all duration-150',
+                selectedWalletId === wallet.id
+                  ? 'bg-primary/10 shadow-md scale-[1.02]'
+                  : 'bg-background hover:bg-accent/40 hover:shadow-sm'
               )}
             >
-              <div className='flex-1'>
-                <h3 className='font-medium'>
-                  {wallet.name} ({wallet.currency})
-                </h3>
+              <div className='flex items-center gap-3 flex-1'>
+                <div
+                  className={cn(
+                    'rounded-full p-2 flex items-center justify-center',
+                    selectedWalletId === wallet.id
+                      ? 'bg-primary text-white'
+                      : 'bg-secondary text-primary'
+                  )}
+                >
+                  <WalletIcon
+                    className='h-5 w-5'
+                    style={{
+                      color:
+                        selectedWalletId === wallet.id
+                          ? '#facc15' // yellow-400
+                          : undefined
+                    }}
+                  />
+                </div>
+                <div>
+                  <h3
+                    className={cn(
+                      'font-semibold text-base',
+                      selectedWalletId === wallet.id
+                        ? 'text-primary'
+                        : 'text-foreground'
+                    )}
+                  >
+                    {wallet.name}{' '}
+                    <span className='font-normal text-xs text-muted-foreground'>
+                      ({wallet.currency})
+                    </span>
+                  </h3>
+                </div>
               </div>
               {wallet.is_primary && (
                 <Star
@@ -66,6 +107,26 @@ export function WalletList ({
         ) : (
           <div className='p-4 text-center text-gray-500'>No wallets found</div>
         )}
+        {/* Add Wallet Button */}
+        <div
+          onClick={onAddWallet}
+          className={cn(
+            'group flex items-center justify-between gap-3 p-3 mb-2 rounded-lg cursor-pointer transition-all duration-150 hover:bg-primary/5'
+          )}
+          tabIndex={0}
+          role='button'
+        >
+          <div className='flex items-center gap-3 flex-1'>
+            <div className='rounded-full p-2 flex items-center justify-center bg-primary/10 text-primary'>
+              <Plus className='h-5 w-5' />
+            </div>
+            <div>
+              <h3 className='font-semibold text-base text-primary'>
+                Add Wallet
+              </h3>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

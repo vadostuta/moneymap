@@ -9,6 +9,7 @@ import {
 } from '@/lib/types/wallet'
 import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface WalletFormProps {
   initialData?: Wallet
@@ -32,18 +33,42 @@ export function WalletForm ({
     is_deleted: initialData?.is_deleted || false
   })
 
+  const queryClient = useQueryClient()
+
+  const createWalletMutation = useMutation({
+    mutationFn: async (data: CreateWalletDTO) => {
+      return await onCreateWallet(data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wallets'] })
+      onSuccess()
+    },
+    onError: (error: any) => {
+      console.error('Failed to create wallet:', error)
+    }
+  })
+
+  const updateWalletMutation = useMutation({
+    mutationFn: async (data: CreateWalletDTO) => {
+      if (!initialData) throw new Error('No wallet to update')
+      return await walletService.update(initialData.id, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wallets'] })
+      queryClient.invalidateQueries({ queryKey: ['wallet'] })
+      onSuccess()
+    },
+    onError: (error: any) => {
+      console.error('Failed to update wallet:', error)
+    }
+  })
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    try {
-      if (!initialData) {
-        await onCreateWallet(formData)
-      } else {
-        await walletService.update(initialData.id, formData)
-      }
-
-      onSuccess()
-    } catch (error) {
-      console.error('Failed to save wallet:', error)
+    if (!initialData) {
+      createWalletMutation.mutate(formData)
+    } else {
+      updateWalletMutation.mutate(formData)
     }
   }
 
