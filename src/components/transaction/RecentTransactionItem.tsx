@@ -205,7 +205,9 @@ export function RecentTransactionItem ({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <span className='hidden sm:inline'>•</span>
+          {transaction.type === 'transfer' && (
+            <span className='hidden sm:inline'>•</span>
+          )}
           <div className='flex items-center gap-1'>
             <span>{format(new Date(transaction.date), 'MMM d, yyyy')}</span>
           </div>
