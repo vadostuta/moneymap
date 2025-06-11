@@ -148,61 +148,63 @@ export function RecentTransactionItem ({
         </div>
 
         <div className='flex flex-wrap items-center gap-2 text-xs sm:text-sm text-muted-foreground'>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity'
-                type='button'
-                style={{
-                  backgroundColor: currentCategory?.color_bg?.includes('#')
-                    ? hexToRgba(currentCategory.color_bg, 0.15)
-                    : currentCategory?.color_bg || '#374151'
-                }}
-              >
-                <span style={{ color: '#fff' }} className='flex items-center'>
-                  {currentCategory?.icon || '📌'}
-                </span>
-                <span className='hidden sm:inline' style={{ color: '#fff' }}>
-                  {transaction.category}
-                </span>
-                <span className='sm:hidden' style={{ color: '#fff' }}>
-                  {transaction.category.split(' ')[0]}
-                </span>
-                <ChevronDown
-                  className='w-3 h-3 ml-1'
-                  style={{ color: '#fff' }}
-                />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='start' className='w-48'>
-              {categories
-                .filter(category => category.is_active)
-                .map(category => {
-                  const isSelected = category.name === transaction.category
-                  return (
-                    <DropdownMenuItem
-                      key={category.id}
-                      onClick={() =>
-                        handleCategoryChange(
-                          category.name as TransactionCategory
-                        )
-                      }
-                      className={`flex items-center gap-2 rounded-md`}
-                      style={{
-                        backgroundColor: isSelected
-                          ? category.color_bg?.includes('#')
-                            ? hexToRgba(category.color_bg, 0.15)
+          {transaction.type !== 'transfer' && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity'
+                  type='button'
+                  style={{
+                    backgroundColor: currentCategory?.color_bg?.includes('#')
+                      ? hexToRgba(currentCategory.color_bg, 0.15)
+                      : currentCategory?.color_bg || '#374151'
+                  }}
+                >
+                  <span style={{ color: '#fff' }} className='flex items-center'>
+                    {currentCategory?.icon || '📌'}
+                  </span>
+                  <span className='hidden sm:inline' style={{ color: '#fff' }}>
+                    {transaction.category}
+                  </span>
+                  <span className='sm:hidden' style={{ color: '#fff' }}>
+                    {transaction.category.split(' ')[0]}
+                  </span>
+                  <ChevronDown
+                    className='w-3 h-3 ml-1'
+                    style={{ color: '#fff' }}
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='start' className='w-48'>
+                {categories
+                  .filter(category => category.is_active)
+                  .map(category => {
+                    const isSelected = category.name === transaction.category
+                    return (
+                      <DropdownMenuItem
+                        key={category.id}
+                        onClick={() =>
+                          handleCategoryChange(
+                            category.name as TransactionCategory
+                          )
+                        }
+                        className={`flex items-center gap-2 rounded-md`}
+                        style={{
+                          backgroundColor: isSelected
+                            ? category.color_bg?.includes('#')
+                              ? hexToRgba(category.color_bg, 0.15)
+                              : undefined
                             : undefined
-                          : undefined
-                      }}
-                    >
-                      <span style={{ color: '#fff' }}>{category.icon}</span>
-                      <span style={{ color: '#fff' }}>{category.name}</span>
-                    </DropdownMenuItem>
-                  )
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                        }}
+                      >
+                        <span style={{ color: '#fff' }}>{category.icon}</span>
+                        <span style={{ color: '#fff' }}>{category.name}</span>
+                      </DropdownMenuItem>
+                    )
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <span className='hidden sm:inline'>•</span>
           <div className='flex items-center gap-1'>
             <span>{format(new Date(transaction.date), 'MMM d, yyyy')}</span>
