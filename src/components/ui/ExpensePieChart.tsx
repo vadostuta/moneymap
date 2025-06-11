@@ -95,6 +95,11 @@ export function ExpensePieChart ({
     setSelectedWalletId(value)
   }
 
+  const categoryColorIndex: Record<string, number> = {}
+  data?.forEach((entry, idx) => {
+    categoryColorIndex[entry.category] = idx
+  })
+
   if (isLoading) {
     return (
       <Card>
@@ -246,34 +251,39 @@ export function ExpensePieChart ({
           </ResponsiveContainer>
         </div>
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-1 mt-4'>
-          {data.map((entry, index) => (
-            <div
-              key={entry.category}
-              className='flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity p-2 rounded-lg hover:bg-white/5'
-              onClick={() =>
-                handlePieClick({
-                  category: entry.category as TransactionCategory
-                })
-              }
-            >
-              <div
-                className='w-3 h-3 rounded-full border border-white/30 flex-shrink-0'
-                style={{
-                  backgroundColor: COLORS[index % COLORS.length],
-                  opacity:
-                    !selectedCategory || selectedCategory === entry.category
-                      ? 1
-                      : 0.5
-                }}
-              />
-              <span className='text-sm sm:text-base text-muted-foreground truncate'>
-                {entry.category}
-              </span>
-              <span className='text-sm font-semibold ml-auto text-white whitespace-nowrap'>
-                {formatCurrency(entry.amount)}
-              </span>
-            </div>
-          ))}
+          {[...data]
+            .sort((a, b) => b.amount - a.amount)
+            .map(entry => {
+              const colorIdx = categoryColorIndex[entry.category]
+              return (
+                <div
+                  key={entry.category}
+                  className='flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity p-2 rounded-lg hover:bg-white/5'
+                  onClick={() =>
+                    handlePieClick({
+                      category: entry.category as TransactionCategory
+                    })
+                  }
+                >
+                  <div
+                    className='w-3 h-3 rounded-full border border-white/30 flex-shrink-0'
+                    style={{
+                      backgroundColor: COLORS[colorIdx % COLORS.length],
+                      opacity:
+                        !selectedCategory || selectedCategory === entry.category
+                          ? 1
+                          : 0.5
+                    }}
+                  />
+                  <span className='text-sm sm:text-base text-muted-foreground truncate'>
+                    {entry.category}
+                  </span>
+                  <span className='text-sm font-semibold ml-auto text-white whitespace-nowrap'>
+                    {formatCurrency(entry.amount)}
+                  </span>
+                </div>
+              )
+            })}
         </div>
       </CardContent>
     </Card>
