@@ -11,6 +11,13 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { categoryService } from '@/lib/services/category'
 import { TransactionCategory } from '@/lib/types/transaction'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 export default function TransactionsPage () {
   const { user, loading: authLoading } = useAuth()
@@ -18,6 +25,9 @@ export default function TransactionsPage () {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] =
     useState<TransactionCategory>()
+  const [selectedWalletId, setSelectedWalletId] = useState<string | 'all'>(
+    'all'
+  )
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -25,9 +35,24 @@ export default function TransactionsPage () {
     queryFn: categoryService.getAllCategories
   })
 
+  // Fetch wallets
+  const { data: wallets = [] } = useQuery({
+    queryKey: ['wallets'],
+    queryFn: async () => {
+      if (!user) return []
+      return await transactionService.fetchWallets(user.id)
+    },
+    enabled: !!user && !authLoading
+  })
+
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
-      queryKey: ['list-transactions', searchQuery, selectedCategory],
+      queryKey: [
+        'list-transactions',
+        searchQuery,
+        selectedCategory,
+        selectedWalletId
+      ],
       queryFn: async ({ pageParam = 0 }) => {
         if (!user) return []
         const offset = pageParam * ITEMS_PER_PAGE
@@ -36,7 +61,8 @@ export default function TransactionsPage () {
           offset,
           limit: ITEMS_PER_PAGE,
           searchQuery: searchQuery || undefined,
-          category: selectedCategory
+          category: selectedCategory,
+          walletId: selectedWalletId
         })
       },
       enabled: !!user && !authLoading,
@@ -56,13 +82,29 @@ export default function TransactionsPage () {
   return (
     <div className='container px-4 py-4 sm:py-6 mx-auto max-w-7xl'>
       <div className='space-y-4 mb-6'>
-        <Input
-          type='search'
-          placeholder='Search transactions...'
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          className='max-w-sm'
-        />
+        <div className='flex flex-wrap gap-4 items-center'>
+          <Input
+            type='search'
+            placeholder='Search transactions...'
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className='max-w-sm'
+          />
+
+          <Select value={selectedWalletId} onValueChange={setSelectedWalletId}>
+            <SelectTrigger className='w-full sm:w-[200px]'>
+              <SelectValue placeholder='Select wallet' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All Wallets</SelectItem>
+              {wallets.map(wallet => (
+                <SelectItem key={wallet.id} value={wallet.id}>
+                  {wallet.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className='flex flex-wrap gap-2'>
           {categories
