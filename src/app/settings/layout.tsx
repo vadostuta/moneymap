@@ -14,6 +14,12 @@ export default function SettingsLayout ({
         <aside className='w-64 flex-shrink-0'>
           <nav className='space-y-1 bg-card rounded-lg p-4'>
             <Link
+              href='/settings/account'
+              className='block px-4 py-2 rounded-md text-foreground hover:bg-secondary transition-colors'
+            >
+              Account
+            </Link>
+            <Link
               href='/settings/bank-integrations'
               className='block px-4 py-2 rounded-md text-foreground hover:bg-secondary transition-colors'
             >
