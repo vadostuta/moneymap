@@ -75,6 +75,33 @@ export const walletService = {
 
   // Delete a wallet
   async delete (id: string): Promise<void> {
+    // First get the wallet to check if it's primary
+    const { data: wallet } = await supabase
+      .from('wallets')
+      .select('is_primary')
+      .eq('id', id)
+      .single()
+
+    // If this was the primary wallet, we need to set another wallet as primary
+    if (wallet?.is_primary) {
+      // Get the first non-deleted wallet that's not the one being deleted
+      const { data: nextWallet } = await supabase
+        .from('wallets')
+        .select('id')
+        .neq('id', id)
+        .eq('is_deleted', false)
+        .limit(1)
+        .single()
+
+      // If there's another wallet, make it primary
+      if (nextWallet) {
+        await supabase
+          .from('wallets')
+          .update({ is_primary: true })
+          .eq('id', nextWallet.id)
+      }
+    }
+
     const { error: integrationError } = await supabase
       .from('bank_integrations')
       .update({ is_active: false })

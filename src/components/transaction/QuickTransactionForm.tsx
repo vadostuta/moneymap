@@ -26,7 +26,7 @@ import { cn } from '@/lib/utils'
 import { toastService } from '@/lib/services/toast'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { categoryService } from '@/lib/services/category'
-import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 
 interface QuickTransactionFormProps {
   variant?: 'default' | 'wide'
@@ -42,7 +42,6 @@ export function QuickTransactionForm ({
   onCancel
 }: QuickTransactionFormProps) {
   const queryClient = useQueryClient()
-  const pathname = usePathname()
 
   const { data: wallets = [] } = useQuery({
     queryKey: ['wallets'],
@@ -54,9 +53,6 @@ export function QuickTransactionForm ({
     queryFn: categoryService.getAllCategories
   })
 
-  // Get primary wallet or first wallet if no primary exists
-  const defaultWallet = wallets.find(w => w.is_primary) || wallets[0]
-
   const transactionMutation = useMutation({
     mutationFn: async (transaction: CreateTransactionDTO) => {
       if (initialData) {
@@ -66,12 +62,9 @@ export function QuickTransactionForm ({
       }
     },
     onSuccess: () => {
-      if (pathname === '/overview') {
-        queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
-        queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
-      } else if (pathname === '/transactions') {
-        queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
-      }
+      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
+      queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
 
       toastService.success(
         initialData
@@ -81,7 +74,7 @@ export function QuickTransactionForm ({
       setFormData({
         type: 'expense',
         amount: '',
-        wallet_id: formData.wallet_id, // Keep the same wallet
+        wallet_id: formData.wallet_id,
         category: '' as TransactionCategory,
         date: new Date().toISOString().split('T')[0],
         description: ''
@@ -93,6 +86,9 @@ export function QuickTransactionForm ({
     }
   })
 
+  // Get primary wallet or first wallet if no primary exists
+  const defaultWallet = wallets.find(w => w.is_primary) || wallets[0]
+
   const [formData, setFormData] = useState({
     type: initialData?.type || ('expense' as TransactionType),
     amount: initialData?.amount?.toString() || '',
@@ -103,6 +99,21 @@ export function QuickTransactionForm ({
       new Date().toISOString().split('T')[0],
     description: initialData?.description || ''
   })
+
+  if (wallets.length === 0) {
+    return (
+      <Card className={cn('mx-auto')}>
+        <CardContent className='pt-6 px-4 text-center'>
+          <p className='text-lg mb-4'>
+            To start adding transactions, you need to create your first wallet.
+          </p>
+          <Link href='/wallets' onClick={onCancel}>
+            <Button>Create Wallet</Button>
+          </Link>
+        </CardContent>
+      </Card>
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
