@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/auth-context'
 import ClientToaster from '@/components/ClientToaster'
 import { MonobankSyncProvider } from '@/components/providers/MonobankSyncProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
+import { AuthGuard } from '@/components/AuthGuard'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -38,7 +39,9 @@ export default function RootLayout ({
               <div className='flex flex-col h-screen mx-auto max-w-7xl'>
                 <Header />
                 <main className='flex-1 flex justify-center'>
-                  <div className='w-full'>{children}</div>
+                  <div className='w-full'>
+                    <AuthGuard>{children}</AuthGuard>
+                  </div>
                 </main>
               </div>
             </MonobankSyncProvider>
