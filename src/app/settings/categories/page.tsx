@@ -5,8 +5,10 @@ import { categoryService } from '@/lib/services/category'
 import { Switch } from '@/components/ui/switch'
 import { toastService } from '@/lib/services/toast'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
 
 export default function CategoriesPage () {
+  const { t } = useTranslation('common')
   const queryClient = useQueryClient()
 
   const { data: categories = [], isLoading } = useQuery({
@@ -19,10 +21,10 @@ export default function CategoriesPage () {
       categoryService.update(id, { is_active }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
-      toastService.success('Category updated successfully')
+      toastService.success(t('settings.categories.updateSuccess'))
     },
     onError: () => {
-      toastService.error('Failed to update category')
+      toastService.error(t('settings.categories.updateError'))
     }
   })
 
@@ -39,7 +41,9 @@ export default function CategoriesPage () {
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
-        <h2 className='text-xl font-semibold'>Transaction Categories</h2>
+        <h2 className='text-xl font-semibold'>
+          {t('settings.categories.title')}
+        </h2>
       </div>
 
       <div className='grid gap-4'>

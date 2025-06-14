@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { toastService } from '@/lib/services/toast'
 import { MonobankIcon } from '@/components/icons/MonobankIcon'
 import { MonobankService, BankIntegration } from '@/lib/services/monobank'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   refreshTrigger: number
@@ -14,6 +15,7 @@ export function IntegrationsSection ({
   refreshTrigger,
   onIntegrationsChange
 }: Props) {
+  const { t } = useTranslation('common')
   const [integrations, setIntegrations] = useState<BankIntegration[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isDisconnecting, setIsDisconnecting] = useState<string | null>(null)
@@ -30,7 +32,7 @@ export function IntegrationsSection ({
       onIntegrationsChange?.(hasMonobank)
     } catch (error) {
       console.error('Failed to load bank integrations:', error)
-      toastService.error('Failed to load bank integrations')
+      toastService.error(t('settings.integrations.loadError'))
     } finally {
       setIsLoading(false)
     }
@@ -51,13 +53,13 @@ export function IntegrationsSection ({
         return newIntegrations
       })
 
-      toastService.success('Bank disconnected successfully')
+      toastService.success(t('settings.integrations.disconnectSuccess'))
     } catch (error) {
       console.error('Error disconnecting bank:', error)
       if (error instanceof Error) {
         toastService.error(error.message)
       } else {
-        toastService.error('Failed to disconnect bank')
+        toastService.error(t('settings.integrations.disconnectError'))
       }
     } finally {
       setIsDisconnecting(null)
@@ -87,7 +89,7 @@ export function IntegrationsSection ({
     <div className='space-y-6'>
       <div className='bg-card rounded-lg shadow'>
         <h2 className='text-xl font-semibold mb-4 text-foreground'>
-          Connected Banks
+          {t('settings.integrations.connectedBanks')}
         </h2>
         <div className='space-y-4'>
           {integrations.map(integration => (
@@ -102,7 +104,7 @@ export function IntegrationsSection ({
                 <div>
                   <p className='font-medium text-foreground'>Monobank</p>
                   <p className='text-sm text-muted-foreground'>
-                    Connected{' '}
+                    {t('settings.integrations.connected')}{' '}
                     {new Date(integration.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -113,8 +115,8 @@ export function IntegrationsSection ({
                 className='text-destructive hover:text-destructive/90 disabled:opacity-50 transition-opacity'
               >
                 {isDisconnecting === integration.id
-                  ? 'Disconnecting...'
-                  : 'Disconnect'}
+                  ? t('settings.integrations.disconnecting')
+                  : t('settings.integrations.disconnect')}
               </button>
             </div>
           ))}

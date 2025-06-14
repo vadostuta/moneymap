@@ -10,6 +10,7 @@ import {
 import { walletService } from '@/lib/services/wallet'
 import { Button } from '@/components/ui/button'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
 interface WalletFormProps {
   initialData?: Wallet
@@ -24,6 +25,7 @@ export function WalletForm ({
   onSuccess,
   onCreateWallet
 }: WalletFormProps) {
+  const { t } = useTranslation('common')
   const [formData, setFormData] = useState<CreateWalletDTO>({
     name: initialData?.name || '',
     type: initialData?.type || 'cash',
@@ -44,13 +46,13 @@ export function WalletForm ({
       onSuccess()
     },
     onError: (error: Error) => {
-      console.error('Failed to create wallet:', error)
+      console.error(t('wallets.form.createError'), error)
     }
   })
 
   const updateWalletMutation = useMutation({
     mutationFn: async (data: CreateWalletDTO) => {
-      if (!initialData) throw new Error('No wallet to update')
+      if (!initialData) throw new Error(t('wallets.form.noWalletToUpdate'))
       return await walletService.update(initialData.id, data)
     },
     onSuccess: () => {
@@ -59,7 +61,7 @@ export function WalletForm ({
       onSuccess()
     },
     onError: (error: Error) => {
-      console.error('Failed to update wallet:', error)
+      console.error(t('wallets.form.updateError'), error)
     }
   })
 
@@ -73,35 +75,39 @@ export function WalletForm ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className='p-4 space-y-4'>
+    <form onSubmit={handleSubmit} className='p-3 sm:p-4 space-y-3 sm:space-y-4'>
       <div>
-        <label className='block text-sm font-medium mb-1'>Name</label>
+        <label className='block text-xs sm:text-sm font-medium mb-1'>
+          {t('wallets.form.name')}
+        </label>
         <input
           type='text'
           value={formData.name}
           onChange={e => setFormData({ ...formData, name: e.target.value })}
-          className='w-full p-2 border rounded bg-secondary'
+          className='w-full p-2 text-sm sm:text-base border rounded bg-secondary'
           required
         />
       </div>
 
       <div>
-        <label className='block text-sm font-medium mb-1'>Type</label>
+        <label className='block text-xs sm:text-sm font-medium mb-1'>
+          {t('wallets.form.type')}
+        </label>
         <select
           value={formData.type}
           onChange={e =>
             setFormData({ ...formData, type: e.target.value as WalletType })
           }
-          className='w-full p-2 border rounded bg-secondary'
+          className='w-full p-2 text-sm sm:text-base border rounded bg-secondary'
         >
-          <option value='credit'>Credit</option>
-          <option value='debit'>Debit</option>
-          <option value='cash'>Cash</option>
-          <option value='bank'>Bank</option>
-          <option value='crypto'>Crypto</option>
-          <option value='savings'>Savings</option>
-          <option value='investment'>Investment</option>
-          <option value='ewallet'>E-Wallet</option>
+          <option value='credit'>{t('wallets.types.credit')}</option>
+          <option value='debit'>{t('wallets.types.debit')}</option>
+          <option value='cash'>{t('wallets.types.cash')}</option>
+          <option value='bank'>{t('wallets.types.bank')}</option>
+          <option value='crypto'>{t('wallets.types.crypto')}</option>
+          <option value='savings'>{t('wallets.types.savings')}</option>
+          <option value='investment'>{t('wallets.types.investment')}</option>
+          <option value='ewallet'>{t('wallets.types.ewallet')}</option>
         </select>
       </div>
 
@@ -122,7 +128,9 @@ export function WalletForm ({
       */}
 
       <div>
-        <label className='block text-sm font-medium mb-1'>Currency</label>
+        <label className='block text-xs sm:text-sm font-medium mb-1'>
+          {t('wallets.form.currency')}
+        </label>
         <select
           value={formData.currency}
           onChange={e =>
@@ -131,7 +139,7 @@ export function WalletForm ({
               currency: e.target.value as CurrencyType
             })
           }
-          className='w-full p-2 border rounded bg-secondary'
+          className='w-full p-2 text-sm sm:text-base border rounded bg-secondary'
         >
           <option value='USD'>USD</option>
           <option value='EUR'>EUR</option>
@@ -141,17 +149,17 @@ export function WalletForm ({
         </select>
       </div>
 
-      <div className='flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:space-x-2 mt-6'>
+      <div className='flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:space-x-2 mt-4 sm:mt-6'>
         <Button
           type='button'
           variant='outline'
           onClick={onCancel}
-          className='w-full sm:w-auto'
+          className='w-full sm:w-auto h-9 sm:h-10'
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
-        <Button type='submit' className='w-full sm:w-auto'>
-          Save
+        <Button type='submit' className='w-full sm:w-auto h-9 sm:h-10'>
+          {t('common.save')}
         </Button>
       </div>
     </form>

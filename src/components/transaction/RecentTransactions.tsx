@@ -8,6 +8,7 @@ import React from 'react'
 import { RecentTransactionItem } from './RecentTransactionItem'
 import { TransactionCategory } from '@/lib/types/transaction'
 import { useAuth } from '@/contexts/auth-context'
+import { useTranslation } from 'react-i18next'
 
 interface RecentTransactionsProps {
   selectedCategory?: TransactionCategory
@@ -18,6 +19,7 @@ export function RecentTransactions ({
   selectedCategory,
   onResetCategory
 }: RecentTransactionsProps) {
+  const { t } = useTranslation('common')
   const { user, loading: authLoading } = useAuth()
   const ITEMS_PER_PAGE = 10
 
@@ -68,15 +70,15 @@ export function RecentTransactions ({
     return (
       <Card>
         <CardHeader className='flex flex-row items-center justify-between'>
-          <CardTitle>Recent Transactions</CardTitle>
+          <CardTitle>{t('transactions.recentTransactions')}</CardTitle>
           {selectedCategory && onResetCategory && (
             <Button variant='ghost' size='sm' onClick={onResetCategory}>
-              Reset Filter
+              {t('common.resetFilter')}
             </Button>
           )}
         </CardHeader>
         <CardContent>
-          <p>Loading transactions...</p>
+          <p>{t('common.loading')}</p>
         </CardContent>
       </Card>
     )
@@ -86,15 +88,15 @@ export function RecentTransactions ({
     return (
       <Card>
         <CardHeader className='flex flex-row items-center justify-between'>
-          <CardTitle>Recent Transactions</CardTitle>
+          <CardTitle>{t('transactions.recentTransactions')}</CardTitle>
           {selectedCategory && onResetCategory && (
             <Button variant='ghost' size='sm' onClick={onResetCategory}>
-              Reset Filter
+              {t('common.resetFilter')}
             </Button>
           )}
         </CardHeader>
         <CardContent>
-          <p>Error loading transactions</p>
+          <p>{t('common.error')}</p>
         </CardContent>
       </Card>
     )
@@ -104,15 +106,15 @@ export function RecentTransactions ({
     return (
       <Card>
         <CardHeader className='flex flex-row items-center justify-between'>
-          <CardTitle>Recent Transactions</CardTitle>
+          <CardTitle>{t('transactions.recentTransactions')}</CardTitle>
           {selectedCategory && onResetCategory && (
             <Button variant='ghost' size='sm' onClick={onResetCategory}>
-              Reset Filter
+              {t('common.resetFilter')}
             </Button>
           )}
         </CardHeader>
         <CardContent>
-          <p>No transactions found</p>
+          <p>{t('transactions.noTransactions')}</p>
         </CardContent>
       </Card>
     )
@@ -121,10 +123,10 @@ export function RecentTransactions ({
   return (
     <Card>
       <CardHeader className='flex flex-row items-center justify-between'>
-        <CardTitle>Recent Transactions</CardTitle>
+        <CardTitle>{t('transactions.recentTransactions')}</CardTitle>
         {selectedCategory && onResetCategory && (
           <Button variant='ghost' size='sm' onClick={onResetCategory}>
-            Reset Filter
+            {t('common.resetFilter')}
           </Button>
         )}
       </CardHeader>
@@ -145,7 +147,9 @@ export function RecentTransactions ({
                 variant='outline'
                 className='w-full'
               >
-                {isFetchingNextPage ? 'Loading...' : 'Show More'}
+                {isFetchingNextPage
+                  ? t('common.loading')
+                  : t('common.showMore')}
               </Button>
             </div>
           )}

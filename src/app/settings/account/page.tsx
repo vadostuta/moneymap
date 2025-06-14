@@ -3,16 +3,14 @@
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import { useTranslation } from 'react-i18next'
 
 export default function AccountSettings () {
+  const { t } = useTranslation('common')
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDeleteAccount = async () => {
-    if (
-      window.confirm(
-        'Are you sure you want to delete your account? This action cannot be undone.'
-      )
-    ) {
+    if (window.confirm(t('settings.account.deleteConfirm'))) {
       setIsDeleting(true)
       try {
         // Call the API endpoint to delete the user
@@ -23,7 +21,7 @@ export default function AccountSettings () {
         const data = await response.json()
 
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to delete account')
+          throw new Error(data.error || t('settings.account.deleteError'))
         }
 
         // Sign out from Supabase
@@ -48,7 +46,7 @@ export default function AccountSettings () {
         alert(
           error instanceof Error
             ? error.message
-            : 'Failed to delete account. Please try again later.'
+            : t('settings.account.deleteErrorGeneric')
         )
       } finally {
         setIsDeleting(false)
@@ -59,25 +57,28 @@ export default function AccountSettings () {
   return (
     <div className='space-y-6'>
       <div className='border-b pb-4'>
-        <h2 className='text-xl font-semibold'>Account Settings</h2>
+        <h2 className='text-xl font-semibold'>{t('settings.account.title')}</h2>
         <p className='text-muted-foreground'>
-          Manage your account settings and preferences
+          {t('settings.account.description')}
         </p>
       </div>
 
       <div className='space-y-4'>
         <div className='border rounded-lg p-4'>
-          <h3 className='text-lg font-medium mb-2'>Delete Account</h3>
+          <h3 className='text-lg font-medium mb-2'>
+            {t('settings.account.deleteTitle')}
+          </h3>
           <p className='text-muted-foreground mb-4'>
-            Permanently delete your account and all associated data. This action
-            cannot be undone.
+            {t('settings.account.deleteDescription')}
           </p>
           <Button
             variant='destructive'
             onClick={handleDeleteAccount}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Deleting...' : 'Delete Account'}
+            {isDeleting
+              ? t('settings.account.deleting')
+              : t('settings.account.delete')}
           </Button>
         </div>
       </div>

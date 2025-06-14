@@ -9,6 +9,8 @@ import { TransactionItem } from '@/components/transaction/TransactionItem'
 import { toastService } from '@/lib/services/toast'
 import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { RecentTransactionItem } from '../transaction/RecentTransactionItem'
 
 interface WalletDetailProps {
   walletId: string
@@ -16,6 +18,7 @@ interface WalletDetailProps {
 }
 
 export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
+  const { t } = useTranslation('common')
   const router = useRouter()
   const queryClient = useQueryClient()
 
@@ -45,7 +48,7 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
       await walletService.delete(walletId)
     },
     onSuccess: () => {
-      toastService.success('Wallet deleted successfully')
+      toastService.success(t('wallets.detail.deleteSuccess'))
       queryClient.invalidateQueries({ queryKey: ['wallets'] })
       onDelete()
     },
@@ -53,14 +56,14 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
       if (error instanceof Error) {
         toastService.error(error.message)
       } else {
-        toastService.error('Failed to delete wallet')
+        toastService.error(t('wallets.detail.deleteError'))
       }
       console.error('Error deleting wallet:', error)
     }
   })
 
   const handleDelete = () => {
-    if (!confirm('Are you sure you want to delete this wallet?')) return
+    if (!confirm(t('wallets.detail.deleteConfirm'))) return
     deleteWalletMutation.mutate()
   }
 
@@ -81,27 +84,31 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
     setPrimaryMutation.mutate()
   }
 
-  if (isWalletLoading) return <div>Loading...</div>
-  if (isWalletError || !wallet) return <div>Wallet not found</div>
+  if (isWalletLoading) return <div>{t('wallets.detail.loading')}</div>
+  if (isWalletError || !wallet) return <div>{t('wallets.detail.notFound')}</div>
 
   return (
-    <div className='p-4 md:p-6'>
-      <div className='flex items-center justify-between mb-4'>
-        <h2 className='text-xl md:text-2xl font-bold mb-2'>{wallet.name}</h2>
-        <div className='flex items-center gap-2'>
+    <div className='p-3 sm:p-4 md:p-6'>
+      <div className='flex items-center justify-between mb-3 sm:mb-4'>
+        <h2 className='text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2 truncate pr-2'>
+          {wallet.name}
+        </h2>
+        <div className='flex items-center gap-1.5 sm:gap-2 flex-shrink-0'>
           <Button
             variant='outline'
+            size='sm'
             onClick={() => router.push(`/wallets/${wallet.id}/edit`)}
+            className='h-8 sm:h-9'
           >
-            Edit
+            {t('wallets.detail.edit')}
           </Button>
           <button
             onClick={handlePrimaryToggle}
-            className='p-2 hover:bg-secondary rounded-full'
+            className='p-1.5 sm:p-2 hover:bg-secondary rounded-full'
           >
             <Star
               className={cn(
-                'h-5 w-5',
+                'h-4 w-4 sm:h-5 sm:w-5',
                 wallet.is_primary
                   ? 'fill-yellow-400 text-yellow-400'
                   : 'text-muted-foreground'
@@ -111,52 +118,66 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
         </div>
       </div>
 
-      <div className='mb-4 md:mb-6'>
-        <p className='text-gray-600 text-sm md:text-base'>
-          Type: {wallet.type}
+      <div className='mb-3 sm:mb-4 md:mb-6'>
+        <p className='text-gray-600 text-xs sm:text-sm md:text-base'>
+          {t('wallets.detail.type')}: {wallet.type}
         </p>
       </div>
 
-      <div className='mb-4 md:mb-6'>
-        <p className='text-xs md:text-sm text-gray-500'>
-          Created: {new Date(wallet.created_at).toLocaleDateString()}
+      <div className='mb-3 sm:mb-4 md:mb-6'>
+        <p className='text-xs sm:text-sm text-gray-500'>
+          {t('wallets.detail.created')}:{' '}
+          {new Date(wallet.created_at).toLocaleDateString()}
         </p>
-        <p className='text-xs md:text-sm text-gray-500'>
-          Last updated: {new Date(wallet.updated_at).toLocaleDateString()}
+        <p className='text-xs sm:text-sm text-gray-500'>
+          {t('wallets.detail.lastUpdated')}:{' '}
+          {new Date(wallet.updated_at).toLocaleDateString()}
         </p>
       </div>
 
-      <div className='flex gap-4 flex-col sm:flex-row mb-6'>
+      <div className='flex gap-3 sm:gap-4 flex-col sm:flex-row mb-4 sm:mb-6'>
         <Button
           variant='destructive'
           onClick={handleDelete}
-          className='w-full sm:w-auto'
+          className='w-full sm:w-auto h-9 sm:h-10'
           disabled={deleteWalletMutation.isPending}
         >
-          {deleteWalletMutation.isPending ? 'Deleting...' : 'Delete Wallet'}
+          {deleteWalletMutation.isPending
+            ? t('wallets.detail.deleting')
+            : t('wallets.detail.deleteWallet')}
         </Button>
       </div>
 
-      <div className='mb-4 md:mb-6'>
-        <h3 className='text-lg md:text-xl font-semibold mb-3 md:mb-4'>
-          Recent Transactions
+      <div className='mb-3 sm:mb-4 md:mb-6'>
+        <h3 className='text-base sm:text-lg md:text-xl font-semibold mb-2 sm:mb-3 md:mb-4'>
+          {t('wallets.detail.recentTransactions')}
         </h3>
         {isTransactionsLoading ? (
-          <p>Loading transactions...</p>
+          <p className='text-sm sm:text-base'>
+            {t('wallets.detail.loadingTransactions')}
+          </p>
         ) : isTransactionsError ? (
-          <p className='text-red-500'>Failed to load transactions.</p>
+          <p className='text-sm sm:text-base text-red-500'>
+            {t('wallets.detail.loadError')}
+          </p>
         ) : recentTransactions.length > 0 ? (
-          <div className='space-y-2 md:space-y-3'>
+          <div className='space-y-2 sm:space-y-3'>
             {recentTransactions.map(transaction => (
-              <TransactionItem
+              // <TransactionItem
+              //   key={transaction.id}
+              //   transaction={transaction}
+              //   showActions={false}
+              // />
+              <RecentTransactionItem
                 key={transaction.id}
                 transaction={transaction}
-                showActions={false}
               />
             ))}
           </div>
         ) : (
-          <p className='text-gray-500'>No recent transactions</p>
+          <p className='text-sm sm:text-base text-gray-500'>
+            {t('wallets.detail.noTransactions')}
+          </p>
         )}
       </div>
     </div>

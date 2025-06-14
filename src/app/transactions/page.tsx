@@ -18,8 +18,10 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { useTranslation } from 'react-i18next'
 
 export default function TransactionsPage () {
+  const { t } = useTranslation('common')
   const { user, loading: authLoading } = useAuth()
   const ITEMS_PER_PAGE = 10
   const [searchQuery, setSearchQuery] = useState('')
@@ -85,7 +87,7 @@ export default function TransactionsPage () {
         <div className='flex flex-wrap gap-4 items-center'>
           <Input
             type='search'
-            placeholder='Search transactions...'
+            placeholder={t('transactions.search')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className='max-w-sm'
@@ -93,10 +95,10 @@ export default function TransactionsPage () {
 
           <Select value={selectedWalletId} onValueChange={setSelectedWalletId}>
             <SelectTrigger className='w-full sm:w-[200px]'>
-              <SelectValue placeholder='Select wallet' />
+              <SelectValue placeholder={t('wallets.selectWallet')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='all'>All Wallets</SelectItem>
+              <SelectItem value='all'>{t('wallets.allWallets')}</SelectItem>
               {wallets.map(wallet => (
                 <SelectItem key={wallet.id} value={wallet.id}>
                   {wallet.name}
@@ -148,7 +150,7 @@ export default function TransactionsPage () {
 
       <div className='space-y-4'>
         {data?.pages?.flat().length === 0 ? (
-          <div>No transactions found</div>
+          <div>{t('transactions.noTransactions')}</div>
         ) : (
           data?.pages
             ?.flat()
@@ -168,7 +170,7 @@ export default function TransactionsPage () {
               variant='outline'
               className='w-full'
             >
-              {isFetchingNextPage ? 'Loading...' : 'Show More'}
+              {isFetchingNextPage ? t('common.loading') : t('common.showMore')}
             </Button>
           </div>
         )}

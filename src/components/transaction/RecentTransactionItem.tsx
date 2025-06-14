@@ -24,6 +24,7 @@ import { toastService } from '@/lib/services/toast'
 import { Button } from '@/components/ui/button'
 import { categoryService } from '@/lib/services/category'
 import { usePathname, useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 function hexToRgba (hex: string, alpha: number) {
   let c = hex.replace('#', '')
@@ -43,6 +44,7 @@ export function RecentTransactionItem ({
 }: {
   transaction: Transaction
 }) {
+  const { t } = useTranslation('common')
   const queryClient = useQueryClient()
   const pathname = usePathname()
   const router = useRouter()
@@ -62,10 +64,10 @@ export function RecentTransactionItem ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
       queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
-      toastService.success('Category updated successfully')
+      toastService.success(t('transactions.categoryUpdateSuccess'))
     },
     onError: () => {
-      toastService.error('Failed to update category')
+      toastService.error(t('transactions.categoryUpdateError'))
     }
   })
 
@@ -76,10 +78,10 @@ export function RecentTransactionItem ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
       queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
-      toastService.success('Transaction deleted successfully')
+      toastService.success(t('transactions.deleteSuccess'))
     },
     onError: () => {
-      toastService.error('Failed to delete transaction')
+      toastService.error(t('transactions.deleteError'))
     }
   })
 
@@ -96,10 +98,10 @@ export function RecentTransactionItem ({
       } else if (pathname === '/transactions') {
         queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
       }
-      toastService.success('Transaction type updated successfully')
+      toastService.success(t('transactions.typeUpdateSuccess'))
     },
     onError: () => {
-      toastService.error('Failed to update transaction type')
+      toastService.error(t('transactions.typeUpdateError'))
     }
   })
 

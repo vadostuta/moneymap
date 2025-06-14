@@ -14,12 +14,15 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { useTranslation } from 'react-i18next'
 
 export function Header () {
   const { user, signInWithGoogle, signOut } = useAuth()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const { t } = useTranslation('common')
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen)
@@ -47,7 +50,7 @@ export function Header () {
                     : 'text-muted-foreground'
                 }`}
               >
-                Overview
+                {t('navigation.overview')}
               </Link>
               {/* <Link
                 href='/dashboard'
@@ -67,7 +70,7 @@ export function Header () {
                     : 'text-muted-foreground'
                 }`}
               >
-                Transactions
+                {t('navigation.transactions')}
               </Link>
               <Link
                 href='/wallets'
@@ -77,7 +80,7 @@ export function Header () {
                     : 'text-muted-foreground'
                 }`}
               >
-                Wallets
+                {t('navigation.wallets')}
               </Link>
               <Link
                 href='/settings'
@@ -87,7 +90,7 @@ export function Header () {
                     : 'text-muted-foreground'
                 }`}
               >
-                Settings
+                {t('navigation.settings')}
               </Link>
             </nav>
           )}
@@ -100,12 +103,12 @@ export function Header () {
               <DialogTrigger asChild>
                 <Button size='sm' className='gap-2'>
                   <Plus className='h-4 w-4' />
-                  Add Transaction
+                  {t('transactions.add')}
                 </Button>
               </DialogTrigger>
               <DialogContent className='sm:max-w-[600px] max-h-[90vh] overflow-y-auto'>
                 <DialogHeader>
-                  <DialogTitle>Add New Transaction</DialogTitle>
+                  <DialogTitle>{t('transactions.add')}</DialogTitle>
                 </DialogHeader>
                 <QuickTransactionForm
                   onSuccess={() => setDialogOpen(false)}
@@ -115,15 +118,19 @@ export function Header () {
             </Dialog>
           )}
 
+          <LanguageSwitcher />
+
           {user ? (
             <div className='flex items-center gap-4'>
               <span className='hidden lg:inline'>{user.email}</span>
               <Button variant='outline' onClick={signOut}>
-                Sign Out
+                {t('auth.signOut')}
               </Button>
             </div>
           ) : (
-            <Button onClick={signInWithGoogle}>Sign In with Google</Button>
+            <Button onClick={signInWithGoogle}>
+              {t('auth.signInWithGoogle')}
+            </Button>
           )}
         </div>
 
@@ -134,12 +141,12 @@ export function Header () {
               <DialogTrigger asChild>
                 <Button size='sm' className='gap-2'>
                   <Plus className='h-4 w-4' />
-                  Add Transaction
+                  {t('transactions.add')}
                 </Button>
               </DialogTrigger>
               <DialogContent className='sm:max-w-[600px] max-h-[90vh] overflow-y-auto'>
                 <DialogHeader>
-                  <DialogTitle>Add New Transaction</DialogTitle>
+                  <DialogTitle>{t('transactions.add')}</DialogTitle>
                 </DialogHeader>
                 <QuickTransactionForm
                   onSuccess={() => setDialogOpen(false)}
@@ -154,7 +161,7 @@ export function Header () {
           <button
             className='md:hidden p-2 mr-2'
             onClick={toggleMobileMenu}
-            aria-label='Toggle menu'
+            aria-label={t('common.menu')}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -174,7 +181,7 @@ export function Header () {
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Overview
+              {t('navigation.overview')}
             </Link>
             <Link
               href='/transactions'
@@ -185,7 +192,7 @@ export function Header () {
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Transactions
+              {t('navigation.transactions')}
             </Link>
             <Link
               href='/wallets'
@@ -196,7 +203,7 @@ export function Header () {
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Wallets
+              {t('navigation.wallets')}
             </Link>
             <Link
               href='/settings'
@@ -207,14 +214,17 @@ export function Header () {
               }`}
               onClick={() => setMobileMenuOpen(false)}
             >
-              Settings
+              {t('navigation.settings')}
             </Link>
+            <div className='py-2'>
+              <LanguageSwitcher />
+            </div>
             <div className='pt-4 border-t mt-2'>
               <div className='text-sm text-muted-foreground mb-2'>
                 {user.email}
               </div>
               <Button variant='outline' onClick={signOut} className='w-full'>
-                Sign Out
+                {t('auth.signOut')}
               </Button>
             </div>
           </nav>
@@ -225,7 +235,7 @@ export function Header () {
       {!user && (
         <div className='md:hidden px-4'>
           <Button onClick={signInWithGoogle} size='sm'>
-            Sign In
+            {t('auth.signInWithGoogle')}
           </Button>
         </div>
       )}

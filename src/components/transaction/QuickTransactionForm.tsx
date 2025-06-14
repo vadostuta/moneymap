@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,6 +26,7 @@ import { toastService } from '@/lib/services/toast'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { categoryService } from '@/lib/services/category'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 
 interface QuickTransactionFormProps {
   variant?: 'default' | 'wide'
@@ -41,6 +41,7 @@ export function QuickTransactionForm ({
   onSuccess,
   onCancel
 }: QuickTransactionFormProps) {
+  const { t } = useTranslation('common')
   const queryClient = useQueryClient()
 
   const { data: wallets = [] } = useQuery({
@@ -68,8 +69,8 @@ export function QuickTransactionForm ({
 
       toastService.success(
         initialData
-          ? 'Transaction updated successfully'
-          : 'Transaction added successfully'
+          ? t('transactions.updateSuccess')
+          : t('transactions.addSuccess')
       )
       setFormData({
         type: 'expense',
@@ -82,7 +83,7 @@ export function QuickTransactionForm ({
       onSuccess?.()
     },
     onError: () => {
-      toastService.error('Failed to save transaction. Please try again.')
+      toastService.error(t('transactions.saveError'))
     }
   })
 
@@ -104,11 +105,9 @@ export function QuickTransactionForm ({
     return (
       <Card className={cn('mx-auto')}>
         <CardContent className='pt-6 px-4 text-center'>
-          <p className='text-lg mb-4'>
-            To start adding transactions, you need to create your first wallet.
-          </p>
+          <p className='text-lg mb-4'>{t('wallets.createFirstWallet')}</p>
           <Link href='/wallets' onClick={onCancel}>
-            <Button>Create Wallet</Button>
+            <Button>{t('wallets.create')}</Button>
           </Link>
         </CardContent>
       </Card>
@@ -143,13 +142,13 @@ export function QuickTransactionForm ({
           >
             <TabsList className='grid w-full grid-cols-3'>
               <TabsTrigger value='expense' className='text-base'>
-                Expense
+                {t('transactions.expense')}
               </TabsTrigger>
               <TabsTrigger value='income' className='text-base'>
-                Income
+                {t('transactions.income')}
               </TabsTrigger>
               <TabsTrigger value='transfer' className='text-base'>
-                Transfer
+                {t('transactions.transfer')}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -165,9 +164,11 @@ export function QuickTransactionForm ({
             <Input
               id='amount'
               type='number'
-              placeholder={`Amount (${
-                wallets.find(w => w.id === formData.wallet_id)?.currency || '$'
-              })`}
+              placeholder={t('transactions.amount', {
+                currency:
+                  wallets.find(w => w.id === formData.wallet_id)?.currency ||
+                  '$'
+              })}
               value={formData.amount}
               onChange={e =>
                 setFormData({ ...formData, amount: e.target.value })
@@ -184,7 +185,7 @@ export function QuickTransactionForm ({
               }
             >
               <SelectTrigger id='wallet' className='h-12'>
-                <SelectValue placeholder='Select wallet' />
+                <SelectValue placeholder={t('wallets.selectWallet')} />
               </SelectTrigger>
               <SelectContent>
                 {wallets.map(wallet => (
@@ -196,7 +197,7 @@ export function QuickTransactionForm ({
             </Select>
             <Input
               id='description'
-              placeholder='Description'
+              placeholder={t('transactions.description')}
               value={formData.description}
               onChange={e =>
                 setFormData({ ...formData, description: e.target.value })
@@ -249,50 +250,36 @@ export function QuickTransactionForm ({
                   <Badge
                     variant={
                       formData.category === category.name
-                        ? 'selected'
-                        : 'secondary'
+                        ? 'default'
+                        : 'outline'
                     }
                     className={cn(
-                      'w-full py-1.5 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center',
-                      formData.category === category.name ? 'shadow-sm' : ''
+                      'w-full justify-start gap-2 py-2 px-3 text-sm',
+                      formData.category === category.name
+                        ? 'bg-primary text-primary-foreground'
+                        : ''
                     )}
                   >
-                    <span className={cn('mr-1.5', category.color_text)}>
-                      {category.icon}
-                    </span>
-                    <span className='truncate'>{category.name}</span>
+                    {category.icon && (
+                      <span className='text-base'>{category.icon}</span>
+                    )}
+                    {category.name}
                   </Badge>
                 </button>
               ))}
           </div>
-
-          <CardFooter className='px-0 pb-0'>
-            <div className='flex w-full gap-2'>
-              {onCancel && (
-                <Button
-                  type='button'
-                  variant='ghost'
-                  onClick={onCancel}
-                  className='flex-1'
-                >
-                  Cancel
-                </Button>
-              )}
-              <Button
-                type='submit'
-                className='flex-1'
-                disabled={transactionMutation.isPending}
-              >
-                <Plus className='mr-2 h-5 w-5' />
-                {transactionMutation.isPending
-                  ? 'Saving...'
-                  : initialData
-                  ? 'Update Transaction'
-                  : 'Add Transaction'}
-              </Button>
-            </div>
-          </CardFooter>
         </CardContent>
+
+        <CardFooter className='flex justify-end gap-2 px-4 pb-4'>
+          {onCancel && (
+            <Button type='button' variant='outline' onClick={onCancel}>
+              {t('common.cancel')}
+            </Button>
+          )}
+          <Button type='submit' disabled={transactionMutation.isPending}>
+            {initialData ? t('common.save') : t('common.add')}
+          </Button>
+        </CardFooter>
       </form>
     </Card>
   )
