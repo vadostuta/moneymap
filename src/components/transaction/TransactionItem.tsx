@@ -101,9 +101,9 @@ export function TransactionItem ({
           <p className='font-medium'>{transaction.description}</p>
           <p className='text-sm text-muted-foreground flex items-center gap-1.5'>
             <span>
-              {categoryIcons[transaction.category as TransactionCategory]}
+              {categoryIcons[transaction.category_id as TransactionCategory]}
             </span>
-            <span>{transaction.category || transaction.type}</span>
+            <span>{transaction.category_id || transaction.type}</span>
           </p>
           <p className='text-xs text-gray-400'>
             {new Date(transaction.date).toLocaleDateString()}

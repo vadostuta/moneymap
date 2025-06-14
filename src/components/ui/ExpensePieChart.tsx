@@ -76,7 +76,7 @@ export function ExpensePieChart ({
       setSelectedWalletId(walletId)
       setSelectedWalletIdInput(walletId)
     }
-  }, [wallets])
+  }, [wallets, setSelectedWalletIdInput])
 
   // Get the selected wallet's currency
   const selectedWallet = wallets?.find(wallet => wallet.id === selectedWalletId)

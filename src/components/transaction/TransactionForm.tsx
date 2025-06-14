@@ -32,7 +32,7 @@ export function TransactionForm ({
         type: transaction.type,
         amount: transaction.amount,
         wallet_id: transaction.wallet_id,
-        category: transaction.category,
+        category_id: transaction.category_id,
         label: transaction.label,
         date: transaction.date,
         description: transaction.description || ''
@@ -42,7 +42,7 @@ export function TransactionForm ({
       type: 'expense',
       amount: 0,
       wallet_id: '',
-      category: 'Restaurants & Cafés',
+      category_id: 'Restaurants & Cafés',
       label: 'Personal',
       date: new Date().toISOString(),
       description: ''
@@ -162,11 +162,11 @@ export function TransactionForm ({
       <div>
         <label className='block text-sm font-medium mb-1'>Category</label>
         <select
-          value={formData.category}
+          value={formData.category_id}
           onChange={e =>
             setFormData({
               ...formData,
-              category: e.target.value as TransactionCategory
+              category_id: e.target.value as TransactionCategory
             })
           }
           className='w-full p-2 border rounded bg-secondary'

@@ -150,7 +150,7 @@ export class MonobankService {
       type: transaction.amount < 0 ? 'expense' : 'income',
       amount: Math.abs(transaction.amount) / 100,
       description: transaction.description || '',
-      category: 'Other',
+      category_id: 'e6ae9d7d-1e91-447d-8bcb-9940a5d9d3a0',
       label: 'Personal',
       date: new Date(transaction.time * 1000).toISOString()
     }
