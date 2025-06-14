@@ -70,15 +70,13 @@ export function ExpensePieChart ({
 
   // Update selectedWalletId when wallets are loaded
   React.useEffect(() => {
-    if (wallets && wallets.length > 0 && !selectedWalletId) {
-      setSelectedWalletId(
-        wallets.find(wallet => wallet.is_primary)?.id || wallets[0].id
-      )
-      setSelectedWalletIdInput(
-        wallets.find(wallet => wallet.is_primary)?.id || wallets[0].id
-      )
+    if (wallets && wallets.length > 0) {
+      const primaryWallet = wallets.find(wallet => wallet.is_primary)
+      const walletId = primaryWallet?.id || wallets[0].id
+      setSelectedWalletId(walletId)
+      setSelectedWalletIdInput(walletId)
     }
-  }, [wallets, selectedWalletId])
+  }, [wallets])
 
   // Get the selected wallet's currency
   const selectedWallet = wallets?.find(wallet => wallet.id === selectedWalletId)
