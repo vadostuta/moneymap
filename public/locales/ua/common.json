@@ -201,5 +201,33 @@
     "quickActions": "Швидкі дії",
     "recentActivity": "Остання активність",
     "statistics": "Статистика"
+  },
+  "categories": {
+    "system": {
+      "food": "Їжа та ресторани",
+      "shopping": "Шопінг",
+      "transportation": "Транспорт",
+      "bills": "Комунальні послуги",
+      "entertainment": "Розваги",
+      "healthcare": "Здоров'я",
+      "education": "Освіта",
+      "travel": "Подорожі",
+      "presents": "Подарунки",
+      "other": "Інше",
+      "donations": "Пожертви",
+      "subscriptions": "Підписки",
+      "groceries": "Продукти",
+      "car": "Автомобіль",
+      "home": "Дім",
+      "taxes": "Податки",
+      "electronics": "Електроніка",
+      "children": "Діти",
+      "parents": "Батьки",
+      "pets": "Тварини",
+      "sport": "Спорт",
+      "beauty": "Стиль та краса",
+      "extra": "Додатково",
+      "salary": "Зарплата"
+    }
   }
 }

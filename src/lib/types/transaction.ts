@@ -16,7 +16,7 @@ export interface Transaction {
   type: TransactionType
   amount: number
   description?: string
-  category: TransactionCategory
+  category_id: string
   label: TransactionLabel
   date: string
   created_at: string

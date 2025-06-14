@@ -194,5 +194,33 @@
     "quickActions": "Quick Actions",
     "recentActivity": "Recent Activity",
     "statistics": "Statistics"
+  },
+  "categories": {
+    "system": {
+      "food": "Food & Dining",
+      "shopping": "Shopping",
+      "transportation": "Transportation",
+      "bills": "Bills & Utilities",
+      "entertainment": "Entertainment",
+      "healthcare": "Healthcare",
+      "education": "Education",
+      "travel": "Travel",
+      "presents": "Presents",
+      "other": "Other",
+      "donations": "Donations",
+      "subscriptions": "Subscriptions",
+      "groceries": "Groceries",
+      "car": "Car",
+      "home": "Home",
+      "taxes": "Taxes",
+      "electronics": "Electronics",
+      "children": "Children",
+      "parents": "Parents",
+      "pets": "Pets",
+      "sport": "Sport",
+      "beauty": "Style and Beauty",
+      "extra": "Extra",
+      "salary": "Salary"
+    }
   }
 }

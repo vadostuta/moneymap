@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button'
 import { categoryService } from '@/lib/services/category'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
 
 function hexToRgba (hex: string, alpha: number) {
   let c = hex.replace('#', '')
@@ -56,9 +57,9 @@ export function RecentTransactionItem ({
   })
 
   const updateCategoryMutation = useMutation({
-    mutationFn: async (newCategory: TransactionCategory) => {
+    mutationFn: async (categoryId: string) => {
       await transactionService.update(transaction.id, {
-        category: newCategory
+        category_id: categoryId
       })
     },
     onSuccess: () => {
@@ -113,12 +114,20 @@ export function RecentTransactionItem ({
   }
 
   const handleCategoryChange = (newCategory: TransactionCategory) => {
-    updateCategoryMutation.mutate(newCategory)
+    // Find the category in our list to get the category ID
+    const category = categories.find(cat => cat.name === newCategory)
+    if (category) {
+      // Use the category ID for the update
+      updateCategoryMutation.mutate(category.id)
+    } else {
+      // Fallback to the original category if not found
+      updateCategoryMutation.mutate(newCategory)
+    }
   }
 
   // Find the current category from the fetched categories
   const currentCategory = categories.find(
-    cat => cat.name === transaction.category
+    cat => cat.id === transaction.category_id
   )
 
   return (
@@ -166,10 +175,15 @@ export function RecentTransactionItem ({
                     {currentCategory?.icon || '📌'}
                   </span>
                   <span className='hidden sm:inline' style={{ color: '#fff' }}>
-                    {transaction.category}
+                    {getTranslatedCategoryName(currentCategory?.name ?? '', t)}
                   </span>
                   <span className='sm:hidden' style={{ color: '#fff' }}>
-                    {transaction.category.split(' ')[0]}
+                    {
+                      getTranslatedCategoryName(
+                        currentCategory?.name ?? '',
+                        t
+                      ).split(' ')[0]
+                    }
                   </span>
                   <ChevronDown
                     className='w-3 h-3 ml-1'
@@ -181,7 +195,7 @@ export function RecentTransactionItem ({
                 {categories
                   .filter(category => category.is_active)
                   .map(category => {
-                    const isSelected = category.name === transaction.category
+                    const isSelected = category.id === transaction.category_id
                     return (
                       <DropdownMenuItem
                         key={category.id}
@@ -200,7 +214,9 @@ export function RecentTransactionItem ({
                         }}
                       >
                         <span style={{ color: '#fff' }}>{category.icon}</span>
-                        <span style={{ color: '#fff' }}>{category.name}</span>
+                        <span style={{ color: '#fff' }}>
+                          {getTranslatedCategoryName(category.name, t)}
+                        </span>
                       </DropdownMenuItem>
                     )
                   })}

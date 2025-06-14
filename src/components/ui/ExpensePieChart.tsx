@@ -1,13 +1,17 @@
 'use client'
 
 import * as React from 'react'
-import { PieChart, Pie, Cell } from 'recharts'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  TooltipProps,
+  Tooltip as RechartsTooltip
+} from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { transactionService } from '@/lib/services/transaction'
 import { useQuery } from '@tanstack/react-query'
 import { ResponsiveContainer } from 'recharts'
-import { Tooltip } from 'recharts'
-import { TransactionCategory } from '@/lib/types/transaction'
 import {
   Select,
   SelectContent,
@@ -17,6 +21,14 @@ import {
 } from '@/components/ui/select'
 import { walletService } from '@/lib/services/wallet'
 import { useTranslation } from 'react-i18next'
+import { categoryService } from '@/lib/services/category'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
 
 // Define colors for different categories
 const COLORS = [
@@ -35,8 +47,8 @@ const COLORS = [
 ]
 
 interface ExpensePieChartProps {
-  onCategorySelect: (category: TransactionCategory | undefined) => void
-  selectedCategory?: TransactionCategory
+  onCategorySelect: (categoryId: string | undefined) => void
+  selectedCategory?: string
 }
 
 export function ExpensePieChart ({
@@ -86,11 +98,11 @@ export function ExpensePieChart ({
     }).format(amount)
   }
 
-  const handlePieClick = (entry: { category: TransactionCategory }) => {
-    if (entry && entry.category) {
-      const newCategory =
-        selectedCategory === entry.category ? undefined : entry.category
-      onCategorySelect(newCategory)
+  const handlePieClick = (entry: { category_id: string }) => {
+    if (entry && entry.category_id) {
+      const newCategoryId =
+        selectedCategory === entry.category_id ? undefined : entry.category_id
+      onCategorySelect(newCategoryId)
     }
   }
 
@@ -100,7 +112,34 @@ export function ExpensePieChart ({
 
   const categoryColorIndex: Record<string, number> = {}
   data?.forEach((entry, idx) => {
-    categoryColorIndex[entry.category] = idx
+    categoryColorIndex[entry.category_id] = idx
+  })
+
+  // Custom tooltip formatter
+  const CustomTooltip = ({ active, payload }: TooltipProps<string, number>) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload
+      const category = categories.find(cat => cat.id === data.category_id)
+      const categoryName = category?.name ?? ''
+
+      return (
+        <div className='bg-background border rounded-lg p-2 shadow-lg'>
+          <p className='font-medium'>
+            {getTranslatedCategoryName(categoryName, t)}
+          </p>
+          <p className='text-sm text-muted-foreground'>
+            {formatCurrency(data.amount)}
+          </p>
+        </div>
+      )
+    }
+    return null
+  }
+
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: categoryService.getAllCategories
   })
 
   if (isLoading) {
@@ -232,20 +271,23 @@ export function ExpensePieChart ({
                 onClick={handlePieClick}
                 cursor='pointer'
               >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                    style={{
-                      opacity:
-                        !selectedCategory || selectedCategory === entry.category
-                          ? 1
-                          : 0.5
-                    }}
-                  />
-                ))}
+                {data.map((entry, index) => {
+                  return (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                      style={{
+                        opacity:
+                          !selectedCategory ||
+                          selectedCategory === entry.category_id
+                            ? 1
+                            : 0.5
+                      }}
+                    />
+                  )
+                })}
               </Pie>
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
+              <RechartsTooltip content={CustomTooltip} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -253,34 +295,50 @@ export function ExpensePieChart ({
           {[...data]
             .sort((a, b) => b.amount - a.amount)
             .map(entry => {
-              const colorIdx = categoryColorIndex[entry.category]
+              const category = categories.find(
+                cat => cat.id === entry.category_id
+              )
+              const categoryName = category?.name ?? ''
+              const colorIdx = categoryColorIndex[entry.category_id]
               return (
-                <div
-                  key={entry.category}
-                  className='flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity p-2 rounded-lg hover:bg-white/5'
-                  onClick={() =>
-                    handlePieClick({
-                      category: entry.category as TransactionCategory
-                    })
-                  }
-                >
-                  <div
-                    className='w-3 h-3 rounded-full border border-white/30 flex-shrink-0'
-                    style={{
-                      backgroundColor: COLORS[colorIdx % COLORS.length],
-                      opacity:
-                        !selectedCategory || selectedCategory === entry.category
-                          ? 1
-                          : 0.5
-                    }}
-                  />
-                  <span className='text-sm sm:text-base text-muted-foreground truncate'>
-                    {entry.category}
-                  </span>
-                  <span className='text-sm font-semibold ml-auto text-white whitespace-nowrap'>
-                    {formatCurrency(entry.amount)}
-                  </span>
-                </div>
+                <TooltipProvider key={entry.category_id}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        className='flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity p-2 rounded-lg hover:bg-white/5'
+                        onClick={() =>
+                          handlePieClick({
+                            category_id: entry.category_id
+                          })
+                        }
+                      >
+                        <div
+                          className='w-3 h-3 rounded-full border border-white/30 flex-shrink-0'
+                          style={{
+                            backgroundColor: COLORS[colorIdx % COLORS.length],
+                            opacity:
+                              !selectedCategory ||
+                              selectedCategory === entry.category_id
+                                ? 1
+                                : 0.5
+                          }}
+                        />
+                        <span className='text-sm sm:text-base text-muted-foreground truncate'>
+                          {getTranslatedCategoryName(categoryName, t)}
+                        </span>
+                        <span className='text-sm font-semibold ml-auto text-white whitespace-nowrap'>
+                          {formatCurrency(entry.amount)}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{getTranslatedCategoryName(categoryName, t)}</p>
+                      <p className='text-sm text-muted-foreground'>
+                        {formatCurrency(entry.amount)}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )
             })}
         </div>

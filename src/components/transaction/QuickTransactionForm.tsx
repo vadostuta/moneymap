@@ -94,7 +94,7 @@ export function QuickTransactionForm ({
     type: initialData?.type || ('expense' as TransactionType),
     amount: initialData?.amount?.toString() || '',
     wallet_id: initialData?.wallet_id || defaultWallet?.id || '',
-    category: initialData?.category || ('' as TransactionCategory),
+    category: initialData?.category_id || ('' as TransactionCategory),
     date:
       initialData?.date?.split('T')[0] ||
       new Date().toISOString().split('T')[0],
@@ -116,15 +116,31 @@ export function QuickTransactionForm ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Find the category ID from the selected category name
+    const selectedCategory = categories.find(
+      cat => cat.name === formData.category
+    )
+
+    // If no category is selected, find the "Other" category
+    const otherCategory = categories.find(cat => cat.name === 'Other')
+
     const transaction: CreateTransactionDTO = {
       type: formData.type,
       amount: parseFloat(formData.amount),
       wallet_id: formData.wallet_id,
-      category: formData.category || ('Other' as TransactionCategory),
+      category_id: selectedCategory?.id || otherCategory?.id || '', // Use "Other" category as fallback
       label: 'Personal',
       date: new Date(formData.date).toISOString(),
       description: formData.description
     }
+
+    // Only proceed if we have a valid category_id
+    if (!transaction.category_id) {
+      toastService.error(t('transactions.selectCategory'))
+      return
+    }
+
     transactionMutation.mutate(transaction)
   }
 

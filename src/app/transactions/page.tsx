@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { categoryService } from '@/lib/services/category'
-import { TransactionCategory } from '@/lib/types/transaction'
 import {
   Select,
   SelectContent,
@@ -19,14 +18,14 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { useTranslation } from 'react-i18next'
+import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
 
 export default function TransactionsPage () {
   const { t } = useTranslation('common')
   const { user, loading: authLoading } = useAuth()
   const ITEMS_PER_PAGE = 10
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] =
-    useState<TransactionCategory>()
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>()
   const [selectedWalletId, setSelectedWalletId] = useState<string | 'all'>(
     'all'
   )
@@ -117,31 +116,29 @@ export default function TransactionsPage () {
                 type='button'
                 onClick={() =>
                   setSelectedCategory(
-                    selectedCategory === category.name
-                      ? undefined
-                      : category.name
+                    selectedCategory === category.id ? undefined : category.id
                   )
                 }
                 className={cn(
                   'transition-all duration-200 ease-in-out',
-                  selectedCategory === category.name ? 'scale-102' : ''
+                  selectedCategory === category.id ? 'scale-102' : ''
                 )}
               >
                 <Badge
                   variant={
-                    selectedCategory === category.name
-                      ? 'selected'
-                      : 'secondary'
+                    selectedCategory === category.id ? 'selected' : 'secondary'
                   }
                   className={cn(
                     'w-full py-1.5 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center',
-                    selectedCategory === category.name ? 'shadow-sm' : ''
+                    selectedCategory === category.id ? 'shadow-sm' : ''
                   )}
                 >
                   <span className={cn('mr-1.5', category.color_text)}>
                     {category.icon}
                   </span>
-                  <span className='truncate'>{category.name}</span>
+                  <span className='truncate'>
+                    {getTranslatedCategoryName(category.name, t)}
+                  </span>
                 </Badge>
               </button>
             ))}

@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase/client'
 import {
   Transaction,
   CreateTransactionDTO,
-  UpdateTransactionDTO
+  TransactionType
 } from '@/lib/types/transaction'
 // import { Wallet } from '../types/wallet'
 
@@ -28,7 +28,8 @@ export const transactionService = {
           {
             ...transaction,
             user_id: user.id,
-            date: transaction.date || new Date().toISOString()
+            date: transaction.date || new Date().toISOString(),
+            category_id: transaction.category_id
           }
         ])
         .select()
@@ -84,18 +85,42 @@ export const transactionService = {
 
   // Update a transaction
   async update (
-    id: string,
-    updates: UpdateTransactionDTO
-  ): Promise<Transaction | null> {
-    const { data, error } = await supabase
+    transactionId: string,
+    updates: Partial<{
+      amount: number
+      description: string
+      date: string
+      type: TransactionType
+      category_id: string
+      wallet_id: string
+    }>
+  ): Promise<void> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User must be logged in')
+
+    // If we're updating the category, we need to verify the category exists
+    if (updates.category_id) {
+      // Check if the category exists by ID
+      const { data: category, error: categoryError } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('id', updates.category_id)
+        .single()
+
+      if (categoryError || !category) {
+        throw new Error('Category not found')
+      }
+    }
+
+    const { error } = await supabase
       .from('transactions')
       .update(updates)
-      .eq('id', id)
-      .select('*, wallet:wallets(id, name)')
-      .single()
+      .eq('id', transactionId)
+      .eq('user_id', user.id)
 
     if (error) throw error
-    return data
   },
 
   // Delete a transaction
@@ -188,7 +213,7 @@ export const transactionService = {
     }
 
     if (category) {
-      query = query.eq('category', category)
+      query = query.eq('category_id', category)
     }
 
     const { data, error } = await query
@@ -293,7 +318,7 @@ export const transactionService = {
 
   async getCurrentMonthExpensesByCategory (
     walletId?: string
-  ): Promise<{ category: string; amount: number }[]> {
+  ): Promise<{ category_id: string; amount: number }[]> {
     const {
       data: { user }
     } = await supabase.auth.getUser()
@@ -306,7 +331,7 @@ export const transactionService = {
 
     let query = supabase
       .from('transactions')
-      .select('category, amount')
+      .select('category_id, amount')
       .eq('user_id', user.id)
       .eq('type', 'expense')
       .eq('is_deleted', false)
@@ -322,15 +347,15 @@ export const transactionService = {
 
     if (error) throw error
 
-    // Group by category and sum amounts
+    // Group by category_id and sum amounts
     const categoryTotals = (data || []).reduce((acc, transaction) => {
-      const category = transaction.category || 'Uncategorized'
-      acc[category] = (acc[category] || 0) + transaction.amount
+      const categoryId = transaction.category_id || 'uncategorized'
+      acc[categoryId] = (acc[categoryId] || 0) + transaction.amount
       return acc
     }, {} as Record<string, number>)
 
-    return Object.entries(categoryTotals).map(([category, amount]) => ({
-      category,
+    return Object.entries(categoryTotals).map(([category_id, amount]) => ({
+      category_id,
       amount
     }))
   },

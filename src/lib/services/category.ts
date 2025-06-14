@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client'
 import { Category } from '@/lib/types/category'
+import i18next from 'i18next'
 
 export const categoryService = {
   async update (
@@ -52,10 +53,57 @@ export const categoryService = {
       userCategories.map(uc => [uc.category_id, uc])
     )
 
-    return categories.map(cat => ({
-      ...cat,
-      name: userCatMap[cat.id]?.custom_name ?? cat.name,
-      is_active: userCatMap[cat.id]?.is_active ?? true
-    }))
+    return categories.map(cat => {
+      // If user has a custom name, use it
+      if (userCatMap[cat.id]?.custom_name) {
+        return {
+          ...cat,
+          name: userCatMap[cat.id].custom_name,
+          is_active: userCatMap[cat.id]?.is_active ?? true
+        }
+      }
+
+      // Map category names to translation keys
+      const translationKeyMap: Record<string, string> = {
+        'Restaurants & Cafés': 'food',
+        'Food & Dining': 'food',
+        Clothing: 'shopping',
+        Transportation: 'transportation',
+        'Bills & Utilities': 'bills',
+        Entertainment: 'entertainment',
+        Healthcare: 'healthcare',
+        Education: 'education',
+        Travel: 'travel',
+        Presents: 'presents',
+        Other: 'other',
+        Donations: 'donations',
+        Subscriptions: 'subscriptions',
+        Groceries: 'groceries',
+        Car: 'car',
+        Home: 'home',
+        Taxes: 'taxes',
+        Electronics: 'electronics',
+        Children: 'children',
+        Parents: 'parents',
+        Pets: 'pets',
+        Sport: 'sport',
+        'Style and Beauty': 'beauty',
+        Extra: 'extra',
+        Salary: 'salary'
+      }
+
+      // Get the translation key for this category
+      const translationKey =
+        translationKeyMap[cat.name] || cat.name.toLowerCase()
+      const translatedName = i18next.t(`categories.system.${translationKey}`, {
+        defaultValue: cat.name
+      })
+
+      return {
+        ...cat,
+        name: translatedName,
+        is_active: userCatMap[cat.id]?.is_active ?? true
+      }
+    })
   }
 }
