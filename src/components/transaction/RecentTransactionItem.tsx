@@ -41,9 +41,11 @@ function hexToRgba (hex: string, alpha: number) {
 }
 
 export function RecentTransactionItem ({
-  transaction
+  transaction,
+  activeWalletId
 }: {
   transaction: Transaction
+  activeWalletId?: string
 }) {
   const { t } = useTranslation('common')
   const queryClient = useQueryClient()
@@ -153,7 +155,13 @@ export function RecentTransactionItem ({
               }
             }}
           >
-            <Wallet className='w-3 h-3 sm:w-4 sm:h-4' />
+            <Wallet
+              className={`w-3 h-3 sm:w-4 sm:h-4 ${
+                activeWalletId === transaction.wallet?.id
+                  ? 'text-yellow-500 dark:text-yellow-400'
+                  : ''
+              }`}
+            />
             {transaction.wallet?.name}
           </span>
         </div>

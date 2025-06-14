@@ -13,11 +13,13 @@ import { useTranslation } from 'react-i18next'
 interface RecentTransactionsProps {
   selectedCategory?: TransactionCategory
   onResetCategory?: () => void
+  selectedWalletId?: string
 }
 
 export function RecentTransactions ({
   selectedCategory,
-  onResetCategory
+  onResetCategory,
+  selectedWalletId
 }: RecentTransactionsProps) {
   const { t } = useTranslation('common')
   const { user, loading: authLoading } = useAuth()
@@ -136,6 +138,7 @@ export function RecentTransactions ({
             <RecentTransactionItem
               key={transaction.id}
               transaction={transaction}
+              activeWalletId={selectedWalletId}
             />
           ))}
 

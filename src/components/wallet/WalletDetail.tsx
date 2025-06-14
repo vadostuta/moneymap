@@ -5,7 +5,6 @@ import { transactionService } from '@/lib/services/transaction'
 import { Button } from '@/components/ui/button'
 import { Star } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { TransactionItem } from '@/components/transaction/TransactionItem'
 import { toastService } from '@/lib/services/toast'
 import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -171,6 +170,7 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
               <RecentTransactionItem
                 key={transaction.id}
                 transaction={transaction}
+                activeWalletId={walletId}
               />
             ))}
           </div>

@@ -49,11 +49,13 @@ const COLORS = [
 interface ExpensePieChartProps {
   onCategorySelect: (categoryId: string | undefined) => void
   selectedCategory?: string
+  setSelectedWalletId: (walletId: string) => void
 }
 
 export function ExpensePieChart ({
   onCategorySelect,
-  selectedCategory
+  selectedCategory,
+  setSelectedWalletId: setSelectedWalletIdInput
 }: ExpensePieChartProps) {
   const { t } = useTranslation('common')
 
@@ -70,6 +72,9 @@ export function ExpensePieChart ({
   React.useEffect(() => {
     if (wallets && wallets.length > 0 && !selectedWalletId) {
       setSelectedWalletId(
+        wallets.find(wallet => wallet.is_primary)?.id || wallets[0].id
+      )
+      setSelectedWalletIdInput(
         wallets.find(wallet => wallet.is_primary)?.id || wallets[0].id
       )
     }
@@ -108,6 +113,7 @@ export function ExpensePieChart ({
 
   const handleWalletChange = (value: string) => {
     setSelectedWalletId(value)
+    setSelectedWalletIdInput(value)
   }
 
   const categoryColorIndex: Record<string, number> = {}

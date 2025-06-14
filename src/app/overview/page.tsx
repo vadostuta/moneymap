@@ -8,6 +8,7 @@ import { TransactionCategory } from '@/lib/types/transaction'
 export default function Overview () {
   const [selectedCategory, setSelectedCategory] =
     useState<TransactionCategory>()
+  const [selectedWalletId, setSelectedWalletId] = useState<string>('')
 
   return (
     <div className='container px-4 py-4 sm:py-6 mx-auto max-w-7xl'>
@@ -16,6 +17,7 @@ export default function Overview () {
           <ExpensePieChart
             onCategorySelect={setSelectedCategory}
             selectedCategory={selectedCategory}
+            setSelectedWalletId={setSelectedWalletId}
           />
           {/* <ExpenseBarChart /> */}
           {/* <QuickTransactionForm /> */}
@@ -25,6 +27,7 @@ export default function Overview () {
           <RecentTransactions
             selectedCategory={selectedCategory}
             onResetCategory={() => setSelectedCategory(undefined)}
+            selectedWalletId={selectedWalletId}
           />
         </div>
       </div>

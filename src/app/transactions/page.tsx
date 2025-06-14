@@ -155,6 +155,9 @@ export default function TransactionsPage () {
               <RecentTransactionItem
                 key={transaction.id}
                 transaction={transaction}
+                activeWalletId={
+                  selectedWalletId === 'all' ? undefined : selectedWalletId
+                }
               />
             ))
         )}

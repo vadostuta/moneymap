@@ -64,5 +64,10 @@ export default function WalletPage ({
     )
   }
 
-  return <WalletDetail walletId={id} onDelete={() => router.push('/wallets')} />
+  return (
+    <WalletDetail
+      walletId={wallet.id}
+      onDelete={() => router.push('/wallets')}
+    />
+  )
 }
