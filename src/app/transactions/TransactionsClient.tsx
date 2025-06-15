@@ -26,6 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { UndoDeleteToast } from '@/components/ui/undo-delete-toast'
 
 export default function TransactionsClient () {
   const { t } = useTranslation('common')
@@ -37,6 +38,10 @@ export default function TransactionsClient () {
     'all'
   )
   const [showHidden, setShowHidden] = useState(false)
+  const [deletedTransaction, setDeletedTransaction] = useState<{
+    id: string
+    onUndo: () => void
+  } | null>(null)
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -85,6 +90,13 @@ export default function TransactionsClient () {
       },
       initialPageParam: 0
     })
+
+  const handleTransactionDelete = (
+    transactionId: string,
+    onUndo: () => void
+  ) => {
+    setDeletedTransaction({ id: transactionId, onUndo })
+  }
 
   if (error) {
     return <div>Error: {error.message}</div>
@@ -202,6 +214,7 @@ export default function TransactionsClient () {
                 activeWalletId={
                   selectedWalletId === 'all' ? undefined : selectedWalletId
                 }
+                onDelete={handleTransactionDelete}
               />
             ))
         )}
@@ -219,6 +232,13 @@ export default function TransactionsClient () {
           </div>
         )}
       </div>
+
+      {deletedTransaction && (
+        <UndoDeleteToast
+          onUndo={deletedTransaction.onUndo}
+          onClose={() => setDeletedTransaction(null)}
+        />
+      )}
     </div>
   )
 }
