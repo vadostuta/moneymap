@@ -348,6 +348,7 @@ export const transactionService = {
       .eq('user_id', user.id)
       .eq('type', 'expense')
       .eq('is_deleted', false)
+      .eq('is_hidden', false)
       .gte('date', firstDayOfMonth.toISOString())
       .lte('date', lastDayOfMonth.toISOString())
 

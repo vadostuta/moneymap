@@ -99,7 +99,8 @@ export function ExpensePieChart ({
       transactionService.getCurrentMonthExpensesByCategory(selectedWalletId)
   })
 
-  const totalExpense = data?.reduce((sum, item) => sum + item.amount, 0) || 0
+  const visibleData = (data || []).filter(item => !item.is_hidden)
+  const totalExpense = visibleData.reduce((sum, item) => sum + item.amount, 0)
 
   // Format currency consistently
   const formatCurrency = (amount: number) => {
@@ -125,7 +126,7 @@ export function ExpensePieChart ({
   }
 
   const categoryColorIndex: Record<string, number> = {}
-  data?.forEach((entry, idx) => {
+  visibleData.forEach((entry, idx) => {
     categoryColorIndex[entry.category_id] = idx
   })
 
@@ -214,7 +215,7 @@ export function ExpensePieChart ({
     )
   }
 
-  if (!data || data.length === 0) {
+  if (!visibleData || visibleData.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -274,7 +275,7 @@ export function ExpensePieChart ({
           <ResponsiveContainer width='100%' height='100%'>
             <PieChart>
               <Pie
-                data={data}
+                data={visibleData}
                 cx='50%'
                 cy='50%'
                 innerRadius={60}
@@ -285,7 +286,7 @@ export function ExpensePieChart ({
                 onClick={handlePieClick}
                 cursor='pointer'
               >
-                {data.map((entry, index) => {
+                {visibleData.map((entry, index) => {
                   return (
                     <Cell
                       key={`cell-${index}`}
@@ -306,7 +307,7 @@ export function ExpensePieChart ({
           </ResponsiveContainer>
         </div>
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-1 mt-4'>
-          {[...data]
+          {[...visibleData]
             .sort((a, b) => b.amount - a.amount)
             .map(entry => {
               const category = categories.find(
