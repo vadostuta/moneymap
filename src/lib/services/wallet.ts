@@ -153,5 +153,14 @@ export const walletService = {
 
     if (error) throw error
     return data.length === 0
+  },
+
+  async restore (id: string): Promise<void> {
+    const { error } = await supabase
+      .from('wallets')
+      .update({ is_deleted: false })
+      .eq('id', id)
+
+    if (error) throw error
   }
 }

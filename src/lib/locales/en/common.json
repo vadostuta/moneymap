@@ -17,7 +17,8 @@
     "finish": "Finish",
     "menu": "Toggle menu",
     "resetFilter": "Reset Filter",
-    "showMore": "Show More"
+    "showMore": "Show More",
+    "undo": "Undo"
   },
   "navigation": {
     "home": "Home",
@@ -59,7 +60,10 @@
     "typeUpdateSuccess": "Transaction type updated successfully",
     "typeUpdateError": "Failed to update transaction type",
     "search": "Search transactions...",
-    "allWallets": "All Wallets"
+    "allWallets": "All Wallets",
+    "deleted": "Transaction deleted",
+    "restoreSuccess": "Transaction restored successfully",
+    "restoreError": "Failed to restore transaction"
   },
   "wallets": {
     "title": "Wallets",

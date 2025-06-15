@@ -53,6 +53,7 @@ export const transactionService = {
     const { data, error } = await supabase
       .from('transactions')
       .select('*, wallet:wallets(id, name)')
+      .eq('is_deleted', false)
       .order('date', { ascending: false })
 
     if (error) throw error
@@ -65,6 +66,7 @@ export const transactionService = {
       .from('transactions')
       .select('*, wallet:wallets(id, name)')
       .eq('wallet_id', walletId)
+      .eq('is_deleted', false)
       .order('date', { ascending: false })
 
     if (error) throw error
@@ -77,6 +79,7 @@ export const transactionService = {
       .from('transactions')
       .select('*, wallet:wallets(id, name)')
       .eq('id', id)
+      .eq('is_deleted', false)
       .single()
 
     if (error) throw error
@@ -125,7 +128,10 @@ export const transactionService = {
 
   // Delete a transaction
   async delete (id: string): Promise<void> {
-    const { error } = await supabase.from('transactions').delete().eq('id', id)
+    const { error } = await supabase
+      .from('transactions')
+      .update({ is_deleted: true })
+      .eq('id', id)
 
     if (error) throw error
   },
@@ -367,12 +373,21 @@ export const transactionService = {
     const { data, error } = await supabase
       .from('transactions')
       .select('*, wallet:wallets(id, name, currency)')
+      .eq('is_deleted', false)
       .order('date', { ascending: false })
       .order('id', { ascending: false })
       .range(offset, offset + limit - 1)
-      .eq('is_deleted', false)
 
     if (error) throw error
     return data || []
+  },
+
+  async restore (id: string): Promise<void> {
+    const { error } = await supabase
+      .from('transactions')
+      .update({ is_deleted: false })
+      .eq('id', id)
+
+    if (error) throw error
   }
 }

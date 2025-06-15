@@ -4,11 +4,12 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { transactionService } from '@/lib/services/transaction'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import React from 'react'
+import React, { useState } from 'react'
 import { RecentTransactionItem } from './RecentTransactionItem'
 import { TransactionCategory } from '@/lib/types/transaction'
 import { useAuth } from '@/contexts/auth-context'
 import { useTranslation } from 'react-i18next'
+import { UndoDeleteToast } from '@/components/ui/undo-delete-toast'
 
 interface RecentTransactionsProps {
   selectedCategory?: TransactionCategory
@@ -24,6 +25,10 @@ export function RecentTransactions ({
   const { t } = useTranslation('common')
   const { user, loading: authLoading } = useAuth()
   const ITEMS_PER_PAGE = 10
+  const [deletedTransaction, setDeletedTransaction] = useState<{
+    id: string
+    onUndo: () => void
+  } | null>(null)
 
   const {
     data,
@@ -67,6 +72,13 @@ export function RecentTransactions ({
       }) ?? []
     )
   }, [data?.pages])
+
+  const handleTransactionDelete = (
+    transactionId: string,
+    onUndo: () => void
+  ) => {
+    setDeletedTransaction({ id: transactionId, onUndo })
+  }
 
   if (isLoading) {
     return (
@@ -139,6 +151,7 @@ export function RecentTransactions ({
               key={transaction.id}
               transaction={transaction}
               activeWalletId={selectedWalletId}
+              onDelete={handleTransactionDelete}
             />
           ))}
 
@@ -158,6 +171,13 @@ export function RecentTransactions ({
           )}
         </div>
       </CardContent>
+
+      {deletedTransaction && (
+        <UndoDeleteToast
+          onUndo={deletedTransaction.onUndo}
+          onClose={() => setDeletedTransaction(null)}
+        />
+      )}
     </Card>
   )
 }

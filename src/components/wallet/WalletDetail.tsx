@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { RecentTransactionItem } from '../transaction/RecentTransactionItem'
+import { UndoDeleteToast } from '@/components/ui/undo-delete-toast'
+import { useState } from 'react'
 
 interface WalletDetailProps {
   walletId: string
@@ -20,6 +22,11 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
   const { t } = useTranslation('common')
   const router = useRouter()
   const queryClient = useQueryClient()
+  const [showUndoToast, setShowUndoToast] = useState(false)
+  const [deletedTransaction, setDeletedTransaction] = useState<{
+    id: string
+    onUndo: () => void
+  } | null>(null)
 
   const {
     data: wallet,
@@ -47,9 +54,8 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
       await walletService.delete(walletId)
     },
     onSuccess: () => {
-      toastService.success(t('wallets.detail.deleteSuccess'))
+      setShowUndoToast(true)
       queryClient.invalidateQueries({ queryKey: ['wallets'] })
-      onDelete()
     },
     onError: error => {
       if (error instanceof Error) {
@@ -61,9 +67,26 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
     }
   })
 
+  const restoreWalletMutation = useMutation({
+    mutationFn: async () => {
+      await walletService.restore(walletId)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wallets'] })
+      toastService.success(t('wallets.detail.restoreSuccess'))
+    },
+    onError: () => {
+      toastService.error(t('wallets.detail.restoreError'))
+    }
+  })
+
   const handleDelete = () => {
     if (!confirm(t('wallets.detail.deleteConfirm'))) return
     deleteWalletMutation.mutate()
+  }
+
+  const handleUndo = () => {
+    restoreWalletMutation.mutate()
   }
 
   const setPrimaryMutation = useMutation({
@@ -81,6 +104,13 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
 
   const handlePrimaryToggle = () => {
     setPrimaryMutation.mutate()
+  }
+
+  const handleTransactionDelete = (
+    transactionId: string,
+    onUndo: () => void
+  ) => {
+    setDeletedTransaction({ id: transactionId, onUndo })
   }
 
   if (isWalletLoading) return <div>{t('wallets.detail.loading')}</div>
@@ -162,15 +192,11 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
         ) : recentTransactions.length > 0 ? (
           <div className='space-y-2 sm:space-y-3'>
             {recentTransactions.map(transaction => (
-              // <TransactionItem
-              //   key={transaction.id}
-              //   transaction={transaction}
-              //   showActions={false}
-              // />
               <RecentTransactionItem
                 key={transaction.id}
                 transaction={transaction}
                 activeWalletId={walletId}
+                onDelete={handleTransactionDelete}
               />
             ))}
           </div>
@@ -180,6 +206,23 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
           </p>
         )}
       </div>
+
+      {showUndoToast && (
+        <UndoDeleteToast
+          onUndo={handleUndo}
+          onClose={() => {
+            setShowUndoToast(false)
+            onDelete()
+          }}
+        />
+      )}
+
+      {deletedTransaction && (
+        <UndoDeleteToast
+          onUndo={deletedTransaction.onUndo}
+          onClose={() => setDeletedTransaction(null)}
+        />
+      )}
     </div>
   )
 }
