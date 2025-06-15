@@ -29,7 +29,9 @@ export function WalletList ({
     isError
   } = useQuery({
     queryKey: ['wallets'],
-    queryFn: walletService.getAll
+    queryFn: walletService.getAll,
+    staleTime: 30000,
+    retry: 2
   })
 
   // If on main wallets page and no selected wallet, select primary or first wallet
@@ -90,9 +92,11 @@ export function WalletList ({
                     )}
                   >
                     {wallet.name}{' '}
-                    <span className='font-normal text-xs text-muted-foreground'>
-                      ({wallet.currency})
-                    </span>
+                    {wallet.currency && (
+                      <span className='font-normal text-xs text-muted-foreground'>
+                        ({wallet.currency})
+                      </span>
+                    )}
                   </h3>
                 </div>
               </div>

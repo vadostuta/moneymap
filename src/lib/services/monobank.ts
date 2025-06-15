@@ -191,7 +191,6 @@ export class MonobankService {
 
     // Single filter pass for all conditions
     const newTransactions = transactions
-      .filter(t => !t.description.includes('На charity'))
       .filter(t => !existingIds.has(t.id))
       .filter(t => !deletedIds.has(t.id))
       .map(t => ({

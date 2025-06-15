@@ -71,10 +71,34 @@ export function ExpensePieChart ({
   // Update selectedWalletId when wallets are loaded
   React.useEffect(() => {
     if (wallets && wallets.length > 0) {
+      // First try to find a primary wallet
       const primaryWallet = wallets.find(wallet => wallet.is_primary)
-      const walletId = primaryWallet?.id || wallets[0].id
-      setSelectedWalletId(walletId)
-      setSelectedWalletIdInput(walletId)
+
+      // If we have a primary wallet, use it
+      if (primaryWallet) {
+        setSelectedWalletId(primaryWallet.id)
+        setSelectedWalletIdInput(primaryWallet.id)
+        return
+      }
+
+      // If no primary wallet is found, only then fall back to the first wallet
+      // and set it as primary
+      const firstWallet = wallets[0]
+      if (firstWallet) {
+        // Set the first wallet as primary
+        walletService
+          .setPrimary(firstWallet.id)
+          .then(() => {
+            setSelectedWalletId(firstWallet.id)
+            setSelectedWalletIdInput(firstWallet.id)
+          })
+          .catch(error => {
+            console.error('Failed to set primary wallet:', error)
+            // Still set the wallet as selected even if setting primary fails
+            setSelectedWalletId(firstWallet.id)
+            setSelectedWalletIdInput(firstWallet.id)
+          })
+      }
     }
   }, [wallets, setSelectedWalletIdInput])
 
