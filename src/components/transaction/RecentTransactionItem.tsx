@@ -26,6 +26,12 @@ import { categoryService } from '@/lib/services/category'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 
 function hexToRgba (hex: string, alpha: number) {
   let c = hex.replace('#', '')
@@ -153,12 +159,29 @@ export function RecentTransactionItem ({
 
   return (
     <>
-      <div className='flex flex-col sm:flex-row sm:items-start justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent/5 transition-colors gap-3'>
-        <div className='flex flex-col gap-2'>
-          <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2'>
-            <span className='text-base sm:text-lg font-semibold truncate'>
-              {transaction.description}
-            </span>
+      <div className='flex flex-col sm:flex-row sm:items-start justify-between p-3 sm:p-4 border rounded-lg hover:bg-accent/5 transition-colors gap-3 min-w-0'>
+        <div className='flex flex-col gap-2 min-w-0'>
+          <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0'>
+            <div className='flex-1 min-w-0 max-w-full'>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      className='text-base sm:text-lg font-semibold truncate block w-full overflow-hidden text-ellipsis whitespace-nowrap'
+                      title={transaction.description}
+                      tabIndex={0}
+                    >
+                      {transaction.description}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className='max-w-xs break-words'>
+                      {transaction.description}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <span
               className='text-xs sm:text-sm text-muted-foreground flex items-center gap-1 cursor-pointer hover:underline'
               onClick={() => {
