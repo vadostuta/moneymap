@@ -182,31 +182,6 @@ export function RecentTransactionItem ({
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <span
-              className='text-xs sm:text-sm text-muted-foreground flex items-center gap-1 cursor-pointer hover:underline'
-              onClick={() => {
-                if (transaction.wallet?.id) {
-                  router.push(`/wallets/${transaction.wallet.id}`)
-                }
-              }}
-              title='Go to wallet'
-              tabIndex={0}
-              role='button'
-              onKeyDown={e => {
-                if (e.key === 'Enter' && transaction.wallet?.id) {
-                  router.push(`/wallets/${transaction.wallet.id}`)
-                }
-              }}
-            >
-              <Wallet
-                className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                  activeWalletId === transaction.wallet?.id
-                    ? 'text-yellow-500 dark:text-yellow-400'
-                    : ''
-                }`}
-              />
-              {transaction.wallet?.name}
-            </span>
           </div>
 
           <div className='flex flex-wrap items-center gap-2 text-xs sm:text-sm text-muted-foreground'>
@@ -291,40 +266,68 @@ export function RecentTransactionItem ({
             </div>
           </div>
         </div>
-
-        <div className='flex items-center justify-between sm:justify-end gap-2'>
-          <div
-            className={`flex items-center gap-1 text-base sm:text-lg font-semibold ${
-              transaction.type === 'expense' ? 'text-white' : 'text-emerald-500'
-            }`}
+        <div className='flex flex-col items-start sm:items-end gap-1 w-full sm:w-auto'>
+          <span
+            className='text-xs sm:text-sm text-muted-foreground flex items-center gap-1 cursor-pointer hover:underline'
+            onClick={() => {
+              if (transaction.wallet?.id) {
+                router.push(`/wallets/${transaction.wallet.id}`)
+              }
+            }}
+            title='Go to wallet'
+            tabIndex={0}
+            role='button'
+            onKeyDown={e => {
+              if (e.key === 'Enter' && transaction.wallet?.id) {
+                router.push(`/wallets/${transaction.wallet.id}`)
+              }
+            }}
           >
-            <button
-              onClick={cycleTransactionType}
-              disabled={updateTypeMutation.isPending}
-              className='flex items-center gap-1 hover:opacity-80 transition-opacity'
+            <Wallet
+              className={`w-3 h-3 sm:w-4 sm:h-4 ${
+                activeWalletId === transaction.wallet?.id
+                  ? 'text-yellow-500 dark:text-yellow-400'
+                  : ''
+              }`}
+            />
+            {transaction.wallet?.name}
+          </span>
+          <div className='flex items-center gap-2'>
+            <div
+              className={`flex items-center gap-1 text-base sm:text-lg font-semibold ${
+                transaction.type === 'expense'
+                  ? 'text-white'
+                  : 'text-emerald-500'
+              }`}
             >
-              {transaction.type === 'expense' ? (
-                <ArrowDown className='w-4 h-4 sm:w-5 sm:h-5' />
-              ) : transaction.type === 'income' ? (
-                <ArrowUp className='w-4 h-4 sm:w-5 sm:h-5' />
-              ) : (
-                <ArrowRightLeft className='w-4 h-4 sm:w-5 sm:h-5' />
-              )}
-            </button>
-            {new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: transaction.wallet?.currency || 'USD'
-            }).format(transaction.amount)}
+              <button
+                onClick={cycleTransactionType}
+                disabled={updateTypeMutation.isPending}
+                className='flex items-center gap-1 hover:opacity-80 transition-opacity'
+              >
+                {transaction.type === 'expense' ? (
+                  <ArrowDown className='w-4 h-4 sm:w-5 sm:h-5' />
+                ) : transaction.type === 'income' ? (
+                  <ArrowUp className='w-4 h-4 sm:w-5 sm:h-5' />
+                ) : (
+                  <ArrowRightLeft className='w-4 h-4 sm:w-5 sm:h-5' />
+                )}
+              </button>
+              {new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: transaction.wallet?.currency || 'USD'
+              }).format(transaction.amount)}
+            </div>
+            <Button
+              variant='ghost'
+              size='icon'
+              className='h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive'
+              onClick={() => deleteMutation.mutate()}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className='h-3.5 w-3.5 sm:h-4 sm:w-4' />
+            </Button>
           </div>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive'
-            onClick={() => deleteMutation.mutate()}
-            disabled={deleteMutation.isPending}
-          >
-            <Trash2 className='h-3.5 w-3.5 sm:h-4 sm:w-4' />
-          </Button>
         </div>
       </div>
     </>
