@@ -25,7 +25,7 @@ export const getTranslatedCategoryName = (
     Other: 'other',
     Інше: 'other',
     Donations: 'donations',
-    Пожертви: 'donations',
+    Донати: 'donations',
     Subscriptions: 'subscriptions',
     Підписки: 'subscriptions',
     Groceries: 'groceries',
