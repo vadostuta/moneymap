@@ -42,6 +42,8 @@ export default function TransactionsClient () {
     id: string
     onUndo: () => void
   } | null>(null)
+  const [minAmount, setMinAmount] = useState<string>('')
+  const [maxAmount, setMaxAmount] = useState<string>('')
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -66,7 +68,9 @@ export default function TransactionsClient () {
         searchQuery,
         selectedCategory,
         selectedWalletId,
-        showHidden
+        showHidden,
+        minAmount,
+        maxAmount
       ],
       queryFn: async ({ pageParam = 0 }) => {
         if (!user) return []
@@ -78,7 +82,9 @@ export default function TransactionsClient () {
           searchQuery: searchQuery || undefined,
           category: selectedCategory,
           walletId: selectedWalletId,
-          showHidden
+          showHidden,
+          minAmount: minAmount ? parseFloat(minAmount) : undefined,
+          maxAmount: maxAmount ? parseFloat(maxAmount) : undefined
         })
       },
       enabled: !!user && !authLoading,
@@ -113,6 +119,24 @@ export default function TransactionsClient () {
             onChange={e => setSearchQuery(e.target.value)}
             className='max-w-sm'
           />
+
+          <div className='flex gap-2 items-center'>
+            <Input
+              type='number'
+              placeholder={t('transactions.minAmount', 'Min amount')}
+              value={minAmount}
+              onChange={e => setMinAmount(e.target.value)}
+              className='w-[120px]'
+            />
+            <span>-</span>
+            <Input
+              type='number'
+              placeholder={t('transactions.maxAmount', 'Max amount')}
+              value={maxAmount}
+              onChange={e => setMaxAmount(e.target.value)}
+              className='w-[120px]'
+            />
+          </div>
 
           <Select value={selectedWalletId} onValueChange={setSelectedWalletId}>
             <SelectTrigger className='w-full sm:w-[200px]'>

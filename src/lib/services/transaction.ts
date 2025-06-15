@@ -196,7 +196,9 @@ export const transactionService = {
     category,
     offset = 0,
     limit = 10,
-    showHidden = false
+    showHidden = false,
+    minAmount,
+    maxAmount
   }: {
     userId: string
     walletId?: string
@@ -205,6 +207,8 @@ export const transactionService = {
     offset?: number
     limit?: number
     showHidden?: boolean
+    minAmount?: number
+    maxAmount?: number
   }): Promise<Transaction[]> {
     let query = supabase
       .from('transactions')
@@ -227,6 +231,15 @@ export const transactionService = {
 
     if (category) {
       query = query.eq('category_id', category)
+    }
+
+    // Add amount range filtering
+    if (minAmount !== undefined) {
+      query = query.gte('amount', minAmount)
+    }
+
+    if (maxAmount !== undefined) {
+      query = query.lte('amount', maxAmount)
     }
 
     const { data, error } = await query
