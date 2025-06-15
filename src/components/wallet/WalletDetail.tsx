@@ -45,7 +45,7 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
     queryKey: ['recent-transactions', walletId],
     queryFn: async () => {
       const txs = await transactionService.getByWalletId(walletId)
-      return txs.slice(0, 10)
+      return txs.filter(tx => !tx.is_hidden).slice(0, 10)
     }
   })
 

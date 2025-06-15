@@ -63,7 +63,17 @@
     "allWallets": "All Wallets",
     "deleted": "Transaction deleted",
     "restoreSuccess": "Transaction restored successfully",
-    "restoreError": "Failed to restore transaction"
+    "restoreError": "Failed to restore transaction",
+    "hideSuccess": "Transaction hidden successfully",
+    "hideError": "Failed to hide transaction",
+    "hideTooltip": "Hide this transaction",
+    "showHidden": "Show hidden transactions",
+    "unhideSuccess": "Transaction unhidden successfully",
+    "unhideError": "Failed to unhide transaction",
+    "unhideTooltip": "Unhide this transaction",
+    "hideHidden": "Hide hidden transactions",
+    "showHiddenTooltip": "Include hidden transactions in the list",
+    "hideHiddenTooltip": "Hide hidden transactions from the list"
   },
   "wallets": {
     "title": "Wallets",

@@ -19,6 +19,13 @@ import {
 } from '@/components/ui/select'
 import { useTranslation } from 'react-i18next'
 import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
+import { EyeOff, EyeIcon } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 
 export default function TransactionsClient () {
   const { t } = useTranslation('common')
@@ -29,6 +36,7 @@ export default function TransactionsClient () {
   const [selectedWalletId, setSelectedWalletId] = useState<string | 'all'>(
     'all'
   )
+  const [showHidden, setShowHidden] = useState(false)
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -52,7 +60,8 @@ export default function TransactionsClient () {
         'list-transactions',
         searchQuery,
         selectedCategory,
-        selectedWalletId
+        selectedWalletId,
+        showHidden
       ],
       queryFn: async ({ pageParam = 0 }) => {
         if (!user) return []
@@ -63,7 +72,8 @@ export default function TransactionsClient () {
           limit: ITEMS_PER_PAGE,
           searchQuery: searchQuery || undefined,
           category: selectedCategory,
-          walletId: selectedWalletId
+          walletId: selectedWalletId,
+          showHidden
         })
       },
       enabled: !!user && !authLoading,
@@ -105,6 +115,40 @@ export default function TransactionsClient () {
               ))}
             </SelectContent>
           </Select>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type='button'
+                  onClick={() => setShowHidden(v => !v)}
+                  className='ml-2 p-2 rounded-full bg-transparent text-muted-foreground hover:text-yellow-500 transition-colors'
+                  aria-label={
+                    showHidden
+                      ? t('transactions.hideHidden', 'Hide hidden transactions')
+                      : t('transactions.showHidden', 'Show hidden transactions')
+                  }
+                >
+                  {showHidden ? (
+                    <EyeOff className='w-5 h-5' />
+                  ) : (
+                    <EyeIcon className='w-5 h-5' />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {showHidden
+                  ? t(
+                      'transactions.hideHiddenTooltip',
+                      'Hide hidden transactions from the list'
+                    )
+                  : t(
+                      'transactions.showHiddenTooltip',
+                      'Include hidden transactions in the list'
+                    )}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         <div className='flex flex-wrap gap-2'>

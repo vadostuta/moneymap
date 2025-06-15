@@ -26,6 +26,7 @@ export interface Transaction {
     name: string
     currency: string
   }
+  is_hidden?: boolean
 }
 
 export type CreateTransactionDTO = Omit<

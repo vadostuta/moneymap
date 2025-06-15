@@ -64,7 +64,7 @@ export function RecentTransactions ({
     const seen = new Set()
     return (
       data?.pages?.flat().filter(transaction => {
-        if (seen.has(transaction.id)) {
+        if (seen.has(transaction.id) || transaction.is_hidden) {
           return false
         }
         seen.add(transaction.id)

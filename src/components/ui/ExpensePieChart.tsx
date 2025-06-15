@@ -74,30 +74,16 @@ export function ExpensePieChart ({
       // First try to find a primary wallet
       const primaryWallet = wallets.find(wallet => wallet.is_primary)
 
-      // If we have a primary wallet, use it
       if (primaryWallet) {
         setSelectedWalletId(primaryWallet.id)
         setSelectedWalletIdInput(primaryWallet.id)
-        return
-      }
-
-      // If no primary wallet is found, only then fall back to the first wallet
-      // and set it as primary
-      const firstWallet = wallets[0]
-      if (firstWallet) {
-        // Set the first wallet as primary
-        walletService
-          .setPrimary(firstWallet.id)
-          .then(() => {
-            setSelectedWalletId(firstWallet.id)
-            setSelectedWalletIdInput(firstWallet.id)
-          })
-          .catch(error => {
-            console.error('Failed to set primary wallet:', error)
-            // Still set the wallet as selected even if setting primary fails
-            setSelectedWalletId(firstWallet.id)
-            setSelectedWalletIdInput(firstWallet.id)
-          })
+      } else {
+        // Only if no primary wallet, fall back to the first wallet (but do NOT set it as primary)
+        const firstWallet = wallets[0]
+        if (firstWallet) {
+          setSelectedWalletId(firstWallet.id)
+          setSelectedWalletIdInput(firstWallet.id)
+        }
       }
     }
   }, [wallets, setSelectedWalletIdInput])

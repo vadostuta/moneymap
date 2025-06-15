@@ -96,6 +96,7 @@ export const transactionService = {
       type: TransactionType
       category_id: string
       wallet_id: string
+      is_hidden: boolean
     }>
   ): Promise<void> {
     const {
@@ -194,7 +195,8 @@ export const transactionService = {
     searchQuery,
     category,
     offset = 0,
-    limit = 10
+    limit = 10,
+    showHidden = false
   }: {
     userId: string
     walletId?: string
@@ -202,6 +204,7 @@ export const transactionService = {
     category?: string
     offset?: number
     limit?: number
+    showHidden?: boolean
   }): Promise<Transaction[]> {
     let query = supabase
       .from('transactions')
@@ -209,6 +212,10 @@ export const transactionService = {
       .eq('user_id', userId)
       .eq('is_deleted', false)
       .eq('wallets.is_deleted', false)
+
+    if (!showHidden) {
+      query = query.eq('is_hidden', false)
+    }
 
     if (walletId && walletId !== 'all') {
       query = query.eq('wallet_id', walletId)
@@ -388,6 +395,14 @@ export const transactionService = {
       .update({ is_deleted: false })
       .eq('id', id)
 
+    if (error) throw error
+  },
+
+  async hideTransaction (id: string): Promise<void> {
+    const { error } = await supabase
+      .from('transactions')
+      .update({ is_hidden: true })
+      .eq('id', id)
     if (error) throw error
   }
 }

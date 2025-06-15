@@ -10,7 +10,9 @@ import {
   ArrowRightLeft,
   ChevronDown,
   Trash2,
-  Wallet
+  Wallet,
+  EyeOff,
+  EyeIcon
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -130,6 +132,38 @@ export function RecentTransactionItem ({
     },
     onError: () => {
       toastService.error(t('transactions.typeUpdateError'))
+    }
+  })
+
+  const hideMutation = useMutation({
+    mutationFn: async () => {
+      await transactionService.hideTransaction(transaction.id)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
+      toastService.success(t('transactions.hideSuccess'))
+    },
+    onError: () => {
+      toastService.error(t('transactions.hideError'))
+    }
+  })
+
+  const unhideMutation = useMutation({
+    mutationFn: async () => {
+      await transactionService.update(transaction.id, { is_hidden: false })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
+      toastService.success(
+        t('transactions.unhideSuccess', 'Transaction unhidden')
+      )
+    },
+    onError: () => {
+      toastService.error(
+        t('transactions.unhideError', 'Failed to unhide transaction')
+      )
     }
   })
 
@@ -318,6 +352,45 @@ export function RecentTransactionItem ({
                 currency: transaction.wallet?.currency || 'USD'
               }).format(transaction.amount)}
             </div>
+            <Button
+              variant='ghost'
+              size='icon'
+              className={`h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground ${
+                transaction.is_hidden
+                  ? 'hover:text-green-500'
+                  : 'hover:text-yellow-500'
+              }`}
+              onClick={() => {
+                if (transaction.is_hidden) {
+                  unhideMutation.mutate()
+                } else {
+                  hideMutation.mutate()
+                }
+              }}
+              disabled={hideMutation.isPending || unhideMutation.isPending}
+            >
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      {transaction.is_hidden ? (
+                        <EyeOff className='h-3.5 w-3.5 sm:h-4 sm:w-4' />
+                      ) : (
+                        <EyeIcon className='h-3.5 w-3.5 sm:h-4 sm:w-4' />
+                      )}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {transaction.is_hidden
+                      ? t(
+                          'transactions.unhideTooltip',
+                          'Unhide this transaction'
+                        )
+                      : t('transactions.hideTooltip', 'Hide this transaction')}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Button>
             <Button
               variant='ghost'
               size='icon'
