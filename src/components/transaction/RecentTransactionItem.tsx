@@ -91,6 +91,7 @@ export function RecentTransactionItem ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
       queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
+      queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
 
       onDelete(transaction.id, () => {
         restoreMutation.mutate()
