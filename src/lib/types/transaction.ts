@@ -26,6 +26,7 @@ export interface Transaction {
     name: string
     currency: string
   }
+  monobank_id?: string
   is_hidden?: boolean
 }
 

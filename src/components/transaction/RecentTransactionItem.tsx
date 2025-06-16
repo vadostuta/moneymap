@@ -297,7 +297,32 @@ export function RecentTransactionItem ({
               <span className='hidden sm:inline'>•</span>
             )}
             <div className='flex items-center gap-1'>
-              <span>{format(new Date(transaction.date), 'MMM d, yyyy')}</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      {format(
+                        new Date(
+                          transaction.monobank_id
+                            ? transaction.date
+                            : transaction.created_at
+                        ),
+                        'MMM d, yyyy'
+                      )}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {format(
+                      new Date(
+                        transaction.monobank_id
+                          ? transaction.date
+                          : transaction.created_at
+                      ),
+                      'MMM d, yyyy HH:mm'
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>
