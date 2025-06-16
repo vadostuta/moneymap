@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import { Header } from '@/components/header'
 import { AuthProvider } from '@/contexts/auth-context'
 import ClientToaster from '@/components/ClientToaster'
 import { MonobankSyncProvider } from '@/components/providers/MonobankSyncProvider'
@@ -10,6 +9,8 @@ import { AuthGuard } from '@/components/AuthGuard'
 import { LanguageProvider } from '@/contexts/language-context'
 import { I18nProvider } from '@/components/I18nProvider'
 import { I18nHydrate } from '@/components/I18nHydrate'
+import { AppSidebar } from '@/components/app-sidebar'
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/Sidebar'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -42,14 +43,19 @@ export default function RootLayout ({
               <QueryProvider>
                 <AuthProvider>
                   <MonobankSyncProvider>
-                    <div className='flex flex-col h-screen mx-auto max-w-7xl'>
-                      <Header />
-                      <main className='flex-1 flex justify-center'>
-                        <div className='w-full'>
-                          <AuthGuard>{children}</AuthGuard>
-                        </div>
-                      </main>
-                    </div>
+                    <SidebarProvider>
+                      <div className='flex h-screen w-full'>
+                        <AppSidebar />
+                        <main className='flex-1 overflow-auto'>
+                          <div className='p-6 flex items-start'>
+                            <div className='flex items-center gap-4 mb-4'>
+                              <SidebarTrigger />
+                            </div>
+                            <AuthGuard>{children}</AuthGuard>
+                          </div>
+                        </main>
+                      </div>
+                    </SidebarProvider>
                   </MonobankSyncProvider>
                 </AuthProvider>
               </QueryProvider>

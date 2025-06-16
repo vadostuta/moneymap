@@ -33,7 +33,7 @@ export default function SettingsLayout ({
   ]
 
   return (
-    <div className='container py-3 sm:py-4 md:py-6 px-3 sm:px-4 md:px-6 mx-auto max-w-7xl'>
+    <div className='container px-3 sm:px-4 md:px-6 ml-0 sm:ml-10 max-w-7xl'>
       <h1 className='text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 text-foreground'>
         {t('settings.title')}
       </h1>

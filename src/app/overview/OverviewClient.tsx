@@ -11,7 +11,7 @@ export default function OverviewClient () {
   const [selectedWalletId, setSelectedWalletId] = useState<string>('')
 
   return (
-    <div className='container px-4 py-4 sm:py-6 mx-auto max-w-7xl'>
+    <div className='container px-3 sm:px-4 md:px-6 ml-0 sm:ml-10 max-w-7xl'>
       <div className='grid grid-cols-12 gap-6'>
         <div className='col-span-12 lg:col-span-5 space-y-6'>
           <ExpensePieChart
