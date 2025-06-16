@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/Sidebar'
 import { LayoutDashboard, Wallet, Settings, Receipt } from 'lucide-react'
 import Link from 'next/link'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export function AppSidebar () {
   const { user, signInWithGoogle, signOut } = useAuth()
@@ -77,14 +78,21 @@ export function AppSidebar () {
       <SidebarHeader
         className={`p-6 ${collapsed === 'collapsed' ? 'px-2 pb-3' : ' px-4'}`}
       >
-        <Link
-          href='/overview'
-          className={`font-bold ${
-            collapsed === 'collapsed' ? 'text-base' : ''
-          } text-sidebar-foreground hover:text-sidebar-primary transition-colors`}
+        <div
+          className={`flex items-center justify-between ${
+            collapsed === 'collapsed' ? 'flex-col gap-2' : ''
+          }`}
         >
-          {collapsed === 'expanded' ? 'MoneyMap' : 'MM'}
-        </Link>
+          <Link
+            href='/overview'
+            className={`font-bold ${
+              collapsed === 'collapsed' ? 'text-base' : ''
+            } text-sidebar-foreground hover:text-sidebar-primary transition-colors`}
+          >
+            {collapsed === 'expanded' ? 'MoneyMap' : 'MM'}
+          </Link>
+          <ThemeToggle />
+        </div>
       </SidebarHeader>
 
       <SidebarContent className='text-sidebar-foreground'>

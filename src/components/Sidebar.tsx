@@ -49,7 +49,7 @@ export function Sidebar () {
   ]
 
   return (
-    <aside className='hidden md:flex flex-col w-64 border-r bg-background'>
+    <aside className='hidden md:flex flex-col w-64 border-r bg-sidebar text-sidebar-foreground md:bg-sidebar'>
       <div className='p-6'>
         <Link
           href='/overview'

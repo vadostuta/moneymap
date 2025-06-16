@@ -232,22 +232,16 @@ export function RecentTransactionItem ({
                         : currentCategory?.color_bg || '#374151'
                     }}
                   >
-                    <span
-                      style={{ color: '#fff' }}
-                      className='flex items-center'
-                    >
+                    <span className='flex items-center text-muted-foreground'>
                       {currentCategory?.icon || '📌'}
                     </span>
-                    <span
-                      className='hidden sm:inline'
-                      style={{ color: '#fff' }}
-                    >
+                    <span className='hidden sm:inline text-muted-foreground'>
                       {getTranslatedCategoryName(
                         currentCategory?.name ?? '',
                         t
                       )}
                     </span>
-                    <span className='sm:hidden' style={{ color: '#fff' }}>
+                    <span className='sm:hidden text-muted-foreground'>
                       {
                         getTranslatedCategoryName(
                           currentCategory?.name ?? '',
@@ -255,10 +249,7 @@ export function RecentTransactionItem ({
                         ).split(' ')[0]
                       }
                     </span>
-                    <ChevronDown
-                      className='w-3 h-3 ml-1'
-                      style={{ color: '#fff' }}
-                    />
+                    <ChevronDown className='w-3 h-3 ml-1 text-muted-foreground' />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align='start' className='w-48'>
@@ -274,7 +265,11 @@ export function RecentTransactionItem ({
                               category.name as TransactionCategory
                             )
                           }
-                          className={`flex items-center gap-2 rounded-md`}
+                          className={`flex items-center gap-2 rounded-md ${
+                            isSelected
+                              ? 'bg-accent text-accent-foreground'
+                              : 'text-muted-foreground'
+                          }`}
                           style={{
                             backgroundColor: isSelected
                               ? category.color_bg?.includes('#')
@@ -283,8 +278,10 @@ export function RecentTransactionItem ({
                               : undefined
                           }}
                         >
-                          <span style={{ color: '#fff' }}>{category.icon}</span>
-                          <span style={{ color: '#fff' }}>
+                          <span className='text-muted-foreground'>
+                            {category.icon}
+                          </span>
+                          <span className='text-muted-foreground'>
                             {getTranslatedCategoryName(category.name, t)}
                           </span>
                         </DropdownMenuItem>

@@ -265,7 +265,7 @@ export function ExpensePieChart ({
             </Select>
           </CardTitle>
         </div>
-        <div className='text-2xl font-bold mt-2 text-white tracking-tight'>
+        <div className='text-2xl font-bold mt-2 text-foreground tracking-tight'>
           {formatCurrency(totalExpense)}
         </div>
       </CardHeader>
@@ -340,7 +340,7 @@ export function ExpensePieChart ({
                         <span className='text-sm sm:text-base text-muted-foreground truncate'>
                           {getTranslatedCategoryName(categoryName, t)}
                         </span>
-                        <span className='text-sm font-semibold ml-auto text-white whitespace-nowrap'>
+                        <span className='text-sm font-semibold ml-auto text-foreground whitespace-nowrap'>
                           {formatCurrency(entry.amount)}
                         </span>
                       </div>

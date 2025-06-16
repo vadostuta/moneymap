@@ -24,7 +24,7 @@ export function MobileNav () {
   const { t } = useTranslation('common')
 
   return (
-    <div className='md:hidden border-b'>
+    <div className='md:hidden border-b bg-background'>
       <div className='container flex h-16 items-center justify-between px-4'>
         <Link
           href='/overview'
@@ -60,7 +60,7 @@ export function MobileNav () {
                 <Menu className='h-5 w-5' />
               </Button>
             </SheetTrigger>
-            <SheetContent side='left' className='p-0'>
+            <SheetContent side='left' className='p-0 bg-background/95'>
               <Sidebar />
             </SheetContent>
           </Sheet>

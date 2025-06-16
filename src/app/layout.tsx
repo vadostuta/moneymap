@@ -11,6 +11,7 @@ import { I18nProvider } from '@/components/I18nProvider'
 import { I18nHydrate } from '@/components/I18nHydrate'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/Sidebar'
+import { ThemeProvider } from '@/contexts/theme-context'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,35 +34,37 @@ export default function RootLayout ({
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <I18nProvider>
-          <I18nHydrate>
-            <LanguageProvider>
-              <QueryProvider>
-                <AuthProvider>
-                  <MonobankSyncProvider>
-                    <SidebarProvider>
-                      <div className='flex h-screen w-full'>
-                        <AppSidebar />
-                        <main className='flex-1 overflow-auto'>
-                          <div className='p-6 flex items-start'>
-                            <div className='flex items-center gap-4 mb-4'>
-                              <SidebarTrigger />
+        <ThemeProvider defaultTheme='system' storageKey='moneymap-theme'>
+          <I18nProvider>
+            <I18nHydrate>
+              <LanguageProvider>
+                <QueryProvider>
+                  <AuthProvider>
+                    <MonobankSyncProvider>
+                      <SidebarProvider>
+                        <div className='flex h-screen w-full'>
+                          <AppSidebar />
+                          <main className='flex-1 overflow-auto'>
+                            <div className='p-6 flex items-start'>
+                              <div className='flex items-center gap-4 mb-4'>
+                                <SidebarTrigger />
+                              </div>
+                              <AuthGuard>{children}</AuthGuard>
                             </div>
-                            <AuthGuard>{children}</AuthGuard>
-                          </div>
-                        </main>
-                      </div>
-                    </SidebarProvider>
-                  </MonobankSyncProvider>
-                </AuthProvider>
-              </QueryProvider>
-            </LanguageProvider>
-          </I18nHydrate>
-        </I18nProvider>
+                          </main>
+                        </div>
+                      </SidebarProvider>
+                    </MonobankSyncProvider>
+                  </AuthProvider>
+                </QueryProvider>
+              </LanguageProvider>
+            </I18nHydrate>
+          </I18nProvider>
+        </ThemeProvider>
         <ClientToaster />
       </body>
     </html>
