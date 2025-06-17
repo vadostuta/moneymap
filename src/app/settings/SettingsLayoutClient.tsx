@@ -34,7 +34,7 @@ export default function SettingsLayout ({
 
   return (
     <div
-      className='container px-3 sm:px-4 md:px-6 ml-0 sm:ml-10 max-w-7xl'
+      className='container px-3 sm:px-4 md:px-6 ml-0 sm:ml-2 max-w-7xl'
       style={{ minWidth: 'calc(100% - 5vw)' }}
     >
       <h1 className='text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 text-foreground'>

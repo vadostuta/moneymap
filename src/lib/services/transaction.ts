@@ -5,6 +5,7 @@ import {
   TransactionType
 } from '@/lib/types/transaction'
 // import { Wallet } from '../types/wallet'
+import { startOfMonth, endOfMonth } from 'date-fns'
 
 export const transactionService = {
   // Create a new transaction
@@ -382,6 +383,44 @@ export const transactionService = {
     }, {} as Record<string, number>)
 
     return Object.entries(categoryTotals).map(([category_id, amount]) => ({
+      category_id,
+      amount
+    }))
+  },
+
+  async getCurrentMonthIncomeByCategory (walletId: string) {
+    const startDate = startOfMonth(new Date()).toISOString().split('T')[0] // YYYY-MM-DD
+    const endDate = endOfMonth(new Date()).toISOString().split('T')[0] // YYYY-MM-DD
+
+    const { data, error } = await supabase
+      .from('transactions')
+      .select(
+        `
+        category_id,
+        amount
+      `
+      )
+      .eq('wallet_id', walletId)
+      .eq('type', 'income')
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .not('is_hidden', 'eq', true)
+      .not('is_deleted', 'eq', true)
+
+    if (error) throw error
+
+    // Group by category and sum amounts
+    const groupedData = data.reduce((acc, transaction) => {
+      const categoryId = transaction.category_id
+      if (!acc[categoryId]) {
+        acc[categoryId] = 0
+      }
+      acc[categoryId] += transaction.amount
+      return acc
+    }, {} as Record<string, number>)
+
+    // Transform to array format
+    return Object.entries(groupedData).map(([category_id, amount]) => ({
       category_id,
       amount
     }))

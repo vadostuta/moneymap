@@ -29,6 +29,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 // Define colors for different categories
 const COLORS = [
@@ -58,6 +59,7 @@ export function ExpensePieChart ({
   setSelectedWalletId: setSelectedWalletIdInput
 }: ExpensePieChartProps) {
   const { t } = useTranslation('common')
+  const [type, setType] = React.useState<'expense' | 'income'>('expense')
 
   // Fetch available wallets with currency information
   const { data: wallets } = useQuery({
@@ -94,9 +96,11 @@ export function ExpensePieChart ({
 
   // Fetch expenses by category with wallet filter
   const { data, isLoading, error } = useQuery({
-    queryKey: ['expenses-by-category', selectedWalletId],
+    queryKey: ['transactions-by-category', selectedWalletId, type],
     queryFn: () =>
-      transactionService.getCurrentMonthExpensesByCategory(selectedWalletId)
+      type === 'expense'
+        ? transactionService.getCurrentMonthExpensesByCategory(selectedWalletId)
+        : transactionService.getCurrentMonthIncomeByCategory(selectedWalletId)
   })
 
   const totalExpense = data?.reduce((sum, item) => sum + item.amount, 0) || 0
@@ -245,28 +249,40 @@ export function ExpensePieChart ({
 
   return (
     <Card>
-      <CardHeader className='flex flex-col md:flex-row items-center gap-2  flex-wrap'>
-        <div className='flex justify-between items-center'>
-          <CardTitle className='text-lg text-muted-foreground font-medium flex flex-col items-center gap-2'>
-            <div>
-              <div>{t('overview.currentMonthExpenses')}</div>
-            </div>
-            <Select value={selectedWalletId} onValueChange={handleWalletChange}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder={t('wallets.selectWallet')} />
-              </SelectTrigger>
-              <SelectContent>
-                {wallets?.map(wallet => (
-                  <SelectItem key={wallet.id} value={wallet.id}>
-                    {wallet.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardTitle>
+      <CardHeader className='flex flex-col md:flex-row items-start justify-between gap-4 flex-wrap'>
+        {/* Left side: Total and Wallet Selector */}
+        <div className='flex flex-col gap-4'>
+          <div className='text-2xl font-bold text-foreground tracking-tight'>
+            {formatCurrency(totalExpense)}
+          </div>
+          <Select value={selectedWalletId} onValueChange={handleWalletChange}>
+            <SelectTrigger className='w-[180px]'>
+              <SelectValue placeholder={t('wallets.selectWallet')} />
+            </SelectTrigger>
+            <SelectContent>
+              {wallets?.map(wallet => (
+                <SelectItem key={wallet.id} value={wallet.id}>
+                  {wallet.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <div className='text-2xl font-bold mt-2 text-foreground tracking-tight'>
-          {formatCurrency(totalExpense)}
+
+        {/* Right side: Tabs */}
+        <div className='flex flex-col items-end'>
+          <Tabs
+            value={type}
+            onValueChange={value => setType(value as 'expense' | 'income')}
+            className='w-full md:w-auto'
+          >
+            <TabsList>
+              <TabsTrigger value='expense'>
+                {t('overview.expenses')}
+              </TabsTrigger>
+              <TabsTrigger value='income'>{t('overview.income')}</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </CardHeader>
       <CardContent>

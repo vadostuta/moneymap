@@ -64,7 +64,7 @@ export function QuickTransactionForm ({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
-      queryClient.invalidateQueries({ queryKey: ['expenses-by-category'] })
+      queryClient.invalidateQueries({ queryKey: ['transactions-by-category'] })
       queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
 
       toastService.success(
