@@ -236,5 +236,14 @@
       "extra": "Extra",
       "salary": "Salary"
     }
+  },
+  "sidebar": {
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "hotkey": {
+      "sidebar-toggle": "Ctrl + S",
+      "nav-route": "Ctrl + {{number}}",
+      "dialog-open": "Ctrl + D"
+    }
   }
 }

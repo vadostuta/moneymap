@@ -4,6 +4,7 @@ import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { VariantProps, cva } from 'class-variance-authority'
 import { PanelLeft } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
@@ -271,24 +272,39 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, state } = useSidebar()
+  const { t } = useTranslation('common')
 
   return (
-    <Button
-      ref={ref}
-      data-sidebar='trigger'
-      variant='ghost'
-      size='icon'
-      className={cn('h-7 w-7', className)}
-      onClick={event => {
-        onClick?.(event)
-        toggleSidebar()
-      }}
-      {...props}
-    >
-      <PanelLeft />
-      <span className='sr-only'>Toggle Sidebar</span>
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            ref={ref}
+            data-sidebar='trigger'
+            variant='ghost'
+            size='icon'
+            className={cn('h-7 w-7', className)}
+            onClick={event => {
+              onClick?.(event)
+              toggleSidebar()
+            }}
+            {...props}
+          >
+            <PanelLeft />
+            <span className='sr-only'>Toggle Sidebar</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>
+            {state === 'expanded' ? t('sidebar.collapse') : t('sidebar.expand')}
+          </p>
+          <p className='text-xs text-muted-foreground'>
+            {t('sidebar.hotkey.sidebar-toggle', 'Ctrl + S')}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 })
 SidebarTrigger.displayName = 'SidebarTrigger'

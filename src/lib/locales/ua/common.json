@@ -243,5 +243,14 @@
       "extra": "Додатково",
       "salary": "Зарплата"
     }
+  },
+  "sidebar": {
+    "collapse": "Згорнути бокову панель",
+    "expand": "Розгорнути бокову панель",
+    "hotkey": {
+      "sidebar-toggle": "Ctrl + S",
+      "nav-route": "Ctrl + {{number}}",
+      "dialog-open": "Ctrl + D"
+    }
   }
 }
