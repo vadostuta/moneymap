@@ -109,7 +109,10 @@ export const walletService = {
 
     if (integrationError) throw integrationError
 
-    // Soft delete the wallet
+    // First, ensure no wallet is primary
+    await supabase.from('wallets').update({ is_primary: false }).eq('id', id)
+
+    // Then soft delete the wallet
     const { error } = await supabase
       .from('wallets')
       .update({ is_deleted: true })

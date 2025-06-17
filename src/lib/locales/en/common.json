@@ -125,7 +125,8 @@
       "savings": "Savings",
       "investment": "Investment",
       "ewallet": "E-Wallet"
-    }
+    },
+    "noWallets": "No wallets found"
   },
   "settings": {
     "title": "Settings",
