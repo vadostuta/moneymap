@@ -327,7 +327,7 @@ export function ExpensePieChart ({
                         }
                       >
                         <div
-                          className='w-3 h-3 rounded-full border border-white/30 flex-shrink-0'
+                          className='flex items-center justify-center w-6 h-6 rounded-full border border-white/30 flex-shrink-0'
                           style={{
                             backgroundColor: COLORS[colorIdx % COLORS.length],
                             opacity:
@@ -336,7 +336,11 @@ export function ExpensePieChart ({
                                 ? 1
                                 : 0.5
                           }}
-                        />
+                        >
+                          <span className='text-sm'>
+                            {category?.icon || '📌'}
+                          </span>
+                        </div>
                         <span className='text-sm sm:text-base text-muted-foreground truncate'>
                           {getTranslatedCategoryName(categoryName, t)}
                         </span>
