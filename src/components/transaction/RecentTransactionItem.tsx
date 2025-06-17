@@ -353,7 +353,7 @@ export function RecentTransactionItem ({
             <div
               className={`flex items-center gap-1 text-base sm:text-lg font-semibold ${
                 transaction.type === 'expense'
-                  ? 'text-white'
+                  ? 'text-gray-900 dark:text-white'
                   : 'text-emerald-500'
               }`}
             >

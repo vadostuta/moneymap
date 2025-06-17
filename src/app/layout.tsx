@@ -49,8 +49,8 @@ export default function RootLayout ({
                         <div className='flex h-screen w-full'>
                           <AppSidebar />
                           <main className='flex-1 overflow-auto'>
-                            <div className='p-6 flex items-start'>
-                              <div className='flex items-center gap-4 mb-4'>
+                            <div className='py-[5rem] px-4 sm:p-6 flex items-start'>
+                              <div className='hidden md:flex items-center gap-4 mb-4'>
                                 <SidebarTrigger />
                               </div>
                               <AuthGuard>{children}</AuthGuard>

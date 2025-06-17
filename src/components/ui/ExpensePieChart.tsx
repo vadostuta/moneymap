@@ -245,7 +245,7 @@ export function ExpensePieChart ({
 
   return (
     <Card>
-      <CardHeader className='md:flex-row flex flex-col items-center gap-2'>
+      <CardHeader className='flex flex-col md:flex-row items-center gap-2  flex-wrap'>
         <div className='flex justify-between items-center'>
           <CardTitle className='text-lg text-muted-foreground font-medium flex flex-col items-center gap-2'>
             <div>
