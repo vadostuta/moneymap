@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/auth-context'
 import { useTranslation } from 'react-i18next'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { LogIn, LogOut, Plus } from 'lucide-react'
 import {
@@ -34,21 +34,10 @@ import { ThemeToggle } from '@/components/theme-toggle'
 export function AppSidebar () {
   const { user, signInWithGoogle, signOut } = useAuth()
   const pathname = usePathname()
+  const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
   const { t } = useTranslation('common')
   const { state: collapsed, toggleSidebar } = useSidebar()
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-        event.preventDefault() // Prevent browser's save dialog
-        toggleSidebar()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [toggleSidebar])
 
   const navItems = [
     {
@@ -72,6 +61,26 @@ export function AppSidebar () {
       icon: Settings
     }
   ]
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        if (event.key === 's') {
+          event.preventDefault()
+          toggleSidebar()
+        } else if (event.key >= '1' && event.key <= '4') {
+          event.preventDefault()
+          const index = parseInt(event.key) - 1
+          if (index >= 0 && index < navItems.length) {
+            router.push(navItems[index].href)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [toggleSidebar, navItems, router])
 
   return (
     <Sidebar collapsible='icon' className='bg-sidebar text-sidebar-foreground'>
