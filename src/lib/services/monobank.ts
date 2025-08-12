@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client'
 import { CreateTransactionDTO } from '../types/transaction'
+import { getCategoryFromMCC } from './mcc-mapper'
 
 export interface BankIntegration {
   id: string
@@ -145,12 +146,17 @@ export class MonobankService {
     transaction: MonobankTransaction,
     walletId: string
   ): CreateTransactionDTO {
+    // Get category ID directly from MCC mapping
+    const categoryId =
+      getCategoryFromMCC(transaction.mcc) ||
+      'e6ae9d7d-1e91-447d-8bcb-9940a5d9d3a0' // fallback category
+
     return {
       wallet_id: walletId,
       type: transaction.amount < 0 ? 'expense' : 'income',
       amount: Math.abs(transaction.amount) / 100,
       description: transaction.description || '',
-      category_id: 'e6ae9d7d-1e91-447d-8bcb-9940a5d9d3a0',
+      category_id: categoryId,
       label: 'Personal',
       date: new Date(transaction.time * 1000).toISOString()
     }
@@ -207,12 +213,11 @@ export class MonobankService {
     const batchSize = 50
     for (let i = 0; i < newTransactions.length; i += batchSize) {
       const batch = newTransactions.slice(i, i + batchSize)
+
       const { error } = await supabase.from('transactions').insert(batch)
 
-      // Handle potential unique constraint violations
       if (error) {
         if (error.code === '23505') {
-          // PostgreSQL unique violation code
           console.warn('Duplicate transaction detected, skipping...')
           continue
         }
