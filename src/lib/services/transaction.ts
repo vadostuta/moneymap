@@ -199,7 +199,9 @@ export const transactionService = {
     limit = 10,
     showHidden = false,
     minAmount,
-    maxAmount
+    maxAmount,
+    fromDate,
+    toDate
   }: {
     userId: string
     walletId?: string
@@ -210,6 +212,8 @@ export const transactionService = {
     showHidden?: boolean
     minAmount?: number
     maxAmount?: number
+    fromDate?: Date
+    toDate?: Date
   }): Promise<Transaction[]> {
     let query = supabase
       .from('transactions')
@@ -241,6 +245,15 @@ export const transactionService = {
 
     if (maxAmount !== undefined) {
       query = query.lte('amount', maxAmount)
+    }
+
+    // Add date range filtering
+    if (fromDate) {
+      query = query.gte('date', fromDate.toISOString())
+    }
+
+    if (toDate) {
+      query = query.lte('date', toDate.toISOString())
     }
 
     const { data, error } = await query

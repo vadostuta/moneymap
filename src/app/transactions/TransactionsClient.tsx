@@ -27,6 +27,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { UndoDeleteToast } from '@/components/ui/undo-delete-toast'
+import { DatePicker } from '@/components/ui/date-picker'
 
 export default function TransactionsClient () {
   const { t } = useTranslation('common')
@@ -43,7 +44,9 @@ export default function TransactionsClient () {
     onUndo: () => void
   } | null>(null)
   const [minAmount, setMinAmount] = useState<string>('')
-  const [maxAmount, setMaxAmount] = useState<string>('')
+  const [maxAmount, setMaxAmount] = useState('')
+  const [fromDate, setFromDate] = useState<Date | undefined>()
+  const [toDate, setToDate] = useState<Date | undefined>()
 
   // Fetch categories
   const { data: categories = [] } = useQuery({
@@ -70,7 +73,9 @@ export default function TransactionsClient () {
         selectedWalletId,
         showHidden,
         minAmount,
-        maxAmount
+        maxAmount,
+        fromDate,
+        toDate
       ],
       queryFn: async ({ pageParam = 0 }) => {
         if (!user) return []
@@ -84,7 +89,9 @@ export default function TransactionsClient () {
           walletId: selectedWalletId,
           showHidden,
           minAmount: minAmount ? parseFloat(minAmount) : undefined,
-          maxAmount: maxAmount ? parseFloat(maxAmount) : undefined
+          maxAmount: maxAmount ? parseFloat(maxAmount) : undefined,
+          fromDate,
+          toDate
         })
       },
       enabled: !!user && !authLoading,
@@ -138,6 +145,20 @@ export default function TransactionsClient () {
               value={maxAmount}
               onChange={e => setMaxAmount(e.target.value)}
               className='w-[120px]'
+            />
+          </div>
+
+          <div className='flex gap-2 items-center'>
+            <DatePicker
+              date={fromDate}
+              onSelect={setFromDate}
+              placeholder={t('transactions.fromDate', 'From date')}
+            />
+            <span>-</span>
+            <DatePicker
+              date={toDate}
+              onSelect={setToDate}
+              placeholder={t('transactions.toDate', 'To date')}
             />
           </div>
 
