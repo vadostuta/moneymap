@@ -86,6 +86,7 @@
     "balance": "Balance",
     "primary": "Primary Wallet",
     "selectWallet": "Select wallet",
+    "activeWallet": "Active Wallet",
     "new": "New Wallet",
     "type": "Type",
     "search": "Search wallets...",

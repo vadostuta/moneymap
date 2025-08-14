@@ -12,14 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { transactionService } from '@/lib/services/transaction'
 import { useQuery } from '@tanstack/react-query'
 import { ResponsiveContainer } from 'recharts'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { walletService } from '@/lib/services/wallet'
 import { useTranslation } from 'react-i18next'
 import { categoryService } from '@/lib/services/category'
 import {
@@ -30,6 +22,7 @@ import {
 } from '@/components/ui/tooltip'
 import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useWallet } from '@/contexts/wallet-context'
 
 // Define colors for different categories
 const COLORS = [
@@ -50,48 +43,20 @@ const COLORS = [
 interface ExpensePieChartProps {
   onCategorySelect: (categoryId: string | undefined) => void
   selectedCategory?: string
-  setSelectedWalletId: (walletId: string) => void
 }
 
 export function ExpensePieChart ({
   onCategorySelect,
-  selectedCategory,
-  setSelectedWalletId: setSelectedWalletIdInput
+  selectedCategory
 }: ExpensePieChartProps) {
   const { t } = useTranslation('common')
+  const { selectedWallet } = useWallet()
   const [type, setType] = React.useState<'expense' | 'income'>('expense')
 
-  // Fetch available wallets with currency information
-  const { data: wallets } = useQuery({
-    queryKey: ['wallets'],
-    queryFn: () => walletService.getAllActive()
-  })
-
-  // Set default wallet ID when wallets are loaded
-  const [selectedWalletId, setSelectedWalletId] = React.useState<string>('')
-
-  // Update selectedWalletId when wallets are loaded
-  React.useEffect(() => {
-    if (wallets && wallets.length > 0) {
-      // First try to find a primary wallet
-      const primaryWallet = wallets.find(wallet => wallet.is_primary)
-
-      if (primaryWallet) {
-        setSelectedWalletId(primaryWallet.id)
-        setSelectedWalletIdInput(primaryWallet.id)
-      } else {
-        // Only if no primary wallet, fall back to the first wallet (but do NOT set it as primary)
-        const firstWallet = wallets[0]
-        if (firstWallet) {
-          setSelectedWalletId(firstWallet.id)
-          setSelectedWalletIdInput(firstWallet.id)
-        }
-      }
-    }
-  }, [wallets, setSelectedWalletIdInput])
+  // Use the selected wallet from context
+  const selectedWalletId = selectedWallet?.id || ''
 
   // Get the selected wallet's currency
-  const selectedWallet = wallets?.find(wallet => wallet.id === selectedWalletId)
   const currency = selectedWallet?.currency || 'UAH' // Fallback to UAH if no wallet selected
 
   // Fetch expenses by category with wallet filter
@@ -123,10 +88,7 @@ export function ExpensePieChart ({
     }
   }
 
-  const handleWalletChange = (value: string) => {
-    setSelectedWalletId(value)
-    setSelectedWalletIdInput(value)
-  }
+
 
   const categoryColorIndex: Record<string, number> = {}
   data?.forEach((entry, idx) => {
@@ -164,22 +126,8 @@ export function ExpensePieChart ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className='text-lg text-muted-foreground font-medium flex flex-col items-center gap-2'>
-            <div>
-              <div>{t('overview.currentMonthExpenses')}</div>
-            </div>
-            <Select value={selectedWalletId} onValueChange={handleWalletChange}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder={t('wallets.selectWallet')} />
-              </SelectTrigger>
-              <SelectContent>
-                {wallets?.map(wallet => (
-                  <SelectItem key={wallet.id} value={wallet.id}>
-                    {wallet.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <CardTitle className='text-lg text-muted-foreground font-medium'>
+            {t('overview.currentMonthExpenses')}
           </CardTitle>
         </CardHeader>
         <CardContent className='flex items-center justify-center h-[180px]'>
@@ -193,22 +141,8 @@ export function ExpensePieChart ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className='text-lg text-muted-foreground font-medium flex flex-col items-center gap-2'>
-            <div>
-              <div>{t('overview.currentMonthExpenses')}</div>
-            </div>
-            <Select value={selectedWalletId} onValueChange={handleWalletChange}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder={t('wallets.selectWallet')} />
-              </SelectTrigger>
-              <SelectContent>
-                {wallets?.map(wallet => (
-                  <SelectItem key={wallet.id} value={wallet.id}>
-                    {wallet.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <CardTitle className='text-lg text-muted-foreground font-medium'>
+            {t('overview.currentMonthExpenses')}
           </CardTitle>
         </CardHeader>
         <CardContent className='flex items-center justify-center h-[180px]'>
@@ -222,22 +156,8 @@ export function ExpensePieChart ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className='text-lg text-muted-foreground font-medium flex flex-col items-center gap-2'>
-            <div>
-              <div>{t('overview.currentMonthExpenses')}</div>
-            </div>
-            <Select value={selectedWalletId} onValueChange={handleWalletChange}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder={t('wallets.selectWallet')} />
-              </SelectTrigger>
-              <SelectContent>
-                {wallets?.map(wallet => (
-                  <SelectItem key={wallet.id} value={wallet.id}>
-                    {wallet.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <CardTitle className='text-lg text-muted-foreground font-medium'>
+            {t('overview.currentMonthExpenses')}
           </CardTitle>
         </CardHeader>
         <CardContent className='flex items-center justify-center h-[180px]'>
@@ -250,23 +170,11 @@ export function ExpensePieChart ({
   return (
     <Card>
       <CardHeader className='flex flex-col md:flex-row items-start justify-between gap-4 flex-wrap'>
-        {/* Left side: Total and Wallet Selector */}
+        {/* Left side: Total */}
         <div className='flex flex-col gap-4'>
           <div className='text-2xl font-bold text-foreground tracking-tight'>
             {formatCurrency(totalExpense)}
           </div>
-          <Select value={selectedWalletId} onValueChange={handleWalletChange}>
-            <SelectTrigger className='w-[180px]'>
-              <SelectValue placeholder={t('wallets.selectWallet')} />
-            </SelectTrigger>
-            <SelectContent>
-              {wallets?.map(wallet => (
-                <SelectItem key={wallet.id} value={wallet.id}>
-                  {wallet.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Right side: Tabs */}

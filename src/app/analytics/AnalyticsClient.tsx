@@ -6,26 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MonthSelector } from './MonthSelector'
 import { MonthlyExpenseChart } from './MonthlyExpenseChart'
 import { useQuery } from '@tanstack/react-query'
-import { walletService } from '@/lib/services/wallet'
 import { transactionService } from '@/lib/services/transaction'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
+import { useWallet } from '@/contexts/wallet-context'
 
 export function AnalyticsClient () {
   const { t } = useTranslation('common')
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
-  const [selectedWalletId, setSelectedWalletId] = useState<string>('')
-
-  // Fetch available wallets
-  const { data: wallets } = useQuery({
-    queryKey: ['wallets'],
-    queryFn: () => walletService.getAllActive()
-  })
+  const { selectedWallet } = useWallet()
+  const selectedWalletId = selectedWallet?.id || ''
 
   // Fetch all transactions for the selected wallet to determine available months
   const { data: allTransactions, isLoading: transactionsLoading } = useQuery({
@@ -98,17 +86,7 @@ export function AnalyticsClient () {
     return months
   }, [allTransactions])
 
-  // Set default wallet when wallets are loaded
-  useEffect(() => {
-    if (wallets && wallets.length > 0) {
-      const primaryWallet = wallets.find(wallet => wallet.is_primary)
-      if (primaryWallet) {
-        setSelectedWalletId(primaryWallet.id)
-      } else if (wallets[0]) {
-        setSelectedWalletId(wallets[0].id)
-      }
-    }
-  }, [wallets])
+
 
   // Update selected month when available months change
   useEffect(() => {
@@ -129,11 +107,7 @@ export function AnalyticsClient () {
     setSelectedMonth(month)
   }
 
-  const handleWalletChange = (walletId: string) => {
-    setSelectedWalletId(walletId)
-    // Reset selected month when wallet changes
-    setSelectedMonth(new Date())
-  }
+
 
   // Debug info
   console.log('Debug info:', {
@@ -148,46 +122,14 @@ export function AnalyticsClient () {
     <div className='w-full max-w-none space-y-6 px-6'>
       {/* Controls Section */}
       <div className='space-y-6'>
-        {/* Wallet and Month Selection Row */}
-        {wallets && wallets.length > 0 && (
-          <div className='grid grid-cols-1 sm:grid-cols-5 gap-4 items-end'>
-            {/* Wallet Selector */}
-            <Card className='sm:col-span-1'>
-              <CardHeader>
-                <CardTitle className='text-lg flex items-center gap-2'>
-                  <span className='text-primary'>💳</span>
-                  {t('wallets.selectWallet')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Select
-                  value={selectedWalletId}
-                  onValueChange={handleWalletChange}
-                >
-                  <SelectTrigger className='w-full'>
-                    <SelectValue placeholder={t('wallets.selectWallet')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {wallets.map(wallet => (
-                      <SelectItem key={wallet.id} value={wallet.id}>
-                        {wallet.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-
-            {/* Month Selector */}
-            {selectedWalletId && (
-              <div className='sm:col-span-4'>
-                <MonthSelector
-                  selectedMonth={selectedMonth}
-                  onMonthSelect={handleMonthSelect}
-                  availableMonths={availableMonths}
-                />
-              </div>
-            )}
+        {/* Month Selection Row */}
+        {selectedWalletId && (
+          <div className='w-full'>
+            <MonthSelector
+              selectedMonth={selectedMonth}
+              onMonthSelect={handleMonthSelect}
+              availableMonths={availableMonths}
+            />
           </div>
         )}
       </div>

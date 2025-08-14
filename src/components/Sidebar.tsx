@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/auth-context'
-import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { usePathname } from 'next/navigation'
 import { Plus } from 'lucide-react'
 import {
@@ -14,10 +14,10 @@ import {
 } from '@/components/ui/dialog'
 import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
 import { LanguageSwitcher } from './LanguageSwitcher'
-import { useTranslation } from 'react-i18next'
-import { cn } from '@/lib/utils'
-import { LayoutDashboard, Wallet, Settings, Receipt } from 'lucide-react'
 import { useState } from 'react'
+import { LayoutDashboard, Receipt } from 'lucide-react'
+import Link from 'next/link'
+import { cn } from '@/lib/utils'
 
 export function Sidebar () {
   const { user, signInWithGoogle, signOut } = useAuth()
@@ -35,16 +35,6 @@ export function Sidebar () {
       href: '/transactions',
       label: t('navigation.transactions'),
       icon: Receipt
-    },
-    {
-      href: '/wallets',
-      label: t('navigation.wallets'),
-      icon: Wallet
-    },
-    {
-      href: '/settings',
-      label: t('navigation.settings'),
-      icon: Settings
     }
   ]
 

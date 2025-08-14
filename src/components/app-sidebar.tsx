@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/auth-context'
+import { useWallet } from '@/contexts/wallet-context'
 import { useTranslation } from 'react-i18next'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -42,15 +43,35 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 export function AppSidebar () {
   const { user, signInWithGoogle, signOut } = useAuth()
+  const {
+    selectedWallet,
+    setSelectedWallet,
+    wallets,
+    isLoading: walletsLoading
+  } = useWallet()
   const pathname = usePathname()
   const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { t } = useTranslation('common')
   const { state: collapsed, toggleSidebar } = useSidebar()
+
+  const handleWalletChange = (walletId: string) => {
+    const wallet = wallets.find(w => w.id === walletId)
+    if (wallet) {
+      setSelectedWallet(wallet)
+    }
+  }
 
   const navItems = [
     {
@@ -161,6 +182,30 @@ export function AppSidebar () {
           <div className='p-4'>
             {user && (
               <div className='mb-4'>
+                {/* Wallet Selector */}
+                {!walletsLoading && wallets.length > 0 && (
+                  <div className='mb-4'>
+                    <div className='text-xs font-medium text-muted-foreground mb-2'>
+                      {t('wallets.activeWallet')}
+                    </div>
+                    <Select
+                      value={selectedWallet?.id || ''}
+                      onValueChange={handleWalletChange}
+                    >
+                      <SelectTrigger className='w-full'>
+                        <SelectValue placeholder={t('wallets.selectWallet')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {wallets.map(wallet => (
+                          <SelectItem key={wallet.id} value={wallet.id}>
+                            {wallet.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <TooltipProvider>
                     <Tooltip>
@@ -347,6 +392,51 @@ export function AppSidebar () {
             {user && (
               <SidebarGroup>
                 <SidebarGroupContent>
+                  {/* Wallet Selector */}
+                  {!walletsLoading && wallets.length > 0 && (
+                    <div
+                      className={`px-3 py-2 ${
+                        collapsed === 'collapsed' ? 'mb-4' : ''
+                      }`}
+                    >
+                      {collapsed === 'expanded' && (
+                        <div className='text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2'>
+                          <Wallet className='h-3 w-3' />
+                          {t('wallets.activeWallet')}
+                        </div>
+                      )}
+                      <Select
+                        value={selectedWallet?.id || ''}
+                        onValueChange={handleWalletChange}
+                      >
+                        <SelectTrigger
+                          className={`w-full ${
+                            collapsed === 'collapsed'
+                              ? 'h-8 w-8 p-0 flex items-center justify-center rounded-lg bg-sidebar-accent hover:bg-sidebar-accent/80 transition-colors [&>svg]:hidden'
+                              : ''
+                          }`}
+                        >
+                          {collapsed === 'collapsed' ? (
+                            <div className='flex items-center justify-center'>
+                              <Wallet className='h-4 w-4 text-sidebar-foreground' />
+                            </div>
+                          ) : (
+                            <SelectValue
+                              placeholder={t('wallets.selectWallet')}
+                            />
+                          )}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {wallets.map(wallet => (
+                            <SelectItem key={wallet.id} value={wallet.id}>
+                              {wallet.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
                   <div
                     className={`py-2 ${
                       collapsed === 'collapsed' ? 'mb-4' : ''

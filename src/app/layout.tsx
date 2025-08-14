@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/auth-context'
+import { WalletProvider } from '@/contexts/wallet-context'
 import ClientToaster from '@/components/ClientToaster'
 import { MonobankSyncProvider } from '@/components/providers/MonobankSyncProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
@@ -44,21 +45,23 @@ export default function RootLayout ({
               <LanguageProvider>
                 <QueryProvider>
                   <AuthProvider>
-                    <MonobankSyncProvider>
-                      <SidebarProvider>
-                        <div className='flex h-screen w-full'>
-                          <AppSidebar />
-                          <main className='flex-1 overflow-auto'>
-                            <div className='py-[5rem] px-4 sm:p-6 flex items-start'>
-                              <div className='hidden md:flex items-center gap-4 mb-4'>
-                                <SidebarTrigger />
+                    <WalletProvider>
+                      <MonobankSyncProvider>
+                        <SidebarProvider>
+                          <div className='flex h-screen w-full'>
+                            <AppSidebar />
+                            <main className='flex-1 overflow-auto'>
+                              <div className='py-[5rem] px-4 sm:p-6 flex items-start'>
+                                <div className='hidden md:flex items-center gap-4 mb-4'>
+                                  <SidebarTrigger />
+                                </div>
+                                <AuthGuard>{children}</AuthGuard>
                               </div>
-                              <AuthGuard>{children}</AuthGuard>
-                            </div>
-                          </main>
-                        </div>
-                      </SidebarProvider>
-                    </MonobankSyncProvider>
+                            </main>
+                          </div>
+                        </SidebarProvider>
+                      </MonobankSyncProvider>
+                    </WalletProvider>
                   </AuthProvider>
                 </QueryProvider>
               </LanguageProvider>

@@ -4,11 +4,13 @@ import { RecentTransactions } from '@/components/transaction/RecentTransactions'
 import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
 import { useState } from 'react'
 import { TransactionCategory } from '@/lib/types/transaction'
+import { useWallet } from '@/contexts/wallet-context'
 
 export default function OverviewClient () {
   const [selectedCategory, setSelectedCategory] =
     useState<TransactionCategory>()
-  const [selectedWalletId, setSelectedWalletId] = useState<string>('')
+  const { selectedWallet } = useWallet()
+  const selectedWalletId = selectedWallet?.id || ''
 
   return (
     <div
@@ -20,7 +22,6 @@ export default function OverviewClient () {
           <ExpensePieChart
             onCategorySelect={setSelectedCategory}
             selectedCategory={selectedCategory}
-            setSelectedWalletId={setSelectedWalletId}
           />
         </div>
 
