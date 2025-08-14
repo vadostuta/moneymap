@@ -1,8 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MonthSelector } from './MonthSelector'
 import { MonthlyExpenseChart } from './MonthlyExpenseChart'
 import { useQuery } from '@tanstack/react-query'
@@ -10,7 +8,6 @@ import { transactionService } from '@/lib/services/transaction'
 import { useWallet } from '@/contexts/wallet-context'
 
 export function AnalyticsClient () {
-  const { t } = useTranslation('common')
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
   const { selectedWallet } = useWallet()
   const selectedWalletId = selectedWallet?.id || ''
@@ -86,8 +83,6 @@ export function AnalyticsClient () {
     return months
   }, [allTransactions])
 
-
-
   // Update selected month when available months change
   useEffect(() => {
     if (
@@ -106,8 +101,6 @@ export function AnalyticsClient () {
   const handleMonthSelect = (month: Date) => {
     setSelectedMonth(month)
   }
-
-
 
   // Debug info
   console.log('Debug info:', {

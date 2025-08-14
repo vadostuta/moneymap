@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { useTranslation } from 'react-i18next'
 import { categoryService } from '@/lib/services/category'
 import { useQuery } from '@tanstack/react-query'
