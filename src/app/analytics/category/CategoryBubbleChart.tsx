@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useWallet } from '@/contexts/wallet-context'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
@@ -25,7 +24,6 @@ export function CategoryBubbleChart ({
   onCategorySelect
 }: CategoryBubbleChartProps) {
   const { t } = useTranslation('common')
-  const { selectedWallet } = useWallet()
 
   if (!data || data.length === 0) {
     return (

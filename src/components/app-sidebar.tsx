@@ -88,12 +88,19 @@ export function AppSidebar () {
     {
       href: '/analytics',
       label: t('navigation.analytics'),
-      icon: BarChart3
-    },
-    {
-      href: '/analytics/category',
-      label: t('navigation.analyticsCategory'),
-      icon: PieChart
+      icon: BarChart3,
+      subItems: [
+        {
+          href: '/analytics',
+          label: t('navigation.analyticsOverview'),
+          icon: BarChart3
+        },
+        {
+          href: '/analytics/category',
+          label: t('navigation.analyticsTrend'),
+          icon: PieChart
+        }
+      ]
     },
     {
       href: '/wallets',
@@ -486,42 +493,90 @@ export function AppSidebar () {
                   <SidebarMenu>
                     {navItems.map((item, index) => (
                       <SidebarMenuItem key={item.href}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <SidebarMenuButton
-                                asChild
-                                isActive={
-                                  pathname === item.href ||
-                                  pathname.startsWith(item.href)
-                                }
-                                className='text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                              >
-                                <Link
-                                  href={item.href}
-                                  className='text-sidebar-foreground'
-                                >
-                                  <item.icon className='h-4 w-4' />
-                                  {collapsed === 'expanded' && (
-                                    <span>{item.label}</span>
-                                  )}
-                                </Link>
-                              </SidebarMenuButton>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{item.label}</p>
-                              <p className='text-xs text-muted-foreground'>
-                                {t(
-                                  'sidebar.hotkey.nav-route',
-                                  'Ctrl + {{number}}',
-                                  {
-                                    number: index + 1
+                        {item.subItems ? (
+                          // Analytics with sub-items
+                          <div className='space-y-1'>
+                            <div className='px-3 py-2 text-xs font-medium text-muted-foreground'>
+                              {item.label}
+                            </div>
+                            {item.subItems.map(subItem => (
+                              <TooltipProvider key={subItem.href}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <SidebarMenuButton
+                                      asChild
+                                      isActive={
+                                        pathname === subItem.href ||
+                                        pathname.startsWith(subItem.href)
+                                      }
+                                      className='text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-3'
+                                    >
+                                      <Link
+                                        href={subItem.href}
+                                        className='text-sidebar-foreground'
+                                      >
+                                        <subItem.icon className='h-4 w-4' />
+                                        {collapsed === 'expanded' && (
+                                          <span>{subItem.label}</span>
+                                        )}
+                                      </Link>
+                                    </SidebarMenuButton>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{subItem.label}</p>
+                                    <p className='text-xs text-muted-foreground'>
+                                      {t(
+                                        'sidebar.hotkey.nav-route',
+                                        'Ctrl + {{number}}',
+                                        {
+                                          number: index + 1
+                                        }
+                                      )}
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ))}
+                          </div>
+                        ) : (
+                          // Regular navigation item
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <SidebarMenuButton
+                                  asChild
+                                  isActive={
+                                    pathname === item.href ||
+                                    pathname.startsWith(item.href)
                                   }
-                                )}
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                                  className='text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                >
+                                  <Link
+                                    href={item.href}
+                                    className='text-sidebar-foreground'
+                                  >
+                                    <item.icon className='h-4 w-4' />
+                                    {collapsed === 'expanded' && (
+                                      <span>{item.label}</span>
+                                    )}
+                                  </Link>
+                                </SidebarMenuButton>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{item.label}</p>
+                                <p className='text-xs text-muted-foreground'>
+                                  {t(
+                                    'sidebar.hotkey.nav-route',
+                                    'Ctrl + {{number}}',
+                                    {
+                                      number: index + 1
+                                    }
+                                  )}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>
