@@ -58,52 +58,41 @@ export function MonthSelector ({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className='text-lg'>
-          {t('analytics.monthlyExpenses')}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className='flex flex-wrap gap-2 justify-center sm:justify-start'>
-          {availableMonths.map((month, index) => (
-            <button
-              key={index}
-              onClick={() => onMonthSelect(month)}
-              className={cn(
-                'flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 transition-all duration-200 hover:scale-105 cursor-pointer',
-                isSelected(month)
-                  ? 'border-primary bg-primary text-primary-foreground shadow-lg'
-                  : 'border-border hover:border-primary/50 hover:bg-accent/50',
-                isCurrentMonth(month) && !isSelected(month)
-                  ? 'border-primary/30 bg-primary/10'
-                  : ''
-              )}
-            >
-              <span
-                className={cn(
-                  'text-xs font-medium leading-tight',
-                  isSelected(month)
-                    ? 'text-primary-foreground'
-                    : 'text-foreground'
-                )}
-              >
-                {formatMonth(month)}
-              </span>
-              <span
-                className={cn(
-                  'text-[10px] leading-tight',
-                  isSelected(month)
-                    ? 'text-primary-foreground/80'
-                    : 'text-muted-foreground'
-                )}
-              >
-                {formatYear(month)}
-              </span>
-            </button>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className='flex flex-wrap gap-1.5 justify-center sm:justify-start'>
+      {availableMonths.map((month, index) => (
+        <button
+          key={index}
+          onClick={() => onMonthSelect(month)}
+          className={cn(
+            'flex flex-col items-center justify-center w-12 h-12 rounded-lg border-2 transition-all duration-200 hover:scale-105 cursor-pointer',
+            isSelected(month)
+              ? 'border-primary bg-primary text-primary-foreground shadow-md'
+              : 'border-border hover:border-primary/50 hover:bg-accent/50',
+            isCurrentMonth(month) && !isSelected(month)
+              ? 'border-primary/30 bg-primary/10'
+              : ''
+          )}
+        >
+          <span
+            className={cn(
+              'text-xs font-medium leading-tight',
+              isSelected(month) ? 'text-primary-foreground' : 'text-foreground'
+            )}
+          >
+            {formatMonth(month)}
+          </span>
+          <span
+            className={cn(
+              'text-[9px] leading-tight',
+              isSelected(month)
+                ? 'text-primary-foreground/80'
+                : 'text-muted-foreground'
+            )}
+          >
+            {formatYear(month)}
+          </span>
+        </button>
+      ))}
+    </div>
   )
 }
