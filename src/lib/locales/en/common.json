@@ -25,6 +25,7 @@
     "transactions": "Transactions",
     "overview": "Overview",
     "analytics": "Analytics",
+    "analyticsCategory": "Analytics by Category",
     "settings": "Settings",
     "categories": "Categories",
     "wallets": "Wallets",
@@ -262,6 +263,14 @@
     "categoryTransactions": "Category Transactions",
     "noTransactionsForMonth": "No transactions found for this month",
     "noTransactionsForCategory": "No transactions found for this category",
-    "showingCategoryTransactions": "Showing transactions for {{category}}"
+    "showingCategoryTransactions": "Showing transactions for {{category}}",
+    "byCategory": "By Category",
+    "categoryAnalytics": "Category Analytics",
+    "selectCategory": "Select a category to view detailed analytics",
+    "totalSpending": "Total Spending",
+    "monthlyTrend": "Monthly Trend",
+    "allCategories": "All Categories",
+    "clickToSelect": "Click on a bubble to select a category",
+    "noCategorySelected": "No category selected - showing total expenses"
   }
 }

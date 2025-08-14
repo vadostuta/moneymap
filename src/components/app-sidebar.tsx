@@ -33,7 +33,8 @@ import {
   Wallet,
   Settings,
   Receipt,
-  BarChart3
+  BarChart3,
+  PieChart
 } from 'lucide-react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -90,6 +91,11 @@ export function AppSidebar () {
       icon: BarChart3
     },
     {
+      href: '/analytics/category',
+      label: t('navigation.analyticsCategory'),
+      icon: PieChart
+    },
+    {
       href: '/wallets',
       label: t('navigation.wallets'),
       icon: Wallet
@@ -111,7 +117,7 @@ export function AppSidebar () {
           } else if (event.key === 'd') {
             event.preventDefault()
             setDialogOpen(true)
-          } else if (event.key >= '1' && event.key <= '5') {
+          } else if (event.key >= '1' && event.key <= '6') {
             event.preventDefault()
             const index = parseInt(event.key) - 1
             if (index >= 0 && index < navItems.length) {

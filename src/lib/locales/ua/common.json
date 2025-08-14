@@ -28,10 +28,11 @@
     "transactions": "Транзакції",
     "overview": "Огляд",
     "analytics": "Аналітика",
+    "analyticsCategory": "Аналітика за категоріями",
     "settings": "Налаштування",
     "categories": "Категорії",
     "wallets": "Гаманці",
-    "dashboard": "Панель керування"
+    "dashboard": "Панель"
   },
   "transactions": {
     "title": "Транзакції",
@@ -269,6 +270,14 @@
     "categoryTransactions": "Транзакції за категорією",
     "noTransactionsForMonth": "Транзакції за цей місяць не знайдено",
     "noTransactionsForCategory": "Транзакції за цією категорією не знайдено",
-    "showingCategoryTransactions": "Показано транзакції для {{category}}"
+    "showingCategoryTransactions": "Показано транзакції для {{category}}",
+    "byCategory": "За категоріями",
+    "categoryAnalytics": "Аналітика категорій",
+    "selectCategory": "Виберіть категорію для детального аналізу",
+    "totalSpending": "Загальні витрати",
+    "monthlyTrend": "Місячний тренд",
+    "allCategories": "Всі категорії",
+    "clickToSelect": "Натисніть на бульбашку, щоб вибрати категорію",
+    "noCategorySelected": "Категорія не вибрана - показано загальні витрати"
   }
 }
