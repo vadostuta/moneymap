@@ -28,6 +28,7 @@ export interface Transaction {
   }
   monobank_id?: string
   is_hidden?: boolean
+  is_deleted?: boolean
 }
 
 export type CreateTransactionDTO = Omit<

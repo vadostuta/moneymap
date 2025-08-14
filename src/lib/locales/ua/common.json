@@ -27,6 +27,7 @@
     "home": "Головна",
     "transactions": "Транзакції",
     "overview": "Огляд",
+    "analytics": "Аналітика",
     "settings": "Налаштування",
     "categories": "Категорії",
     "wallets": "Гаманці",
@@ -253,5 +254,20 @@
       "nav-route": "Ctrl + {{number}}",
       "dialog-open": "Ctrl + D"
     }
+  },
+  "analytics": {
+    "title": "Аналітика",
+    "monthlyExpenses": "Місячні витрати",
+    "selectMonth": "Виберіть місяць для перегляду витрат",
+    "noDataForMonth": "Немає даних про витрати за {{month}}",
+    "totalExpenses": "Загальні витрати",
+    "categoryBreakdown": "Розбивка за категоріями",
+    "expensesByCategory": "Витрати за категоріями",
+    "categoryRanking": "Рейтинг категорій",
+    "recentTransactions": "Останні транзакції",
+    "categoryTransactions": "Транзакції за категорією",
+    "noTransactionsForMonth": "Транзакції за цей місяць не знайдено",
+    "noTransactionsForCategory": "Транзакції за цією категорією не знайдено",
+    "showingCategoryTransactions": "Показано транзакції для {{category}}"
   }
 }

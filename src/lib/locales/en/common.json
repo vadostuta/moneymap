@@ -24,6 +24,7 @@
     "home": "Home",
     "transactions": "Transactions",
     "overview": "Overview",
+    "analytics": "Analytics",
     "settings": "Settings",
     "categories": "Categories",
     "wallets": "Wallets",
@@ -246,5 +247,20 @@
       "nav-route": "Ctrl + {{number}}",
       "dialog-open": "Ctrl + D"
     }
+  },
+  "analytics": {
+    "title": "Analytics",
+    "monthlyExpenses": "Monthly Expenses",
+    "selectMonth": "Select a month to view expenses",
+    "noDataForMonth": "No expense data available for {{month}}",
+    "totalExpenses": "Total Expenses",
+    "categoryBreakdown": "Category Breakdown",
+    "expensesByCategory": "Expenses by Category",
+    "categoryRanking": "Category Ranking",
+    "recentTransactions": "Recent Transactions",
+    "categoryTransactions": "Category Transactions",
+    "noTransactionsForMonth": "No transactions found for this month",
+    "noTransactionsForCategory": "No transactions found for this category",
+    "showingCategoryTransactions": "Showing transactions for {{category}}"
   }
 }

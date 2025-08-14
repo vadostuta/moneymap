@@ -196,7 +196,7 @@ export const transactionService = {
     searchQuery,
     category,
     offset = 0,
-    limit = 10,
+    limit, // Remove default value
     showHidden = false,
     minAmount,
     maxAmount,
@@ -208,7 +208,7 @@ export const transactionService = {
     searchQuery?: string
     category?: string
     offset?: number
-    limit?: number
+    limit?: number // Make it optional
     showHidden?: boolean
     minAmount?: number
     maxAmount?: number
@@ -256,10 +256,14 @@ export const transactionService = {
       query = query.lte('date', toDate.toISOString())
     }
 
+    // Only apply range if limit is specified
+    if (limit !== undefined) {
+      query = query.range(offset, offset + limit - 1)
+    }
+
     const { data, error } = await query
       .order('date', { ascending: false })
       .order('id', { ascending: false })
-      .range(offset, offset + limit - 1)
 
     if (error) throw error
     return data || []
@@ -470,5 +474,51 @@ export const transactionService = {
       .update({ is_hidden: true })
       .eq('id', id)
     if (error) throw error
+  },
+
+  async getMonthlyExpensesByCategory (
+    walletId: string,
+    year: number,
+    month: number
+  ): Promise<{ category_id: string; amount: number }[]> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    // Get first and last day of specified month
+    const firstDayOfMonth = new Date(year, month, 1)
+    const lastDayOfMonth = new Date(year, month + 1, 0)
+
+    let query = supabase
+      .from('transactions')
+      .select('category_id, amount')
+      .eq('user_id', user.id)
+      .eq('type', 'expense')
+      .eq('is_deleted', false)
+      .eq('is_hidden', false)
+      .gte('date', firstDayOfMonth.toISOString())
+      .lte('date', lastDayOfMonth.toISOString())
+
+    // Add wallet filter if specified
+    if (walletId && walletId !== 'all') {
+      query = query.eq('wallet_id', walletId)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    // Group by category_id and sum amounts
+    const categoryTotals = (data || []).reduce((acc, transaction) => {
+      const categoryId = transaction.category_id || 'uncategorized'
+      acc[categoryId] = (acc[categoryId] || 0) + transaction.amount
+      return acc
+    }, {} as Record<string, number>)
+
+    return Object.entries(categoryTotals).map(([category_id, amount]) => ({
+      category_id,
+      amount
+    }))
   }
 }

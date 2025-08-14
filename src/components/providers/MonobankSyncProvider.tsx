@@ -4,8 +4,7 @@ import { useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { MonobankService } from '@/lib/services/monobank'
 // import { toastService } from '@/lib/services/toast'
-import { subDays } from 'date-fns'
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
+import { useQueryClient, useMutation } from '@tanstack/react-query'
 
 export function MonobankSyncProvider ({
   children
@@ -16,47 +15,17 @@ export function MonobankSyncProvider ({
   const queryClient = useQueryClient()
   const FETCH_COOLDOWN = 60000 // 1 minute cooldown
 
-  // Query to get the last synced transaction
-  const { data: lastTransaction } = useQuery({
-    queryKey: ['last-synced-transaction'],
-    queryFn: () => MonobankService.getLastSyncedTransaction(),
-    enabled: !!user,
-    staleTime: FETCH_COOLDOWN // Consider data stale after 1 minute
-  })
-
-  // Change useQuery to useMutation for sync operation
+  // Replace the existing sync logic with:
   const { mutate: syncTransactions } = useMutation({
     mutationFn: async () => {
       if (!user) return
-
-      const to = new Date()
-      let from: Date
-
-      if (!lastTransaction) {
-        // If no transactions, fetch last 30 days
-        from = subDays(to, 30)
-      } else {
-        // Start from last transaction, but don't exceed 30 days
-        const thirtyDaysAgo = subDays(to, 30)
-        from = new Date(lastTransaction.date)
-        if (from < thirtyDaysAgo) {
-          from = thirtyDaysAgo
-          console.log('from ' + from)
-        }
-      }
-
-      // Only fetch if there's a gap to fill
-      if (from < to) {
-        await MonobankService.syncTransactionsForDateRange(from, to)
-      }
+      await MonobankService.syncNewTransactions()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       queryClient.invalidateQueries({ queryKey: ['last-synced-transaction'] })
     },
-    // Add retry configuration to prevent multiple simultaneous syncs
     retry: false,
-    // Add mutation key to prevent multiple simultaneous syncs
     mutationKey: ['sync-transactions']
   })
 

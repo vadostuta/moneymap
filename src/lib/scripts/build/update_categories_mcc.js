@@ -7,8 +7,9 @@ Object.defineProperty(exports, '__esModule', { value: true })
  *  - Your monobank token(s) available in bank_integrations (provider='monobank')
  *  - Replace OTHER_CATEGORY_ID if different
  */
-// require("dotenv/config");
-require('dotenv').config({ path: '.env.local' })
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+require('dotenv/config')
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const supabase_js_1 = require('@supabase/supabase-js')
 const supabase = (0, supabase_js_1.createClient)(
   process.env.NEXT_PUBLIC_SUPABASE_URL,

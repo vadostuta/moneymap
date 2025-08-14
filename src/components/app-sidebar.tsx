@@ -27,7 +27,13 @@ import {
   SidebarGroupContent,
   useSidebar
 } from '@/components/ui/Sidebar'
-import { LayoutDashboard, Wallet, Settings, Receipt } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Wallet,
+  Settings,
+  Receipt,
+  BarChart3
+} from 'lucide-react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
 import {
@@ -58,6 +64,11 @@ export function AppSidebar () {
       icon: Receipt
     },
     {
+      href: '/analytics',
+      label: t('navigation.analytics'),
+      icon: BarChart3
+    },
+    {
       href: '/wallets',
       label: t('navigation.wallets'),
       icon: Wallet
@@ -79,7 +90,7 @@ export function AppSidebar () {
           } else if (event.key === 'd') {
             event.preventDefault()
             setDialogOpen(true)
-          } else if (event.key >= '1' && event.key <= '4') {
+          } else if (event.key >= '1' && event.key <= '5') {
             event.preventDefault()
             const index = parseInt(event.key) - 1
             if (index >= 0 && index < navItems.length) {

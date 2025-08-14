@@ -47,8 +47,8 @@ export const MCC_CATEGORY_MAP: Record<number, string> = {
   7298: '11fa4c3f-5cae-4c34-aa46-a892c1259b24',
 
   // ✨ Donations / Charity (new)
-  4829: 'd3ff9fc4-c203-4cea-8b27-f0ac2104c8fa', // Wire/Transfers often used for charity
-  8398: 'd3ff9fc4-c203-4cea-8b27-f0ac2104c8fa' // Charitable & Social Service Orgs
+  4829: 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa', // Wire/Transfers often used for charity
+  8398: 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa' // Charitable & Social Service Orgs
 }
 
 export function getCategoryFromMCC (mcc: number): string | null {

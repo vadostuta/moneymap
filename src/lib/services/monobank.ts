@@ -174,7 +174,7 @@ export class MonobankService {
     if (userError) throw userError
     if (!user) throw new Error('No user found')
 
-    // Get both existing and deleted transactions in one query
+    // Get existing monobank IDs for this user and wallet
     const { data: existingTransactions, error: fetchError } = await supabase
       .from('transactions')
       .select('monobank_id, is_deleted')
@@ -190,15 +190,10 @@ export class MonobankService {
         ?.filter(t => !t.is_deleted)
         .map(t => t.monobank_id) || []
     )
-    const deletedIds = new Set(
-      existingTransactions?.filter(t => t.is_deleted).map(t => t.monobank_id) ||
-        []
-    )
 
-    // Single filter pass for all conditions
+    // Filter out existing transactions
     const newTransactions = transactions
       .filter(t => !existingIds.has(t.id))
-      .filter(t => !deletedIds.has(t.id))
       .map(t => ({
         ...this.transformTransaction(t, walletId),
         user_id: user.id,
@@ -206,23 +201,24 @@ export class MonobankService {
       }))
 
     if (newTransactions.length === 0) {
+      console.log('No new transactions to insert')
       return
     }
 
-    // Insert only new transactions in batches
-    const batchSize = 50
-    for (let i = 0; i < newTransactions.length; i += batchSize) {
-      const batch = newTransactions.slice(i, i + batchSize)
+    console.log(`Inserting ${newTransactions.length} new transactions`)
 
-      const { error } = await supabase.from('transactions').insert(batch)
+    // Insert all new transactions at once (no need for batching with small amounts)
+    const { error } = await supabase
+      .from('transactions')
+      .insert(newTransactions)
 
-      if (error) {
-        if (error.code === '23505') {
-          console.warn('Duplicate transaction detected, skipping...')
-          continue
-        }
-        throw error
+    if (error) {
+      if (error.code === '23505') {
+        console.warn(
+          'Duplicate transaction detected, this should not happen with the new logic'
+        )
       }
+      throw error
     }
   }
 
@@ -276,6 +272,61 @@ export class MonobankService {
           response.transactions,
           integration.wallet_id
         )
+      }
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        'errorDescription' in error &&
+        (error as { errorDescription: string }).errorDescription ===
+          'Too many requests'
+      ) {
+        throw new Error('RATE_LIMIT_EXCEEDED')
+      }
+      throw error
+    }
+  }
+
+  static async syncNewTransactions (): Promise<void> {
+    const integration = await MonobankService.getActiveIntegration()
+    if (!integration) return
+
+    try {
+      // Get the last synced transaction date
+      const lastTransaction = await MonobankService.getLastSyncedTransaction()
+
+      let from: Date
+      const to = new Date()
+
+      if (!lastTransaction) {
+        // If no transactions exist, fetch last 7 days (more reasonable than 30)
+        from = new Date(to.getTime() - 7 * 24 * 60 * 60 * 1000)
+        console.log('No previous transactions found, fetching last 7 days')
+      } else {
+        // Start from the last synced transaction date
+        from = new Date(lastTransaction.date)
+        console.log(
+          `Fetching transactions from ${from.toISOString()} to ${to.toISOString()}`
+        )
+      }
+
+      // Only fetch if there's a meaningful time gap (at least 1 minute)
+      const timeDiff = to.getTime() - from.getTime()
+      if (timeDiff < 60000) {
+        // 1 minute in milliseconds
+        console.log('Time gap too small, skipping sync')
+        return
+      }
+
+      const response = await MonobankService.fetchTransactions(from, to)
+
+      if (response.transactions.length > 0) {
+        console.log(`Found ${response.transactions.length} new transactions`)
+        await MonobankService.saveTransactions(
+          response.transactions,
+          integration.wallet_id
+        )
+      } else {
+        console.log('No new transactions found')
       }
     } catch (error) {
       if (
