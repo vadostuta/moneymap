@@ -140,31 +140,26 @@ export function MonthlyExpenseChart ({
       {/* Left Side - Charts */}
       <div className='lg:col-span-2 space-y-6'>
         {/* Header with Month and Total */}
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-2xl'>{formatMonthYear(month)}</CardTitle>
-            <div className='text-3xl font-bold text-foreground'>
-              {formatCurrency(totalExpenses)}
-            </div>
-          </CardHeader>
-        </Card>
+        <div className='space-y-2'>
+          <div className='text-2xl font-medium text-muted-foreground'>
+            {formatMonthYear(month)}
+          </div>
+          <div className='text-3xl font-bold text-foreground'>
+            {formatCurrency(totalExpenses)}
+          </div>
+        </div>
 
         {/* Bar Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-lg'>
-              {t('analytics.expensesByCategory')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <MonthlyExpenseBarChart
-              data={expenses}
-              currency={wallet?.currency || 'UAH'}
-              selectedCategory={selectedCategory}
-              onCategorySelect={setSelectedCategory}
-            />
-          </CardContent>
-        </Card>
+        {/* <Card>
+          <CardContent> */}
+        <MonthlyExpenseBarChart
+          data={expenses}
+          currency={wallet?.currency || 'UAH'}
+          selectedCategory={selectedCategory}
+          onCategorySelect={setSelectedCategory}
+        />
+        {/* </CardContent>
+        </Card> */}
 
         {/* Pie Chart */}
         {/* <Card>

@@ -118,11 +118,6 @@ export function MonthlyExpenseBarChart ({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className='text-lg'>
-          {t('analytics.expensesByCategory')}
-        </CardTitle>
-      </CardHeader>
       <CardContent>
         <div className='h-[400px]'>
           <ResponsiveContainer width='100%' height='100%'>
