@@ -75,6 +75,7 @@ export function RecentTransactionItem ({
       })
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['list-transactions'] })
       queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
       queryClient.invalidateQueries({ queryKey: ['transactions-by-category'] })
       toastService.success(t('transactions.categoryUpdateSuccess'))

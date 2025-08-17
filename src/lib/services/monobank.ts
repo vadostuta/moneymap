@@ -174,21 +174,23 @@ export class MonobankService {
     if (userError) throw userError
     if (!user) throw new Error('No user found')
 
-    // Get existing monobank IDs for this user and wallet
+    // Get existing monobank IDs for this user and wallet - only check the ones we're about to insert
     const { data: existingTransactions, error: fetchError } = await supabase
       .from('transactions')
-      .select('monobank_id, is_deleted')
+      .select('monobank_id')
       .eq('user_id', user.id)
       .eq('wallet_id', walletId)
+      .in(
+        'monobank_id',
+        transactions.map(t => t.id)
+      )
       .not('monobank_id', 'is', null)
 
     if (fetchError) throw fetchError
 
     // Create Sets for faster lookup
     const existingIds = new Set(
-      existingTransactions
-        ?.filter(t => !t.is_deleted)
-        .map(t => t.monobank_id) || []
+      existingTransactions?.map(t => t.monobank_id) || []
     )
 
     // Filter out existing transactions
