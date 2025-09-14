@@ -270,7 +270,12 @@ export function CategoryMonthlyTrendChart ({
 
     return data.map(item => ({
       ...item,
-      amount: Math.round(item.amount * 100) / 100
+      amount: Math.round(item.amount * 100) / 100,
+      // Add label for XAxis - use type assertion to access the correct property
+      label:
+        viewMode === 'monthly'
+          ? (item as unknown as { month: string }).month
+          : (item as unknown as { day: string }).day
     }))
   }, [monthlyData, dailyData, viewMode])
 
@@ -283,13 +288,15 @@ export function CategoryMonthlyTrendChart ({
     if (data && data.activeLabel) {
       const clickedData = chartData.find(item => {
         if (viewMode === 'monthly') {
-          return 'month' in item && item.month === data.activeLabel
+          return (
+            (item as unknown as { month: string }).month === data.activeLabel
+          )
         } else {
-          return 'day' in item && item.day === data.activeLabel
+          return (item as unknown as { day: string }).day === data.activeLabel
         }
       })
 
-      if (clickedData && 'dateKey' in clickedData && clickedData.dateKey) {
+      if (clickedData && clickedData.dateKey) {
         console.log('Setting selected date from chart:', clickedData.dateKey)
         setSelectedDate(clickedData.dateKey)
       }
@@ -360,15 +367,21 @@ export function CategoryMonthlyTrendChart ({
                 />
                 <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12 }} />
                 <Tooltip
-                  formatter={(value: number) => [formatCurrency(value), '']}
-                  labelFormatter={label => {
-                    if (viewMode === 'daily') {
-                      return new Date(label).toLocaleDateString('en', {
-                        month: 'short',
-                        day: 'numeric'
-                      })
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className='bg-background border border-border rounded-lg p-3 shadow-lg'>
+                          <p className='font-medium'>{label}</p>
+                          <p className='text-primary'>
+                            {formatCurrency(payload[0]?.value as number)}
+                          </p>
+                          <p className='text-xs text-muted-foreground mt-1'>
+                            Click to view transactions
+                          </p>
+                        </div>
+                      )
                     }
-                    return label
+                    return null
                   }}
                 />
                 <Legend />
@@ -397,6 +410,7 @@ export function CategoryMonthlyTrendChart ({
         </CardContent>
       </Card>
 
+      {/* Transactions for Selected Date */}
       {selectedDate && dateTransactions && (
         <Card>
           <CardHeader className='pb-3'>
