@@ -521,7 +521,7 @@ export function AppSidebar () {
                           collapsed === 'collapsed' ? (
                             // In collapsed state, show sub-items as individual centered items
                             <div className='space-y-1'>
-                              {item.subItems.map((subItem, subIndex) => (
+                              {item.subItems.map(subItem => (
                                 <TooltipProvider key={subItem.href}>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
