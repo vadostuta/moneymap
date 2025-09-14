@@ -257,10 +257,8 @@ export function CategoryMonthlyTrendChart ({
     enabled: !!walletId && !!selectedDate
   })
 
-  const currency = selectedWallet?.currency || 'UAH'
-
-  // Format currency using privacy context
   const formatCurrency = (amount: number) => {
+    const currency = selectedWallet?.currency || 'UAH'
     return formatAmount(amount, currency)
   }
 
@@ -270,12 +268,7 @@ export function CategoryMonthlyTrendChart ({
 
     return data.map(item => ({
       ...item,
-      amount: Math.round(item.amount * 100) / 100,
-      // Add label for XAxis - use type assertion to access the correct property
-      label:
-        viewMode === 'monthly'
-          ? (item as unknown as { month: string }).month
-          : (item as unknown as { day: string }).day
+      amount: Math.round(item.amount * 100) / 100
     }))
   }, [monthlyData, dailyData, viewMode])
 
@@ -288,127 +281,125 @@ export function CategoryMonthlyTrendChart ({
     if (data && data.activeLabel) {
       const clickedData = chartData.find(item => {
         if (viewMode === 'monthly') {
-          return (
-            (item as unknown as { month: string }).month === data.activeLabel
-          )
+          return 'month' in item && item.month === data.activeLabel
         } else {
-          return (item as unknown as { day: string }).day === data.activeLabel
+          return 'day' in item && item.day === data.activeLabel
         }
       })
 
-      if (clickedData && clickedData.dateKey) {
+      if (clickedData && 'dateKey' in clickedData && clickedData.dateKey) {
         console.log('Setting selected date from chart:', clickedData.dateKey)
         setSelectedDate(clickedData.dateKey)
       }
     }
   }
 
-  // const handleCloseTransactions = () => {
-  //   setSelectedDate(null)
-  // }
+  const handleCloseTransactions = () => {
+    setSelectedDate(null)
+  }
 
   if (isLoading) {
     return (
       <div className='flex items-center justify-center h-80'>
-        <div className='text-muted-foreground'>{t('common.loading')}</div>
+        <div className='text-muted-foreground'>Loading...</div>
       </div>
     )
   }
 
   if (!chartData || chartData.length === 0) {
     return (
-      <div className='flex items-center justify-center h-80'>
-        <div className='text-muted-foreground'>
-          {t('analytics.noDataForMonth')}
-        </div>
+      <div className='flex items-center justify-center h-80 text-muted-foreground'>
+        {t('analytics.noDataForMonth')}
       </div>
     )
   }
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-4'>
       {/* View Mode Toggle */}
-      <div className='flex items-center gap-2'>
+      <div className='flex justify-center gap-2'>
         <Button
           variant={viewMode === 'monthly' ? 'default' : 'outline'}
           size='sm'
           onClick={() => setViewMode('monthly')}
+          className='flex items-center gap-2'
         >
-          <BarChart3 className='w-4 h-4 mr-2' />
-          {t('analytics.monthlyTrend')}
+          <BarChart3 className='h-4 w-4' />
+          Monthly
         </Button>
         <Button
           variant={viewMode === 'daily' ? 'default' : 'outline'}
           size='sm'
           onClick={() => setViewMode('daily')}
+          className='flex items-center gap-2'
         >
-          <Calendar className='w-4 h-4 mr-2' />
-          {t('analytics.dailyTrend')}
+          <Calendar className='h-4 w-4' />
+          Daily
         </Button>
       </div>
 
       {/* Chart */}
-      <Card>
-        <CardContent className='p-6'>
-          <div className='h-80'>
-            <ResponsiveContainer width='100%' height='100%'>
-              <LineChart
-                data={chartData}
-                onClick={handleChartClick}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray='3 3' />
-                <XAxis
-                  dataKey='label'
-                  tick={{ fontSize: 12 }}
-                  angle={viewMode === 'daily' ? -45 : 0}
-                  textAnchor={viewMode === 'daily' ? 'end' : 'middle'}
-                  height={viewMode === 'daily' ? 60 : 30}
-                />
-                <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12 }} />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className='bg-background border border-border rounded-lg p-3 shadow-lg'>
-                          <p className='font-medium'>{label}</p>
-                          <p className='text-primary'>
-                            {formatCurrency(payload[0]?.value as number)}
-                          </p>
-                          <p className='text-xs text-muted-foreground mt-1'>
-                            Click to view transactions
-                          </p>
-                        </div>
-                      )
-                    }
-                    return null
-                  }}
-                />
-                <Legend />
-                <Line
-                  type='monotone'
-                  dataKey='amount'
-                  stroke={categoryId ? '#3B82F6' : '#10B981'}
-                  strokeWidth={2}
-                  dot={{
-                    r: viewMode === 'daily' ? 2 : 4
-                  }}
-                  activeDot={{
-                    r: viewMode === 'daily' ? 4 : 6,
-                    stroke: categoryId ? '#3B82F6' : '#10B981',
-                    strokeWidth: 2
-                  }}
-                  name={
-                    categoryId
-                      ? t('analytics.categorySpending')
-                      : t('analytics.totalSpending')
-                  }
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      <div className='h-80 w-full'>
+        <ResponsiveContainer width='100%' height='100%'>
+          <LineChart data={chartData} onClick={handleChartClick}>
+            <CartesianGrid strokeDasharray='3 3' stroke='#374151' />
+            <XAxis
+              dataKey={viewMode === 'monthly' ? 'month' : 'day'}
+              stroke='#6B7280'
+              fontSize={12}
+              angle={viewMode === 'daily' ? -45 : 0}
+              textAnchor={viewMode === 'daily' ? 'end' : 'middle'}
+              height={viewMode === 'daily' ? 60 : 30}
+              style={{ cursor: 'pointer' }}
+            />
+            <YAxis
+              stroke='#6B7280'
+              fontSize={12}
+              tickFormatter={value => formatCurrency(value)}
+            />
+            <Tooltip
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className='bg-background border border-border rounded-lg p-3 shadow-lg'>
+                      <p className='font-medium'>{label}</p>
+                      <p className='text-primary'>
+                        {formatCurrency(payload[0]?.value as number)}
+                      </p>
+                      <p className='text-xs text-muted-foreground mt-1'>
+                        Click to view transactions
+                      </p>
+                    </div>
+                  )
+                }
+                return null
+              }}
+            />
+            <Legend />
+            <Line
+              type='monotone'
+              dataKey='amount'
+              stroke={categoryId ? '#3B82F6' : '#10B981'}
+              strokeWidth={3}
+              dot={{
+                fill: categoryId ? '#3B82F6' : '#10B981',
+                strokeWidth: 2,
+                r: viewMode === 'daily' ? 2 : 4
+              }}
+              activeDot={{
+                r: viewMode === 'daily' ? 4 : 6,
+                stroke: categoryId ? '#3B82F6' : '#10B981',
+                strokeWidth: 2
+              }}
+              name={
+                categoryId
+                  ? t('analytics.categorySpending')
+                  : t('analytics.totalSpending')
+              }
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* Transactions for Selected Date */}
       {selectedDate && dateTransactions && (
@@ -416,14 +407,14 @@ export function CategoryMonthlyTrendChart ({
           <CardHeader className='pb-3'>
             <div className='flex items-center justify-between'>
               <CardTitle className='text-lg'>
-                {t('analytics.transactionsFor')}{' '}
+                {t('analytics.transactionsFor')}
                 {viewMode === 'monthly'
                   ? new Date(selectedDate + '-01').toLocaleDateString('en', {
                       month: 'long',
                       year: 'numeric'
                     })
                   : new Date(selectedDate).toLocaleDateString('en', {
-                      month: 'short',
+                      month: 'long',
                       day: 'numeric',
                       year: 'numeric'
                     })}
@@ -431,9 +422,10 @@ export function CategoryMonthlyTrendChart ({
               <Button
                 variant='ghost'
                 size='sm'
-                onClick={() => setSelectedDate(null)}
+                onClick={handleCloseTransactions}
+                className='h-8 w-8 p-0'
               >
-                <X className='w-4 h-4' />
+                <X className='h-4 w-4' />
               </Button>
             </div>
           </CardHeader>
@@ -443,30 +435,22 @@ export function CategoryMonthlyTrendChart ({
                 {t('analytics.loadingTransactions')}
               </div>
             ) : dateTransactions.length > 0 ? (
-              <div className='space-y-3 max-h-64 overflow-y-auto'>
+              <div className='space-y-3 max-h-96 overflow-y-auto'>
                 {dateTransactions.map(transaction => (
                   <div
                     key={transaction.id}
-                    className='flex items-center justify-between p-3 border rounded-lg'
+                    className='flex items-center justify-between p-3 bg-muted/50 rounded-lg'
                   >
-                    <div className='flex-1 min-w-0'>
-                      <div className='font-medium truncate'>
-                        {transaction.description ||
-                          t('transactions.noDescription')}
+                    <div className='flex-1'>
+                      <div className='font-medium'>
+                        {transaction.description}
                       </div>
                       <div className='text-sm text-muted-foreground'>
-                        {new Date(transaction.date).toLocaleDateString('en', {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                        {new Date(transaction.date).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className='text-right'>
-                      <div className='font-semibold text-red-600'>
-                        {formatCurrency(transaction.amount)}
-                      </div>
+                    <div className='font-bold text-primary'>
+                      {formatCurrency(transaction.amount)}
                     </div>
                   </div>
                 ))}
