@@ -10,6 +10,7 @@ import { TransactionCategory } from '@/lib/types/transaction'
 import { useAuth } from '@/contexts/auth-context'
 import { useTranslation } from 'react-i18next'
 import { UndoDeleteToast } from '@/components/ui/undo-delete-toast'
+import { startOfMonth, endOfMonth } from 'date-fns'
 
 interface RecentTransactionsProps {
   selectedCategory?: TransactionCategory
@@ -30,6 +31,11 @@ export function RecentTransactions ({
     onUndo: () => void
   } | null>(null)
 
+  // Get current month date range
+  const currentDate = new Date()
+  const fromDate = startOfMonth(currentDate)
+  const toDate = endOfMonth(currentDate)
+
   const {
     data,
     isLoading,
@@ -46,7 +52,9 @@ export function RecentTransactions ({
         userId: user.id,
         offset,
         limit: ITEMS_PER_PAGE,
-        category: selectedCategory
+        category: selectedCategory,
+        fromDate,
+        toDate
       })
     },
     enabled: !!user && !authLoading,
