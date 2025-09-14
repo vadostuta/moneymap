@@ -429,8 +429,10 @@ export function AppSidebar () {
                   {/* Wallet Selector */}
                   {!walletsLoading && wallets.length > 0 && (
                     <div
-                      className={`px-3 py-2 ${
-                        collapsed === 'collapsed' ? 'mb-4' : ''
+                      className={`${
+                        collapsed === 'collapsed'
+                          ? 'flex justify-center px-0 mb-4'
+                          : 'px-3 py-2'
                       }`}
                     >
                       {collapsed === 'expanded' && (
@@ -444,10 +446,10 @@ export function AppSidebar () {
                         onValueChange={handleWalletChange}
                       >
                         <SelectTrigger
-                          className={`w-full ${
+                          className={`${
                             collapsed === 'collapsed'
                               ? 'h-8 w-8 p-0 flex items-center justify-center rounded-lg bg-sidebar-accent hover:bg-sidebar-accent/80 transition-colors [&>svg]:hidden'
-                              : ''
+                              : 'w-full'
                           }`}
                         >
                           {collapsed === 'collapsed' ? (
@@ -516,49 +518,89 @@ export function AppSidebar () {
                       <SidebarMenuItem key={item.href}>
                         {item.subItems ? (
                           // Analytics with sub-items
-                          <div className='space-y-1'>
-                            <div className='px-3 py-2 text-xs font-medium text-muted-foreground'>
-                              {item.label}
-                            </div>
-                            {item.subItems.map(subItem => (
-                              <TooltipProvider key={subItem.href}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <SidebarMenuButton
-                                      asChild
-                                      isActive={
-                                        pathname === subItem.href ||
-                                        pathname.startsWith(subItem.href)
-                                      }
-                                      className='text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-3'
-                                    >
-                                      <Link
-                                        href={subItem.href}
-                                        className='text-sidebar-foreground'
-                                      >
-                                        <subItem.icon className='h-4 w-4' />
-                                        {collapsed === 'expanded' && (
-                                          <span>{subItem.label}</span>
-                                        )}
-                                      </Link>
-                                    </SidebarMenuButton>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{subItem.label}</p>
-                                    <p className='text-xs text-muted-foreground'>
-                                      {t(
-                                        'sidebar.hotkey.nav-route',
-                                        'Ctrl + {{number}}',
-                                        {
-                                          number: index + 1
+                          collapsed === 'collapsed' ? (
+                            // In collapsed state, show sub-items as individual centered items
+                            <div className='space-y-1'>
+                              {item.subItems.map((subItem, subIndex) => (
+                                <TooltipProvider key={subItem.href}>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <SidebarMenuButton
+                                        asChild
+                                        isActive={
+                                          pathname === subItem.href ||
+                                          pathname.startsWith(subItem.href)
                                         }
-                                      )}
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ))}
-                          </div>
+                                        className='text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex justify-center'
+                                      >
+                                        <Link
+                                          href={subItem.href}
+                                          className='text-sidebar-foreground flex justify-center'
+                                        >
+                                          <subItem.icon className='h-4 w-4' />
+                                        </Link>
+                                      </SidebarMenuButton>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{subItem.label}</p>
+                                      <p className='text-xs text-muted-foreground'>
+                                        {t(
+                                          'sidebar.hotkey.nav-route',
+                                          'Ctrl + {{number}}',
+                                          {
+                                            number: index + 1
+                                          }
+                                        )}
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ))}
+                            </div>
+                          ) : (
+                            // In expanded state, show with parent label
+                            <div className='space-y-1'>
+                              <div className='px-3 py-2 text-xs font-medium text-muted-foreground'>
+                                {item.label}
+                              </div>
+                              {item.subItems.map(subItem => (
+                                <TooltipProvider key={subItem.href}>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <SidebarMenuButton
+                                        asChild
+                                        isActive={
+                                          pathname === subItem.href ||
+                                          pathname.startsWith(subItem.href)
+                                        }
+                                        className='text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ml-3'
+                                      >
+                                        <Link
+                                          href={subItem.href}
+                                          className='text-sidebar-foreground'
+                                        >
+                                          <subItem.icon className='h-4 w-4' />
+                                          <span>{subItem.label}</span>
+                                        </Link>
+                                      </SidebarMenuButton>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{subItem.label}</p>
+                                      <p className='text-xs text-muted-foreground'>
+                                        {t(
+                                          'sidebar.hotkey.nav-route',
+                                          'Ctrl + {{number}}',
+                                          {
+                                            number: index + 1
+                                          }
+                                        )}
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ))}
+                            </div>
+                          )
                         ) : (
                           // Regular navigation item
                           <TooltipProvider>
