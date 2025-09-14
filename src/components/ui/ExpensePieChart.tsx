@@ -23,6 +23,7 @@ import {
 import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useWallet } from '@/contexts/wallet-context'
+import { usePrivacy } from '@/contexts/privacy-context'
 
 // Define colors for different categories
 const COLORS = [
@@ -51,6 +52,7 @@ export function ExpensePieChart ({
 }: ExpensePieChartProps) {
   const { t } = useTranslation('common')
   const { selectedWallet } = useWallet()
+  const { formatAmount } = usePrivacy()
   const [type, setType] = React.useState<'expense' | 'income'>('expense')
 
   // Use the selected wallet from context
@@ -70,14 +72,9 @@ export function ExpensePieChart ({
 
   const totalExpense = data?.reduce((sum, item) => sum + item.amount, 0) || 0
 
-  // Format currency consistently
+  // Remove the old formatCurrency function and use formatAmount from privacy context
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount)
+    return formatAmount(amount, currency)
   }
 
   const handlePieClick = (entry: { category_id: string }) => {
@@ -87,8 +84,6 @@ export function ExpensePieChart ({
       onCategorySelect(newCategoryId)
     }
   }
-
-
 
   const categoryColorIndex: Record<string, number> = {}
   data?.forEach((entry, idx) => {

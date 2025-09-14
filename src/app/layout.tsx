@@ -13,6 +13,7 @@ import { I18nHydrate } from '@/components/I18nHydrate'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/Sidebar'
 import { ThemeProvider } from '@/contexts/theme-context'
+import { PrivacyProvider } from '@/contexts/privacy-context'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -40,33 +41,38 @@ export default function RootLayout ({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider defaultTheme='system' storageKey='moneymap-theme'>
-          <I18nProvider>
-            <I18nHydrate>
-              <LanguageProvider>
-                <QueryProvider>
-                  <AuthProvider>
-                    <WalletProvider>
-                      <MonobankSyncProvider>
-                        <SidebarProvider>
-                          <div className='flex h-screen w-full'>
-                            <AppSidebar />
-                            <main className='flex-1 overflow-auto'>
-                              <div className='py-[5rem] px-4 sm:p-6 flex items-start'>
-                                <div className='hidden md:flex items-center gap-4 mb-4'>
-                                  <SidebarTrigger />
+          <PrivacyProvider
+            defaultHidden={false}
+            storageKey='moneymap-privacy-hidden'
+          >
+            <I18nProvider>
+              <I18nHydrate>
+                <LanguageProvider>
+                  <QueryProvider>
+                    <AuthProvider>
+                      <WalletProvider>
+                        <MonobankSyncProvider>
+                          <SidebarProvider>
+                            <div className='flex h-screen w-full'>
+                              <AppSidebar />
+                              <main className='flex-1 overflow-auto'>
+                                <div className='py-[5rem] px-4 sm:p-6 flex items-start'>
+                                  <div className='hidden md:flex items-center gap-4 mb-4'>
+                                    <SidebarTrigger />
+                                  </div>
+                                  <AuthGuard>{children}</AuthGuard>
                                 </div>
-                                <AuthGuard>{children}</AuthGuard>
-                              </div>
-                            </main>
-                          </div>
-                        </SidebarProvider>
-                      </MonobankSyncProvider>
-                    </WalletProvider>
-                  </AuthProvider>
-                </QueryProvider>
-              </LanguageProvider>
-            </I18nHydrate>
-          </I18nProvider>
+                              </main>
+                            </div>
+                          </SidebarProvider>
+                        </MonobankSyncProvider>
+                      </WalletProvider>
+                    </AuthProvider>
+                  </QueryProvider>
+                </LanguageProvider>
+              </I18nHydrate>
+            </I18nProvider>
+          </PrivacyProvider>
         </ThemeProvider>
         <ClientToaster />
       </body>

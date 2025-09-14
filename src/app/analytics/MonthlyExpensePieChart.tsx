@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { usePrivacy } from '@/contexts/privacy-context'
 
 // Define colors for different categories
 const COLORS = [
@@ -51,6 +52,7 @@ export function MonthlyExpensePieChart ({
   onCategorySelect
 }: MonthlyExpensePieChartProps) {
   const { t } = useTranslation('common')
+  const { formatAmount } = usePrivacy()
 
   // Fetch categories for names
   const { data: categories = [] } = useQuery({
@@ -58,14 +60,8 @@ export function MonthlyExpensePieChart ({
     queryFn: categoryService.getAllCategories
   })
 
-  // Format currency consistently
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount)
+    return formatAmount(amount, currency)
   }
 
   const handlePieClick = (entry: { category_id: string }) => {

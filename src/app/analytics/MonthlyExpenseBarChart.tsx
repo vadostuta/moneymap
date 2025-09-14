@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { categoryService } from '@/lib/services/category'
 import { useQuery } from '@tanstack/react-query'
 import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
+import { usePrivacy } from '@/contexts/privacy-context'
 
 interface MonthlyExpenseBarChartProps {
   data: { category_id: string; amount: number }[]
@@ -46,6 +47,7 @@ export function MonthlyExpenseBarChart ({
   onCategorySelect
 }: MonthlyExpenseBarChartProps) {
   const { t } = useTranslation('common')
+  const { formatAmount } = usePrivacy()
 
   // Fetch categories for names
   const { data: categories = [] } = useQuery({
@@ -54,12 +56,7 @@ export function MonthlyExpenseBarChart ({
   })
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount)
+    return formatAmount(amount, currency)
   }
 
   // Create a consistent color mapping for categories

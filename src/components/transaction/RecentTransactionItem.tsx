@@ -34,6 +34,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { usePrivacy } from '@/contexts/privacy-context'
 
 function hexToRgba (hex: string, alpha: number) {
   let c = hex.replace('#', '')
@@ -58,6 +59,7 @@ export function RecentTransactionItem ({
   onDelete: (id: string, onUndo: () => void) => void
 }) {
   const { t } = useTranslation('common')
+  const { formatAmount } = usePrivacy()
   const queryClient = useQueryClient()
   const pathname = usePathname()
   const router = useRouter()
@@ -373,10 +375,11 @@ export function RecentTransactionItem ({
                   <ArrowRightLeft className='w-4 h-4 sm:w-5 sm:h-5' />
                 )}
               </button>
-              {new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: transaction.wallet?.currency || 'USD'
-              }).format(transaction.amount)}
+              {formatAmount(
+                transaction.amount,
+                transaction.wallet?.currency,
+                transaction.type
+              )}
             </div>
             <Button
               variant='ghost'

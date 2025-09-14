@@ -76,7 +76,8 @@
     "unhideTooltip": "Unhide this transaction",
     "hideHidden": "Hide hidden transactions",
     "showHiddenTooltip": "Include hidden transactions in the list",
-    "hideHiddenTooltip": "Hide hidden transactions from the list"
+    "hideHiddenTooltip": "Hide hidden transactions from the list",
+    "noDescription": "No description"
   },
   "wallets": {
     "title": "Wallets",
@@ -270,8 +271,21 @@
     "selectCategory": "Select a category to view detailed analytics",
     "totalSpending": "Total Spending",
     "monthlyTrend": "Monthly Trend",
+    "dailyTrend": "Daily Trend",
+    "categorySpending": "Category Spending",
+    "transactionsFor": "Transactions for",
+    "loadingTransactions": "Loading transactions...",
+    "noTransactionsForPeriod": "No transactions found for this {{period}}",
+    "month": "month",
+    "day": "day",
     "allCategories": "All Categories",
     "clickToSelect": "Click on a bubble to select a category",
     "noCategorySelected": "No category selected - showing total expenses"
+  },
+  "privacy": {
+    "show": "Show amounts",
+    "hide": "Hide amounts",
+    "amountsHidden": "Amounts are hidden",
+    "amountsVisible": "Amounts are visible"
   }
 }

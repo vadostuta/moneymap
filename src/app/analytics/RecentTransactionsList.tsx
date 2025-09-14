@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
 import { categoryService } from '@/lib/services/category'
 import { useAuth } from '@/contexts/auth-context'
+import { usePrivacy } from '@/contexts/privacy-context'
 
 interface RecentTransactionsListProps {
   walletId: string
@@ -26,6 +27,7 @@ export function RecentTransactionsList ({
 }: RecentTransactionsListProps) {
   const { t } = useTranslation('common')
   const { user } = useAuth()
+  const { formatAmount } = usePrivacy()
 
   // Fetch categories for names
   const { data: categories = [] } = useQuery({
@@ -69,12 +71,7 @@ export function RecentTransactionsList ({
   })
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount)
+    return formatAmount(amount, currency)
   }
 
   const formatDate = (dateString: string) => {

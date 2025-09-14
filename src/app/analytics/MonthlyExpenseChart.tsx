@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MonthlyExpenseBarChart } from './MonthlyExpenseBarChart'
 import { Skeleton } from '@/components/ui/skeleton'
 import { RecentTransactionsList } from './RecentTransactionsList'
+import { usePrivacy } from '@/contexts/privacy-context'
 
 interface MonthlyExpenseChartProps {
   month: Date
@@ -20,6 +21,7 @@ export function MonthlyExpenseChart ({
   walletId
 }: MonthlyExpenseChartProps) {
   const { t } = useTranslation('common')
+  const { formatAmount } = usePrivacy()
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>()
 
   // Fetch wallet info for currency
@@ -62,12 +64,7 @@ export function MonthlyExpenseChart ({
 
   const formatCurrency = (amount: number) => {
     const currency = wallet?.currency || 'UAH'
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount)
+    return formatAmount(amount, currency)
   }
 
   if (isLoading) {

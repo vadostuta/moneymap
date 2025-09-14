@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { transactionService } from '@/lib/services/transaction'
 import { useWallet } from '@/contexts/wallet-context'
 import { useTranslation } from 'react-i18next'
+import { usePrivacy } from '@/contexts/privacy-context'
 import { Button } from '@/components/ui/button'
 import { Calendar, BarChart3, X } from 'lucide-react'
 import {
@@ -33,6 +34,7 @@ export function CategoryMonthlyTrendChart ({
   availableMonths
 }: CategoryMonthlyTrendChartProps) {
   const { t } = useTranslation('common')
+  const { formatAmount } = usePrivacy()
   const { selectedWallet } = useWallet()
   const [viewMode, setViewMode] = useState<ViewMode>('monthly')
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -255,14 +257,11 @@ export function CategoryMonthlyTrendChart ({
     enabled: !!walletId && !!selectedDate
   })
 
+  const currency = selectedWallet?.currency || 'UAH'
+
+  // Format currency using privacy context
   const formatCurrency = (amount: number) => {
-    const currency = selectedWallet?.currency || 'UAH'
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount)
+    return formatAmount(amount, currency)
   }
 
   const chartData = useMemo(() => {
@@ -297,123 +296,120 @@ export function CategoryMonthlyTrendChart ({
     }
   }
 
-  const handleCloseTransactions = () => {
-    setSelectedDate(null)
-  }
+  // const handleCloseTransactions = () => {
+  //   setSelectedDate(null)
+  // }
 
   if (isLoading) {
     return (
       <div className='flex items-center justify-center h-80'>
-        <div className='text-muted-foreground'>Loading...</div>
+        <div className='text-muted-foreground'>{t('common.loading')}</div>
       </div>
     )
   }
 
   if (!chartData || chartData.length === 0) {
     return (
-      <div className='flex items-center justify-center h-80 text-muted-foreground'>
-        {t('analytics.noDataForMonth')}
+      <div className='flex items-center justify-center h-80'>
+        <div className='text-muted-foreground'>
+          {t('analytics.noDataForMonth')}
+        </div>
       </div>
     )
   }
 
   return (
-    <div className='space-y-4'>
+    <div className='space-y-6'>
       {/* View Mode Toggle */}
-      <div className='flex justify-center gap-2'>
+      <div className='flex items-center gap-2'>
         <Button
           variant={viewMode === 'monthly' ? 'default' : 'outline'}
           size='sm'
           onClick={() => setViewMode('monthly')}
-          className='flex items-center gap-2'
         >
-          <BarChart3 className='h-4 w-4' />
-          Monthly
+          <BarChart3 className='w-4 h-4 mr-2' />
+          {t('analytics.monthlyTrend')}
         </Button>
         <Button
           variant={viewMode === 'daily' ? 'default' : 'outline'}
           size='sm'
           onClick={() => setViewMode('daily')}
-          className='flex items-center gap-2'
         >
-          <Calendar className='h-4 w-4' />
-          Daily
+          <Calendar className='w-4 h-4 mr-2' />
+          {t('analytics.dailyTrend')}
         </Button>
       </div>
 
       {/* Chart */}
-      <div className='h-80 w-full'>
-        <ResponsiveContainer width='100%' height='100%'>
-          <LineChart data={chartData} onClick={handleChartClick}>
-            <CartesianGrid strokeDasharray='3 3' stroke='#374151' />
-            <XAxis
-              dataKey={viewMode === 'monthly' ? 'month' : 'day'}
-              stroke='#6B7280'
-              fontSize={12}
-              angle={viewMode === 'daily' ? -45 : 0}
-              textAnchor={viewMode === 'daily' ? 'end' : 'middle'}
-              height={viewMode === 'daily' ? 60 : 30}
-              style={{ cursor: 'pointer' }}
-            />
-            <YAxis
-              stroke='#6B7280'
-              fontSize={12}
-              tickFormatter={value => formatCurrency(value)}
-            />
-            <Tooltip
-              content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div className='bg-background border border-border rounded-lg p-3 shadow-lg'>
-                      <p className='font-medium'>{label}</p>
-                      <p className='text-primary'>
-                        {formatCurrency(payload[0]?.value as number)}
-                      </p>
-                      <p className='text-xs text-muted-foreground mt-1'>
-                        Click to view transactions
-                      </p>
-                    </div>
-                  )
-                }
-                return null
-              }}
-            />
-            <Legend />
-            <Line
-              type='monotone'
-              dataKey='amount'
-              stroke={categoryId ? '#3B82F6' : '#10B981'}
-              strokeWidth={3}
-              dot={{
-                fill: categoryId ? '#3B82F6' : '#10B981',
-                strokeWidth: 2,
-                r: viewMode === 'daily' ? 2 : 4
-              }}
-              activeDot={{
-                r: viewMode === 'daily' ? 4 : 6,
-                stroke: categoryId ? '#3B82F6' : '#10B981',
-                strokeWidth: 2
-              }}
-              name={categoryId ? 'Category Spending' : 'Total Spending'}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <Card>
+        <CardContent className='p-6'>
+          <div className='h-80'>
+            <ResponsiveContainer width='100%' height='100%'>
+              <LineChart
+                data={chartData}
+                onClick={handleChartClick}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray='3 3' />
+                <XAxis
+                  dataKey='label'
+                  tick={{ fontSize: 12 }}
+                  angle={viewMode === 'daily' ? -45 : 0}
+                  textAnchor={viewMode === 'daily' ? 'end' : 'middle'}
+                  height={viewMode === 'daily' ? 60 : 30}
+                />
+                <YAxis tickFormatter={formatCurrency} tick={{ fontSize: 12 }} />
+                <Tooltip
+                  formatter={(value: number) => [formatCurrency(value), '']}
+                  labelFormatter={label => {
+                    if (viewMode === 'daily') {
+                      return new Date(label).toLocaleDateString('en', {
+                        month: 'short',
+                        day: 'numeric'
+                      })
+                    }
+                    return label
+                  }}
+                />
+                <Legend />
+                <Line
+                  type='monotone'
+                  dataKey='amount'
+                  stroke={categoryId ? '#3B82F6' : '#10B981'}
+                  strokeWidth={2}
+                  dot={{
+                    r: viewMode === 'daily' ? 2 : 4
+                  }}
+                  activeDot={{
+                    r: viewMode === 'daily' ? 4 : 6,
+                    stroke: categoryId ? '#3B82F6' : '#10B981',
+                    strokeWidth: 2
+                  }}
+                  name={
+                    categoryId
+                      ? t('analytics.categorySpending')
+                      : t('analytics.totalSpending')
+                  }
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Transactions for Selected Date */}
       {selectedDate && dateTransactions && (
         <Card>
           <CardHeader className='pb-3'>
             <div className='flex items-center justify-between'>
               <CardTitle className='text-lg'>
-                Transactions for{' '}
+                {t('analytics.transactionsFor')}{' '}
                 {viewMode === 'monthly'
                   ? new Date(selectedDate + '-01').toLocaleDateString('en', {
                       month: 'long',
                       year: 'numeric'
                     })
                   : new Date(selectedDate).toLocaleDateString('en', {
-                      month: 'long',
+                      month: 'short',
                       day: 'numeric',
                       year: 'numeric'
                     })}
@@ -421,41 +417,54 @@ export function CategoryMonthlyTrendChart ({
               <Button
                 variant='ghost'
                 size='sm'
-                onClick={handleCloseTransactions}
-                className='h-8 w-8 p-0'
+                onClick={() => setSelectedDate(null)}
               >
-                <X className='h-4 w-4' />
+                <X className='w-4 h-4' />
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {transactionsLoading ? (
-              <div className='text-center py-4'>Loading transactions...</div>
+              <div className='text-center py-4'>
+                {t('analytics.loadingTransactions')}
+              </div>
             ) : dateTransactions.length > 0 ? (
               <div className='space-y-3 max-h-64 overflow-y-auto'>
                 {dateTransactions.map(transaction => (
                   <div
                     key={transaction.id}
-                    className='flex items-center justify-between p-3 bg-muted/50 rounded-lg'
+                    className='flex items-center justify-between p-3 border rounded-lg'
                   >
-                    <div className='flex-1'>
-                      <div className='font-medium'>
-                        {transaction.description}
+                    <div className='flex-1 min-w-0'>
+                      <div className='font-medium truncate'>
+                        {transaction.description ||
+                          t('transactions.noDescription')}
                       </div>
                       <div className='text-sm text-muted-foreground'>
-                        {new Date(transaction.date).toLocaleDateString()}
+                        {new Date(transaction.date).toLocaleDateString('en', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </div>
                     </div>
-                    <div className='font-bold text-primary'>
-                      {formatCurrency(transaction.amount)}
+                    <div className='text-right'>
+                      <div className='font-semibold text-red-600'>
+                        {formatCurrency(transaction.amount)}
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className='text-center py-4 text-muted-foreground'>
-                No transactions found for this{' '}
-                {viewMode === 'monthly' ? 'month' : 'day'}
+                {t('analytics.noTransactionsForPeriod', {
+                  period:
+                    viewMode === 'monthly'
+                      ? t('analytics.month')
+                      : t('analytics.day')
+                })}
               </div>
             )}
           </CardContent>

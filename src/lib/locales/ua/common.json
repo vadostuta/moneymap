@@ -80,7 +80,8 @@
     "unhideTooltip": "Відновити цю транзакцію",
     "hideHidden": "Приховати приховані транзакції",
     "showHiddenTooltip": "Включити приховані транзакції в список",
-    "hideHiddenTooltip": "Приховати приховані транзакції зі списку"
+    "hideHiddenTooltip": "Приховати приховані транзакції зі списку",
+    "noDescription": "Без опису"
   },
   "wallets": {
     "title": "Гаманці",
@@ -277,8 +278,21 @@
     "selectCategory": "Виберіть категорію для детального аналізу",
     "totalSpending": "Загальні витрати",
     "monthlyTrend": "Місячний тренд",
+    "dailyTrend": "Денний тренд",
+    "categorySpending": "Витрати за категорією",
+    "transactionsFor": "Транзакції за",
+    "loadingTransactions": "Завантаження транзакцій...",
+    "noTransactionsForPeriod": "Транзакції за цей {{period}} не знайдено",
+    "month": "місяць",
+    "day": "день",
     "allCategories": "Всі категорії",
     "clickToSelect": "Натисніть на бульбашку, щоб вибрати категорію",
     "noCategorySelected": "Категорія не вибрана - показано загальні витрати"
+  },
+  "privacy": {
+    "show": "Показати суми",
+    "hide": "Приховати суми",
+    "amountsHidden": "Сума прихована",
+    "amountsVisible": "Сума видима"
   }
 }

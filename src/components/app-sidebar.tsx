@@ -51,6 +51,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { Eye, EyeOff } from 'lucide-react'
+import { usePrivacy } from '@/contexts/privacy-context'
 
 export function AppSidebar () {
   const { user, signInWithGoogle, signOut } = useAuth()
@@ -66,6 +68,7 @@ export function AppSidebar () {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { t } = useTranslation('common')
   const { state: collapsed, toggleSidebar } = useSidebar()
+  const { isHidden, toggleHidden } = usePrivacy()
 
   const handleWalletChange = (walletId: string) => {
     const wallet = wallets.find(w => w.id === walletId)
@@ -287,6 +290,22 @@ export function AppSidebar () {
               <div className='flex items-center gap-4 mb-4'>
                 <LanguageSwitcher />
                 <ThemeToggle />
+                {/* Add Privacy Toggle */}
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={toggleHidden}
+                  className='flex items-center gap-2'
+                >
+                  {isHidden ? (
+                    <EyeOff className='h-4 w-4' />
+                  ) : (
+                    <Eye className='h-4 w-4' />
+                  )}
+                  <span className='hidden sm:inline'>
+                    {isHidden ? t('privacy.show') : t('privacy.hide')}
+                  </span>
+                </Button>
               </div>
 
               {user ? (
@@ -397,7 +416,9 @@ export function AppSidebar () {
                   </svg>
                 )}
               </Link>
-              <ThemeToggle />
+              <div className='flex items-center gap-2'>
+                <ThemeToggle />
+              </div>
             </div>
           </SidebarHeader>
 
@@ -592,11 +613,34 @@ export function AppSidebar () {
           >
             {user ? (
               <>
+                {/* Privacy Toggle - First Row */}
                 {collapsed === 'expanded' && (
-                  <div className='flex items-center gap-4 mb-4'>
+                  <div className='mb-4'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={toggleHidden}
+                      className='w-full flex items-center justify-center gap-2'
+                    >
+                      {isHidden ? (
+                        <EyeOff className='h-4 w-4' />
+                      ) : (
+                        <Eye className='h-4 w-4' />
+                      )}
+                      <span className='text-xs'>
+                        {isHidden ? t('privacy.show') : t('privacy.hide')}
+                      </span>
+                    </Button>
+                  </div>
+                )}
+
+                {/* Language Switcher - Second Row */}
+                {collapsed === 'expanded' && (
+                  <div className='mb-4'>
                     <LanguageSwitcher />
                   </div>
                 )}
+
                 {collapsed === 'expanded' && (
                   <div className='text-sm text-sidebar-foreground mb-2'>
                     {user.email}
