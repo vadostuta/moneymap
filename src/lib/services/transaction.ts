@@ -4,8 +4,6 @@ import {
   CreateTransactionDTO,
   TransactionType
 } from '@/lib/types/transaction'
-// import { Wallet } from '../types/wallet'
-import { startOfMonth, endOfMonth } from 'date-fns'
 
 export const transactionService = {
   // Create a new transaction
