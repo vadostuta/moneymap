@@ -59,8 +59,7 @@ export function RecentTransactionsList ({
           category: selectedCategory,
           fromDate: startOfMonth,
           toDate: endOfMonth,
-          // Remove limit to get ALL transactions for the category/month
-          // limit: 10, // Only fetch 10 most recent
+          limit: 10, // Limit to 10 most recent transactions
           showHidden: false
         })
 
@@ -139,8 +138,8 @@ export function RecentTransactionsList ({
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className='h-full flex flex-col'>
+      <CardHeader className='flex-shrink-0'>
         <CardTitle className='text-lg'>
           {selectedCategory
             ? t('analytics.categoryTransactions')
@@ -154,7 +153,7 @@ export function RecentTransactionsList ({
           </p>
         )}
       </CardHeader>
-      <CardContent className='space-y-3'>
+      <CardContent className='flex-1 overflow-y-auto max-h-96 space-y-3'>
         {transactions.map(transaction => (
           <div
             key={transaction.id}

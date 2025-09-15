@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/auth-context'
-import { useWallet } from '@/contexts/wallet-context'
+import { useWallet, ALL_WALLETS } from '@/contexts/wallet-context'
 import { useTranslation } from 'react-i18next'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -71,9 +71,13 @@ export function AppSidebar () {
   const { isHidden, toggleHidden } = usePrivacy()
 
   const handleWalletChange = (walletId: string) => {
-    const wallet = wallets.find(w => w.id === walletId)
-    if (wallet) {
-      setSelectedWallet(wallet)
+    if (walletId === 'all') {
+      setSelectedWallet(ALL_WALLETS)
+    } else {
+      const wallet = wallets.find(w => w.id === walletId)
+      if (wallet) {
+        setSelectedWallet(wallet)
+      }
     }
   }
 
@@ -212,6 +216,9 @@ export function AppSidebar () {
                         <SelectValue placeholder={t('wallets.selectWallet')} />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value='all'>
+                          {t('wallets.allWallets')}
+                        </SelectItem>
                         {wallets.map(wallet => (
                           <SelectItem key={wallet.id} value={wallet.id}>
                             {wallet.name}
@@ -463,6 +470,9 @@ export function AppSidebar () {
                           )}
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value='all'>
+                            {t('wallets.allWallets')}
+                          </SelectItem>
                           {wallets.map(wallet => (
                             <SelectItem key={wallet.id} value={wallet.id}>
                               {wallet.name}

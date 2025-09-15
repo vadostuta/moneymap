@@ -405,39 +405,44 @@ export const transactionService = {
     }))
   },
 
-  async getCurrentMonthIncomeByCategory (walletId: string) {
-    const startDate = startOfMonth(new Date()).toISOString().split('T')[0] // YYYY-MM-DD
-    const endDate = endOfMonth(new Date()).toISOString().split('T')[0] // YYYY-MM-DD
+  async getCurrentMonthIncomeByCategory (walletId?: string) {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
 
-    const { data, error } = await supabase
+    // Get first and last day of current month
+    const now = new Date()
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+
+    let query = supabase
       .from('transactions')
-      .select(
-        `
-        category_id,
-        amount
-      `
-      )
-      .eq('wallet_id', walletId)
+      .select('category_id, amount')
+      .eq('user_id', user.id)
       .eq('type', 'income')
-      .gte('date', startDate)
-      .lte('date', endDate)
-      .not('is_hidden', 'eq', true)
-      .not('is_deleted', 'eq', true)
+      .eq('is_deleted', false)
+      .eq('is_hidden', false)
+      .gte('date', firstDayOfMonth.toISOString())
+      .lte('date', lastDayOfMonth.toISOString())
+
+    // Add wallet filter if specified
+    if (walletId && walletId !== 'all') {
+      query = query.eq('wallet_id', walletId)
+    }
+
+    const { data, error } = await query
 
     if (error) throw error
 
-    // Group by category and sum amounts
-    const groupedData = data.reduce((acc, transaction) => {
-      const categoryId = transaction.category_id
-      if (!acc[categoryId]) {
-        acc[categoryId] = 0
-      }
-      acc[categoryId] += transaction.amount
+    // Group by category_id and sum amounts
+    const categoryTotals = (data || []).reduce((acc, transaction) => {
+      const categoryId = transaction.category_id || 'uncategorized'
+      acc[categoryId] = (acc[categoryId] || 0) + transaction.amount
       return acc
     }, {} as Record<string, number>)
 
-    // Transform to array format
-    return Object.entries(groupedData).map(([category_id, amount]) => ({
+    return Object.entries(categoryTotals).map(([category_id, amount]) => ({
       category_id,
       amount
     }))

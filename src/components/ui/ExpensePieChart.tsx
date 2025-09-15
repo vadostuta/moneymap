@@ -24,6 +24,7 @@ import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useWallet } from '@/contexts/wallet-context'
 import { usePrivacy } from '@/contexts/privacy-context'
+import { Wallet } from '@/lib/types/wallet'
 
 // Define colors for different categories
 const COLORS = [
@@ -44,22 +45,27 @@ const COLORS = [
 interface ExpensePieChartProps {
   onCategorySelect: (categoryId: string | undefined) => void
   selectedCategory?: string
+  wallet?: Wallet // Optional wallet prop to override context wallet
+  showWalletName?: boolean // Whether to show wallet name in the header
 }
 
 export function ExpensePieChart ({
   onCategorySelect,
-  selectedCategory
+  selectedCategory,
+  wallet,
+  showWalletName = false
 }: ExpensePieChartProps) {
   const { t } = useTranslation('common')
   const { selectedWallet } = useWallet()
   const { formatAmount } = usePrivacy()
   const [type, setType] = React.useState<'expense' | 'income'>('expense')
 
-  // Use the selected wallet from context
-  const selectedWalletId = selectedWallet?.id || ''
+  // Use the provided wallet or fall back to context wallet
+  const currentWallet = wallet || selectedWallet
+  const selectedWalletId = currentWallet?.id || ''
 
-  // Get the selected wallet's currency
-  const currency = selectedWallet?.currency || 'UAH' // Fallback to UAH if no wallet selected
+  // Get the current wallet's currency
+  const currency = currentWallet?.currency || 'UAH' // Fallback to UAH if no wallet selected
 
   // Fetch expenses by category with wallet filter
   const { data, isLoading, error } = useQuery({
@@ -122,7 +128,9 @@ export function ExpensePieChart ({
       <Card>
         <CardHeader>
           <CardTitle className='text-lg text-muted-foreground font-medium'>
-            {t('overview.currentMonthExpenses')}
+            {showWalletName && currentWallet
+              ? currentWallet.name
+              : t('overview.currentMonthExpenses')}
           </CardTitle>
         </CardHeader>
         <CardContent className='flex items-center justify-center h-[180px]'>
@@ -137,7 +145,9 @@ export function ExpensePieChart ({
       <Card>
         <CardHeader>
           <CardTitle className='text-lg text-muted-foreground font-medium'>
-            {t('overview.currentMonthExpenses')}
+            {showWalletName && currentWallet
+              ? currentWallet.name
+              : t('overview.currentMonthExpenses')}
           </CardTitle>
         </CardHeader>
         <CardContent className='flex items-center justify-center h-[180px]'>
@@ -152,7 +162,9 @@ export function ExpensePieChart ({
       <Card>
         <CardHeader>
           <CardTitle className='text-lg text-muted-foreground font-medium'>
-            {t('overview.currentMonthExpenses')}
+            {showWalletName && currentWallet
+              ? currentWallet.name
+              : t('overview.currentMonthExpenses')}
           </CardTitle>
         </CardHeader>
         <CardContent className='flex items-center justify-center h-[180px]'>
@@ -167,6 +179,11 @@ export function ExpensePieChart ({
       <CardHeader className='flex flex-col md:flex-row items-start justify-between gap-4 flex-wrap'>
         {/* Left side: Total */}
         <div className='flex flex-col gap-4'>
+          {showWalletName && currentWallet && (
+            <div className='text-lg font-semibold text-foreground'>
+              {currentWallet.name}
+            </div>
+          )}
           <div className='text-2xl font-bold text-foreground tracking-tight'>
             {formatCurrency(totalExpense)}
           </div>

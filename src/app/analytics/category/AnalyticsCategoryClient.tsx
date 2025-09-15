@@ -15,9 +15,58 @@ import { BarChart3 } from 'lucide-react'
 
 export function AnalyticsCategoryClient () {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const { selectedWallet } = useWallet()
+  const { selectedWallet, isAllWalletsSelected, wallets } = useWallet()
   const { t } = useTranslation('common')
   const selectedWalletId = selectedWallet?.id || ''
+
+  // Get wallets sorted by transaction amount for "All wallets" mode
+  const { data: sortedWallets = [], isLoading: sortedWalletsLoading } =
+    useQuery({
+      queryKey: [
+        'sorted-wallets-category',
+        isAllWalletsSelected,
+        wallets.map(w => w.id)
+      ],
+      queryFn: async () => {
+        if (!isAllWalletsSelected) {
+          const currentWallet = wallets.find(w => w.id === selectedWalletId)
+          return currentWallet ? [currentWallet] : []
+        }
+
+        if (wallets.length === 0) return []
+
+        // Calculate total transaction amount for each wallet
+        const walletAmounts = await Promise.all(
+          wallets.map(async wallet => {
+            try {
+              const [expenses, income] = await Promise.all([
+                transactionService.getCurrentMonthExpensesByCategory(wallet.id),
+                transactionService.getCurrentMonthIncomeByCategory(wallet.id)
+              ])
+
+              const totalAmount =
+                expenses.reduce((sum, item) => sum + item.amount, 0) +
+                income.reduce((sum, item) => sum + item.amount, 0)
+
+              return { wallet, totalAmount }
+            } catch (error) {
+              console.error(
+                `Error calculating amount for wallet ${wallet.id}:`,
+                error
+              )
+              return { wallet, totalAmount: 0 }
+            }
+          })
+        )
+
+        // Sort by total amount (highest first) and filter out wallets with no transactions
+        return walletAmounts
+          .filter(item => item.totalAmount > 0)
+          .sort((a, b) => b.totalAmount - a.totalAmount)
+          .map(item => item.wallet)
+      },
+      enabled: wallets.length > 0
+    })
 
   // Fetch all categories
   const { data: categories, isLoading: categoriesLoading } = useQuery({
@@ -26,7 +75,7 @@ export function AnalyticsCategoryClient () {
     enabled: true
   })
 
-  // Fetch all transactions for the selected wallet to determine available months
+  // Fetch all transactions for the selected wallet(s) to determine available months
   const { data: allTransactions, isLoading: transactionsLoading } = useQuery({
     queryKey: ['wallet-transactions', selectedWalletId],
     queryFn: async () => {
@@ -36,18 +85,34 @@ export function AnalyticsCategoryClient () {
         const currentDate = new Date()
         const startDate = new Date(currentDate.getFullYear() - 2, 0, 1)
 
-        const allTransactions = await transactionService.getAll()
+        if (isAllWalletsSelected) {
+          // For "All wallets", get transactions from all wallets
+          const allTransactions = await transactionService.getAll()
 
-        const filteredTransactions = allTransactions.filter(
-          t =>
-            t.wallet_id === selectedWalletId &&
-            new Date(t.date) >= startDate &&
-            t.type === 'expense' &&
-            !t.is_deleted &&
-            !t.is_hidden
-        )
+          const filteredTransactions = allTransactions.filter(
+            t =>
+              new Date(t.date) >= startDate &&
+              t.type === 'expense' &&
+              !t.is_deleted &&
+              !t.is_hidden
+          )
 
-        return filteredTransactions
+          return filteredTransactions
+        } else {
+          // For single wallet, use existing logic
+          const allTransactions = await transactionService.getAll()
+
+          const filteredTransactions = allTransactions.filter(
+            t =>
+              t.wallet_id === selectedWalletId &&
+              new Date(t.date) >= startDate &&
+              t.type === 'expense' &&
+              !t.is_deleted &&
+              !t.is_hidden
+          )
+
+          return filteredTransactions
+        }
       } catch (error) {
         console.error('Error fetching transactions:', error)
         return []
@@ -122,7 +187,8 @@ export function AnalyticsCategoryClient () {
     setSelectedCategory(null)
   }
 
-  const isLoading = categoriesLoading || transactionsLoading
+  const isLoading =
+    categoriesLoading || transactionsLoading || sortedWalletsLoading
 
   if (isLoading) {
     return (
@@ -137,51 +203,124 @@ export function AnalyticsCategoryClient () {
 
   return (
     <div className='w-full max-w-none space-y-6 px-6'>
-      {/* Category Bubble Chart - Top */}
-      <Card>
-        <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <BarChart3 className='h-5 w-5' />
-            {t('analytics.expensesByCategory')}
-          </CardTitle>
-          <p className='text-sm text-muted-foreground'>
-            {t('analytics.clickToSelect')}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <CategoryBubbleChart
-            data={categoryTotals}
-            selectedCategory={selectedCategory}
-            onCategorySelect={handleCategorySelect}
-          />
-        </CardContent>
-      </Card>
+      {isAllWalletsSelected ? (
+        // Multiple charts for each wallet
+        <div className='space-y-8'>
+          {sortedWallets.map(wallet => (
+            <div key={wallet.id} className='space-y-6'>
+              {/* Wallet Header */}
+              <div className='text-center'>
+                <h2 className='text-2xl font-bold text-foreground'>
+                  {wallet.name}
+                </h2>
+                <p className='text-muted-foreground'>Category Analytics</p>
+              </div>
 
-      {/* Monthly Trend Chart - Bottom */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {selectedCategory
-              ? `${
-                  categories?.find(c => c.id === selectedCategory)?.name ||
-                  'Unknown'
-                } - ${t('analytics.monthlyTrend')}`
-              : t('analytics.totalSpending')}
-          </CardTitle>
-          <p className='text-sm text-muted-foreground'>
-            {selectedCategory
-              ? t('analytics.monthlyTrend')
-              : t('analytics.noCategorySelected')}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <CategoryMonthlyTrendChart
-            walletId={selectedWalletId}
-            categoryId={selectedCategory}
-            availableMonths={availableMonths}
-          />
-        </CardContent>
-      </Card>
+              {/* Category Bubble Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className='flex items-center gap-2'>
+                    <BarChart3 className='h-5 w-5' />
+                    {t('analytics.expensesByCategory')}
+                  </CardTitle>
+                  <p className='text-sm text-muted-foreground'>
+                    {t('analytics.clickToSelect')}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <CategoryBubbleChart
+                    data={categoryTotals.filter(cat =>
+                      allTransactions?.some(
+                        t =>
+                          t.wallet_id === wallet.id && t.category_id === cat.id
+                      )
+                    )}
+                    selectedCategory={selectedCategory}
+                    onCategorySelect={handleCategorySelect}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Monthly Trend Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {selectedCategory
+                      ? `${
+                          categories?.find(c => c.id === selectedCategory)
+                            ?.name || 'Unknown'
+                        } - ${t('analytics.monthlyTrend')}`
+                      : t('analytics.totalSpending')}
+                  </CardTitle>
+                  <p className='text-sm text-muted-foreground'>
+                    {selectedCategory
+                      ? t('analytics.monthlyTrend')
+                      : t('analytics.noCategorySelected')}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <CategoryMonthlyTrendChart
+                    walletId={wallet.id}
+                    categoryId={selectedCategory}
+                    availableMonths={availableMonths}
+                    isAllWallets={false}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          ))}
+        </div>
+      ) : (
+        // Single chart for selected wallet
+        <>
+          {/* Category Bubble Chart - Top */}
+          <Card>
+            <CardHeader>
+              <CardTitle className='flex items-center gap-2'>
+                <BarChart3 className='h-5 w-5' />
+                {t('analytics.expensesByCategory')}
+              </CardTitle>
+              <p className='text-sm text-muted-foreground'>
+                {t('analytics.clickToSelect')}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <CategoryBubbleChart
+                data={categoryTotals}
+                selectedCategory={selectedCategory}
+                onCategorySelect={handleCategorySelect}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Monthly Trend Chart - Bottom */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {selectedCategory
+                  ? `${
+                      categories?.find(c => c.id === selectedCategory)?.name ||
+                      'Unknown'
+                    } - ${t('analytics.monthlyTrend')}`
+                  : t('analytics.totalSpending')}
+              </CardTitle>
+              <p className='text-sm text-muted-foreground'>
+                {selectedCategory
+                  ? t('analytics.monthlyTrend')
+                  : t('analytics.noCategorySelected')}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <CategoryMonthlyTrendChart
+                walletId={selectedWalletId}
+                categoryId={selectedCategory}
+                availableMonths={availableMonths}
+                isAllWallets={isAllWalletsSelected}
+              />
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Back to Overview Button */}
       {selectedCategory && (

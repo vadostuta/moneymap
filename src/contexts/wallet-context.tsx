@@ -3,13 +3,28 @@
 import { createContext, JSX, useContext, useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { walletService } from '@/lib/services/wallet'
-import { Wallet } from '@/lib/types/wallet'
+import { Wallet, WalletType } from '@/lib/types/wallet'
+
+// Special wallet object to represent "All wallets"
+export const ALL_WALLETS: Wallet = {
+  id: 'all',
+  name: 'All wallets',
+  currency: 'UAH', // Default currency for display
+  is_primary: false,
+  is_deleted: false,
+  created_at: '',
+  updated_at: '',
+  user_id: '',
+  balance: 0,
+  type: 'wallet' as WalletType
+}
 
 type WalletContextType = {
   selectedWallet: Wallet | null
   setSelectedWallet: (wallet: Wallet | null) => void
   wallets: Wallet[]
   isLoading: boolean
+  isAllWalletsSelected: boolean
 }
 
 export const WalletContext = createContext<WalletContextType | undefined>(
@@ -44,11 +59,14 @@ export function WalletProvider ({
     }
   }, [wallets, selectedWallet])
 
+  const isAllWalletsSelected = selectedWallet?.id === 'all'
+
   const value: WalletContextType = {
     selectedWallet,
     setSelectedWallet,
     wallets: wallets as Wallet[],
-    isLoading
+    isLoading,
+    isAllWalletsSelected
   }
 
   return (

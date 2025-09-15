@@ -24,6 +24,7 @@ interface CategoryMonthlyTrendChartProps {
   walletId: string
   categoryId: string | null
   availableMonths: Date[]
+  isAllWallets?: boolean
 }
 
 type ViewMode = 'monthly' | 'daily'
@@ -31,7 +32,8 @@ type ViewMode = 'monthly' | 'daily'
 export function CategoryMonthlyTrendChart ({
   walletId,
   categoryId,
-  availableMonths
+  availableMonths,
+  isAllWallets = false
 }: CategoryMonthlyTrendChartProps) {
   const { t } = useTranslation('common')
   const { formatAmount } = usePrivacy()
@@ -39,82 +41,95 @@ export function CategoryMonthlyTrendChart ({
   const [viewMode, setViewMode] = useState<ViewMode>('monthly')
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
-  // Fetch monthly data for the selected category or all categories
+  // Update the query to handle "All wallets" case
   const { data: monthlyData, isLoading: monthlyLoading } = useQuery({
-    queryKey: ['monthly-trend', walletId, categoryId],
+    queryKey: ['category-monthly-trend', walletId, categoryId, isAllWallets],
     queryFn: async () => {
-      if (!walletId || availableMonths.length === 0) return []
+      if (!categoryId) {
+        // Get total spending for all categories
+        const monthlyTotals = await Promise.all(
+          availableMonths.map(async month => {
+            const year = month.getFullYear()
+            const monthIndex = month.getMonth()
 
-      const data: Array<{
-        month: string
-        amount: number
-        date: Date
-        dateKey: string
-      }> = []
-
-      for (const month of availableMonths) {
-        const year = month.getFullYear()
-        const monthNum = month.getMonth()
-
-        try {
-          if (categoryId) {
-            // Get expenses for specific category
-            const expenses =
-              await transactionService.getMonthlyExpensesByCategory(
-                walletId,
-                year,
-                monthNum
-              )
-
-            const categoryExpense = expenses.find(
-              e => e.category_id === categoryId
-            )
-            data.push({
-              month: month.toLocaleDateString('en', {
-                month: 'short',
-                year: '2-digit'
-              }),
-              amount: categoryExpense?.amount || 0,
-              date: month,
-              dateKey: `${year}-${monthNum.toString().padStart(2, '0')}`
-            })
-          } else {
-            // Get total expenses for all categories
-            const expenses =
-              await transactionService.getMonthlyExpensesByCategory(
-                walletId,
-                year,
-                monthNum
-              )
-
-            const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0)
-            data.push({
-              month: month.toLocaleDateString('en', {
-                month: 'short',
-                year: '2-digit'
-              }),
-              amount: totalAmount,
-              date: month,
-              dateKey: `${year}-${monthNum.toString().padStart(2, '0')}`
-            })
-          }
-        } catch (error) {
-          console.error(`Error fetching data for ${year}-${monthNum}:`, error)
-          data.push({
-            month: month.toLocaleDateString('en', {
-              month: 'short',
-              year: '2-digit'
-            }),
-            amount: 0,
-            date: month,
-            dateKey: `${year}-${monthNum.toString().padStart(2, '0')}`
+            if (isAllWallets) {
+              // For "All wallets", get data from all wallets
+              const expenses =
+                await transactionService.getMonthlyExpensesByCategory(
+                  'all', // This should work if the service supports it
+                  year,
+                  monthIndex
+                )
+              return {
+                month: month.toISOString(),
+                total: expenses.reduce((sum, item) => sum + item.amount, 0)
+              }
+            } else {
+              // For single wallet
+              const expenses =
+                await transactionService.getMonthlyExpensesByCategory(
+                  walletId,
+                  year,
+                  monthIndex
+                )
+              return {
+                month: month.toISOString(),
+                total: expenses.reduce((sum, item) => sum + item.amount, 0)
+              }
+            }
           })
-        }
-      }
+        )
+        return monthlyTotals
+      } else {
+        // Get spending for specific category
+        const monthlyTotals = await Promise.all(
+          availableMonths.map(async month => {
+            const year = month.getFullYear()
+            const monthIndex = month.getMonth()
 
-      return data
+            if (isAllWallets) {
+              // For "All wallets", get data from all wallets
+              const expenses =
+                await transactionService.getMonthlyExpensesByCategory(
+                  'all',
+                  year,
+                  monthIndex
+                )
+              const categoryExpenses = expenses.filter(
+                item => item.category_id === categoryId
+              )
+              return {
+                month: month.toISOString(),
+                total: categoryExpenses.reduce(
+                  (sum, item) => sum + item.amount,
+                  0
+                )
+              }
+            } else {
+              // For single wallet
+              const expenses =
+                await transactionService.getMonthlyExpensesByCategory(
+                  walletId,
+                  year,
+                  monthIndex
+                )
+              const categoryExpenses = expenses.filter(
+                item => item.category_id === categoryId
+              )
+              return {
+                month: month.toISOString(),
+                total: categoryExpenses.reduce(
+                  (sum, item) => sum + item.amount,
+                  0
+                )
+              }
+            }
+          })
+        )
+        return monthlyTotals
+      }
     },
-    enabled: !!walletId && availableMonths.length > 0
+    enabled: availableMonths.length > 0
   })
 
   // Fetch daily data for the selected category or all categories
@@ -268,7 +283,8 @@ export function CategoryMonthlyTrendChart ({
 
     return data.map(item => ({
       ...item,
-      amount: Math.round(item.amount * 100) / 100
+      amount:
+        Math.round(('amount' in item ? item.amount : item.total) * 100) / 100
     }))
   }, [monthlyData, dailyData, viewMode])
 

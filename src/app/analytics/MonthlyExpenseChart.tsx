@@ -14,11 +14,13 @@ import { usePrivacy } from '@/contexts/privacy-context'
 interface MonthlyExpenseChartProps {
   month: Date
   walletId: string
+  showWalletName?: boolean
 }
 
 export function MonthlyExpenseChart ({
   month,
-  walletId
+  walletId,
+  showWalletName = false
 }: MonthlyExpenseChartProps) {
   const { t } = useTranslation('common')
   const { formatAmount } = usePrivacy()
@@ -67,6 +69,11 @@ export function MonthlyExpenseChart ({
     return formatAmount(amount, currency)
   }
 
+  // Don't render if no expenses and we're showing wallet names (for "All wallets" mode)
+  if (showWalletName && (!expenses || expenses.length === 0)) {
+    return null
+  }
+
   if (isLoading) {
     return (
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
@@ -74,7 +81,9 @@ export function MonthlyExpenseChart ({
           <Card>
             <CardHeader>
               <CardTitle className='text-lg'>
-                {formatMonthYear(month)}
+                {showWalletName && wallet
+                  ? wallet.name
+                  : formatMonthYear(month)}
               </CardTitle>
             </CardHeader>
             <CardContent className='space-y-4'>
@@ -97,7 +106,9 @@ export function MonthlyExpenseChart ({
           <Card>
             <CardHeader>
               <CardTitle className='text-lg'>
-                {formatMonthYear(month)}
+                {showWalletName && wallet
+                  ? wallet.name
+                  : formatMonthYear(month)}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -116,7 +127,9 @@ export function MonthlyExpenseChart ({
           <Card>
             <CardHeader>
               <CardTitle className='text-lg'>
-                {formatMonthYear(month)}
+                {showWalletName && wallet
+                  ? wallet.name
+                  : formatMonthYear(month)}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -138,6 +151,11 @@ export function MonthlyExpenseChart ({
       <div className='lg:col-span-2 space-y-6'>
         {/* Header with Month and Total */}
         <div className='space-y-2'>
+          {showWalletName && wallet && (
+            <div className='text-lg font-semibold text-foreground'>
+              {wallet.name}
+            </div>
+          )}
           <div className='text-2xl font-medium text-muted-foreground'>
             {formatMonthYear(month)}
           </div>
@@ -147,33 +165,12 @@ export function MonthlyExpenseChart ({
         </div>
 
         {/* Bar Chart */}
-        {/* <Card>
-          <CardContent> */}
         <MonthlyExpenseBarChart
           data={expenses}
           currency={wallet?.currency || 'UAH'}
           selectedCategory={selectedCategory}
           onCategorySelect={setSelectedCategory}
         />
-        {/* </CardContent>
-        </Card> */}
-
-        {/* Pie Chart */}
-        {/* <Card>
-          <CardHeader>
-            <CardTitle className='text-lg'>
-              {t('analytics.categoryBreakdown')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <MonthlyExpensePieChart
-              data={expenses}
-              currency={wallet?.currency || 'UAH'}
-              selectedCategory={selectedCategory}
-              onCategorySelect={setSelectedCategory}
-            />
-          </CardContent>
-        </Card> */}
       </div>
 
       {/* Right Side - Transaction List */}
