@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { MonthSelector } from './MonthSelector'
-import { MonthlyExpenseChart } from './MonthlyExpenseChart'
+import { MonthSelector } from './components/MonthSelector'
+import { MonthlyExpenseChart } from './components/MonthlyExpenseChart'
 import { useQuery } from '@tanstack/react-query'
 import { transactionService } from '@/lib/services/transaction'
 import { useWallet } from '@/contexts/wallet-context'
