@@ -12,11 +12,10 @@ import { CategoryBubbleChart } from '../components/CategoryBubbleChart'
 import { CategoryMonthlyTrendChart } from '../components/CategoryMonthlyTrendChart'
 import { Button } from '@/components/ui/button'
 import { BarChart3 } from 'lucide-react'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export function AnalyticsCategoryClient () {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [dataType, setDataType] = useState<'net' | 'expense' | 'income'>('net')
+  // const [dataType, setDataType] = useState<'net' | 'expense' | 'income'>('net')
   const { selectedWallet, isAllWalletsSelected, wallets } = useWallet()
   const { t } = useTranslation('common')
   const selectedWalletId = selectedWallet?.id || ''
@@ -27,8 +26,7 @@ export function AnalyticsCategoryClient () {
       queryKey: [
         'sorted-wallets-category',
         isAllWalletsSelected,
-        wallets.map(w => w.id),
-        dataType
+        wallets.map(w => w.id)
       ],
       queryFn: async () => {
         if (!isAllWalletsSelected) {
@@ -44,7 +42,7 @@ export function AnalyticsCategoryClient () {
             try {
               let totalAmount = 0
 
-              if (dataType === 'net') {
+              if (true) {
                 const netData =
                   await transactionService.getCurrentMonthNetByCategory(
                     wallet.id
@@ -53,21 +51,6 @@ export function AnalyticsCategoryClient () {
                   (sum, item) => sum + item.amount,
                   0
                 )
-              } else if (dataType === 'expense') {
-                const expenses =
-                  await transactionService.getCurrentMonthExpensesByCategory(
-                    wallet.id
-                  )
-                totalAmount = expenses.reduce(
-                  (sum, item) => sum + item.amount,
-                  0
-                )
-              } else {
-                const income =
-                  await transactionService.getCurrentMonthIncomeByCategory(
-                    wallet.id
-                  )
-                totalAmount = income.reduce((sum, item) => sum + item.amount, 0)
               }
 
               return { wallet, totalAmount }
@@ -99,7 +82,7 @@ export function AnalyticsCategoryClient () {
 
   // Fetch all transactions for the selected wallet(s) to determine available months
   const { data: allTransactions, isLoading: transactionsLoading } = useQuery({
-    queryKey: ['wallet-transactions', selectedWalletId, dataType],
+    queryKey: ['wallet-transactions', selectedWalletId],
     queryFn: async () => {
       if (!selectedWalletId) return []
 
@@ -114,11 +97,7 @@ export function AnalyticsCategoryClient () {
           const filteredTransactions = allTransactions.filter(
             t =>
               new Date(t.date) >= startDate &&
-              (dataType === 'expense'
-                ? t.type === 'expense'
-                : dataType === 'income'
-                ? t.type === 'income'
-                : true) &&
+              t.type === 'expense' &&
               !t.is_deleted &&
               !t.is_hidden
           )
@@ -132,11 +111,7 @@ export function AnalyticsCategoryClient () {
             t =>
               t.wallet_id === selectedWalletId &&
               new Date(t.date) >= startDate &&
-              (dataType === 'expense'
-                ? t.type === 'expense'
-                : dataType === 'income'
-                ? t.type === 'income'
-                : true) &&
+              t.type === 'expense' &&
               !t.is_deleted &&
               !t.is_hidden
           )
@@ -172,7 +147,7 @@ export function AnalyticsCategoryClient () {
         })
       })
 
-    if (dataType === 'net') {
+    if (true) {
       // For net, we need to calculate expenses - income per category
       const categoryNet = new Map<
         string,
@@ -202,20 +177,12 @@ export function AnalyticsCategoryClient () {
           current.total = netAmount
         }
       })
-    } else {
-      // For expense or income, sum up by category
-      allTransactions.forEach(transaction => {
-        if (transaction.category_id && totals.has(transaction.category_id)) {
-          const current = totals.get(transaction.category_id)!
-          current.total += transaction.amount
-        }
-      })
     }
 
     return Array.from(totals.values())
       .filter(cat => cat.total > 0)
       .sort((a, b) => b.total - a.total)
-  }, [allTransactions, categories, dataType])
+  }, [allTransactions, categories])
 
   // Get available months for trend chart
   const availableMonths = useMemo(() => {
@@ -246,10 +213,10 @@ export function AnalyticsCategoryClient () {
     setSelectedCategory(categoryId)
   }
 
-  const handleTypeChange = (type: 'net' | 'expense' | 'income') => {
-    setDataType(type)
-    setSelectedCategory(null) // Reset selected category when changing type
-  }
+  // const handleTypeChange = (type: 'net' | 'expense' | 'income') => {
+  //   setDataType(type)
+  //   setSelectedCategory(null) // Reset selected category when changing type
+  // }
 
   // const handleBackToOverview = () => {
   //   setSelectedCategory(null)
@@ -331,8 +298,6 @@ export function AnalyticsCategoryClient () {
                 data={categoryTotals}
                 selectedCategory={selectedCategory}
                 onCategorySelect={handleCategorySelect}
-                type={dataType}
-                onTypeChange={handleTypeChange}
               />
             </CardContent>
           </Card>

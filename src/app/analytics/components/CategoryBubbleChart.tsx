@@ -4,7 +4,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface CategoryData {
   id: string
@@ -17,42 +16,18 @@ interface CategoryBubbleChartProps {
   data: CategoryData[]
   selectedCategory: string | null
   onCategorySelect: (categoryId: string | null) => void
-  type?: 'net' | 'expense' | 'income'
-  onTypeChange?: (type: 'net' | 'expense' | 'income') => void
 }
 
 export function CategoryBubbleChart ({
   data,
   selectedCategory,
-  onCategorySelect,
-  type,
-  onTypeChange
+  onCategorySelect
 }: CategoryBubbleChartProps) {
   const { t } = useTranslation('common')
 
   if (!data || data.length === 0) {
     return (
       <div className='space-y-4'>
-        {/* Type Switcher */}
-        {/* {onTypeChange && (
-          <div className='flex justify-center'>
-            <Tabs
-              value={type}
-              onValueChange={value =>
-                onTypeChange(value as 'net' | 'expense' | 'income')
-              }
-            >
-              <TabsList>
-                <TabsTrigger value='net'>{t('overview.net')}</TabsTrigger>
-                <TabsTrigger value='expense'>
-                  {t('overview.expenses')}
-                </TabsTrigger>
-                <TabsTrigger value='income'>{t('overview.income')}</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        )} */}
-
         <div className='flex items-center justify-center h-32 text-muted-foreground'>
           {t('analytics.noDataForMonth')}
         </div>
