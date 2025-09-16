@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { usePrivacy } from '@/contexts/privacy-context'
 import { Button } from '@/components/ui/button'
 import { Calendar, BarChart3, X } from 'lucide-react'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Line,
   LineChart,
@@ -29,6 +30,7 @@ interface CategoryMonthlyTrendChartProps {
 }
 
 type ViewMode = 'monthly' | 'daily'
+type DataType = 'net' | 'expense' | 'income'
 
 export function CategoryMonthlyTrendChart ({
   walletId,
@@ -40,6 +42,7 @@ export function CategoryMonthlyTrendChart ({
   const { formatAmount } = usePrivacy()
   const { selectedWallet } = useWallet()
   const [viewMode, setViewMode] = useState<ViewMode>('monthly')
+  const [dataType, setDataType] = useState<DataType>('net')
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
   // Fetch categories to filter out transfers
@@ -53,9 +56,15 @@ export function CategoryMonthlyTrendChart ({
     cat => cat.name === 'Transfers'
   )?.id
 
-  // Update the query to handle "All wallets" case
+  // Update the query to handle different data types
   const { data: monthlyData, isLoading: monthlyLoading } = useQuery({
-    queryKey: ['category-monthly-trend', walletId, categoryId, isAllWallets],
+    queryKey: [
+      'category-monthly-trend',
+      walletId,
+      categoryId,
+      isAllWallets,
+      dataType
+    ],
     queryFn: async () => {
       if (!categoryId) {
         // Get total spending for all categories (excluding transfers)
@@ -64,44 +73,36 @@ export function CategoryMonthlyTrendChart ({
             const year = month.getFullYear()
             const monthIndex = month.getMonth()
 
-            if (isAllWallets) {
-              // For "All wallets", get data from all wallets
-              const expenses =
-                await transactionService.getMonthlyExpensesByCategory(
-                  'all', // This should work if the service supports it
-                  year,
-                  monthIndex
-                )
-              // Filter out transfers
-              const filteredExpenses = expenses.filter(
-                item => item.category_id !== transfersCategoryId
+            let expenses
+            if (dataType === 'net') {
+              expenses = await transactionService.getMonthlyNetByCategory(
+                walletId,
+                year,
+                monthIndex
               )
-              return {
-                month: month.toISOString(),
-                total: filteredExpenses.reduce(
-                  (sum, item) => sum + item.amount,
-                  0
-                )
-              }
+            } else if (dataType === 'expense') {
+              expenses = await transactionService.getMonthlyExpensesByCategory(
+                walletId,
+                year,
+                monthIndex
+              )
             } else {
-              // For single wallet
-              const expenses =
-                await transactionService.getMonthlyExpensesByCategory(
-                  walletId,
-                  year,
-                  monthIndex
+              expenses =
+                await transactionService.getCurrentMonthIncomeByCategory(
+                  walletId
                 )
-              // Filter out transfers
-              const filteredExpenses = expenses.filter(
-                item => item.category_id !== transfersCategoryId
+            }
+
+            // Filter out transfers
+            const filteredExpenses = expenses.filter(
+              item => item.category_id !== transfersCategoryId
+            )
+            return {
+              month: month.toISOString(),
+              total: filteredExpenses.reduce(
+                (sum, item) => sum + item.amount,
+                0
               )
-              return {
-                month: month.toISOString(),
-                total: filteredExpenses.reduce(
-                  (sum, item) => sum + item.amount,
-                  0
-                )
-              }
             }
           })
         )
@@ -113,42 +114,35 @@ export function CategoryMonthlyTrendChart ({
             const year = month.getFullYear()
             const monthIndex = month.getMonth()
 
-            if (isAllWallets) {
-              // For "All wallets", get data from all wallets
-              const expenses =
-                await transactionService.getMonthlyExpensesByCategory(
-                  'all',
-                  year,
-                  monthIndex
-                )
-              const categoryExpenses = expenses.filter(
-                item => item.category_id === categoryId
+            let expenses
+            if (dataType === 'net') {
+              expenses = await transactionService.getMonthlyNetByCategory(
+                walletId,
+                year,
+                monthIndex
               )
-              return {
-                month: month.toISOString(),
-                total: categoryExpenses.reduce(
-                  (sum, item) => sum + item.amount,
-                  0
-                )
-              }
+            } else if (dataType === 'expense') {
+              expenses = await transactionService.getMonthlyExpensesByCategory(
+                walletId,
+                year,
+                monthIndex
+              )
             } else {
-              // For single wallet
-              const expenses =
-                await transactionService.getMonthlyExpensesByCategory(
-                  walletId,
-                  year,
-                  monthIndex
+              expenses =
+                await transactionService.getCurrentMonthIncomeByCategory(
+                  walletId
                 )
-              const categoryExpenses = expenses.filter(
-                item => item.category_id === categoryId
+            }
+
+            const categoryExpenses = expenses.filter(
+              item => item.category_id === categoryId
+            )
+            return {
+              month: month.toISOString(),
+              total: categoryExpenses.reduce(
+                (sum, item) => sum + item.amount,
+                0
               )
-              return {
-                month: month.toISOString(),
-                total: categoryExpenses.reduce(
-                  (sum, item) => sum + item.amount,
-                  0
-                )
-              }
             }
           })
         )
@@ -160,7 +154,13 @@ export function CategoryMonthlyTrendChart ({
 
   // Fetch daily data for the selected category or all categories
   const { data: dailyData, isLoading: dailyLoading } = useQuery({
-    queryKey: ['daily-trend', walletId, categoryId, transfersCategoryId],
+    queryKey: [
+      'daily-trend',
+      walletId,
+      categoryId,
+      transfersCategoryId,
+      dataType
+    ], // Add dataType to query key
     queryFn: async () => {
       if (!walletId || availableMonths.length === 0) return []
 
@@ -182,7 +182,11 @@ export function CategoryMonthlyTrendChart ({
           t =>
             t.wallet_id === walletId &&
             new Date(t.date) >= startDate &&
-            t.type === 'expense' &&
+            (dataType === 'expense'
+              ? t.type === 'expense'
+              : dataType === 'income'
+              ? t.type === 'income'
+              : true) && // Handle all data types
             !t.is_deleted &&
             !t.is_hidden &&
             t.category_id !== transfersCategoryId // Filter out transfers
@@ -191,26 +195,86 @@ export function CategoryMonthlyTrendChart ({
         // Group by day
         const dailyMap = new Map<string, number>()
 
-        filteredTransactions.forEach(transaction => {
-          const date = new Date(transaction.date)
-          const dateKey = date.toISOString().split('T')[0] // YYYY-MM-DD format
+        if (dataType === 'net') {
+          // For net, we need to calculate expenses - income per day
+          const dailyNet = new Map<
+            string,
+            { expenses: number; income: number }
+          >()
 
-          if (categoryId) {
-            // Specific category
-            if (transaction.category_id === categoryId) {
+          allTransactions
+            .filter(
+              t =>
+                t.wallet_id === walletId &&
+                new Date(t.date) >= startDate &&
+                (t.type === 'expense' || t.type === 'income') &&
+                !t.is_deleted &&
+                !t.is_hidden &&
+                t.category_id !== transfersCategoryId
+            )
+            .forEach(transaction => {
+              const date = new Date(transaction.date)
+              const dateKey = date.toISOString().split('T')[0] // YYYY-MM-DD format
+
+              if (categoryId) {
+                // Specific category
+                if (transaction.category_id === categoryId) {
+                  if (!dailyNet.has(dateKey)) {
+                    dailyNet.set(dateKey, { expenses: 0, income: 0 })
+                  }
+
+                  const current = dailyNet.get(dateKey)!
+                  if (transaction.type === 'expense') {
+                    current.expenses += transaction.amount
+                  } else if (transaction.type === 'income') {
+                    current.income += transaction.amount
+                  }
+                }
+              } else {
+                // All categories
+                if (!dailyNet.has(dateKey)) {
+                  dailyNet.set(dateKey, { expenses: 0, income: 0 })
+                }
+
+                const current = dailyNet.get(dateKey)!
+                if (transaction.type === 'expense') {
+                  current.expenses += transaction.amount
+                } else if (transaction.type === 'income') {
+                  current.income += transaction.amount
+                }
+              }
+            })
+
+          // Calculate net amounts and set in dailyMap
+          dailyNet.forEach((amounts, dateKey) => {
+            const netAmount = amounts.expenses - amounts.income
+            if (netAmount > 0) {
+              dailyMap.set(dateKey, netAmount)
+            }
+          })
+        } else {
+          // For expense or income, use the existing logic
+          filteredTransactions.forEach(transaction => {
+            const date = new Date(transaction.date)
+            const dateKey = date.toISOString().split('T')[0] // YYYY-MM-DD format
+
+            if (categoryId) {
+              // Specific category
+              if (transaction.category_id === categoryId) {
+                dailyMap.set(
+                  dateKey,
+                  (dailyMap.get(dateKey) || 0) + transaction.amount
+                )
+              }
+            } else {
+              // All categories
               dailyMap.set(
                 dateKey,
                 (dailyMap.get(dateKey) || 0) + transaction.amount
               )
             }
-          } else {
-            // All categories - we'll filter out transfers later when we have category data
-            dailyMap.set(
-              dateKey,
-              (dailyMap.get(dateKey) || 0) + transaction.amount
-            )
-          }
-        })
+          })
+        }
 
         // Convert to array and sort by date
         const sortedDates = Array.from(dailyMap.keys()).sort()
@@ -330,9 +394,26 @@ export function CategoryMonthlyTrendChart ({
         }
       })
 
-      if (clickedData && 'dateKey' in clickedData && clickedData.dateKey) {
-        console.log('Setting selected date from chart:', clickedData.dateKey)
-        setSelectedDate(clickedData.dateKey)
+      if (clickedData) {
+        if (viewMode === 'monthly') {
+          // For monthly view, use the month property directly
+          if ('month' in clickedData) {
+            console.log(
+              'Setting selected date from monthly chart:',
+              clickedData.month
+            )
+            setSelectedDate(clickedData.month)
+          }
+        } else {
+          // For daily view, use dateKey
+          if ('dateKey' in clickedData && clickedData.dateKey) {
+            console.log(
+              'Setting selected date from daily chart:',
+              clickedData.dateKey
+            )
+            setSelectedDate(clickedData.dateKey)
+          }
+        }
       }
     }
   }
@@ -351,34 +432,71 @@ export function CategoryMonthlyTrendChart ({
 
   if (!chartData || chartData.length === 0) {
     return (
-      <div className='flex items-center justify-center h-80 text-muted-foreground'>
-        {t('analytics.noDataForMonth')}
+      <div className='space-y-4'>
+        {/* Data Type Switcher */}
+        <div className='flex justify-center'>
+          <Tabs
+            value={dataType}
+            onValueChange={value =>
+              setDataType(value as 'net' | 'expense' | 'income')
+            }
+          >
+            <TabsList>
+              <TabsTrigger value='net'>{t('overview.net')}</TabsTrigger>
+              <TabsTrigger value='expense'>
+                {t('overview.expenses')}
+              </TabsTrigger>
+              <TabsTrigger value='income'>{t('overview.income')}</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        <div className='flex items-center justify-center h-80 text-muted-foreground'>
+          {t('analytics.noDataForMonth')}
+        </div>
       </div>
     )
   }
 
   return (
     <div className='space-y-4'>
-      {/* View Mode Toggle */}
-      <div className='flex justify-center gap-2'>
-        <Button
-          variant={viewMode === 'monthly' ? 'default' : 'outline'}
-          size='sm'
-          onClick={() => setViewMode('monthly')}
-          className='flex items-center gap-2'
+      {/* Data Type and View Mode Toggle */}
+      <div className='flex flex-col md:flex-row justify-center gap-4'>
+        {/* Data Type Switcher */}
+        <Tabs
+          value={dataType}
+          onValueChange={value =>
+            setDataType(value as 'net' | 'expense' | 'income')
+          }
         >
-          <BarChart3 className='h-4 w-4' />
-          Monthly
-        </Button>
-        <Button
-          variant={viewMode === 'daily' ? 'default' : 'outline'}
-          size='sm'
-          onClick={() => setViewMode('daily')}
-          className='flex items-center gap-2'
-        >
-          <Calendar className='h-4 w-4' />
-          Daily
-        </Button>
+          <TabsList>
+            <TabsTrigger value='net'>{t('overview.net')}</TabsTrigger>
+            <TabsTrigger value='expense'>{t('overview.expenses')}</TabsTrigger>
+            <TabsTrigger value='income'>{t('overview.income')}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {/* View Mode Toggle */}
+        <div className='flex gap-2 items-center'>
+          <Button
+            variant={viewMode === 'monthly' ? 'default' : 'outline'}
+            size='sm'
+            onClick={() => setViewMode('monthly')}
+            className='flex items-center gap-2'
+          >
+            <BarChart3 className='h-4 w-4' />
+            Monthly
+          </Button>
+          <Button
+            variant={viewMode === 'daily' ? 'default' : 'outline'}
+            size='sm'
+            onClick={() => setViewMode('daily')}
+            className='flex items-center gap-2'
+          >
+            <Calendar className='h-4 w-4' />
+            Daily
+          </Button>
+        </div>
       </div>
 
       {/* Chart */}

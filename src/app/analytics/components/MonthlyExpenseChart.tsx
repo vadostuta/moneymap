@@ -10,6 +10,7 @@ import { MonthlyExpenseBarChart } from './MonthlyExpenseBarChart'
 import { Skeleton } from '@/components/ui/skeleton'
 import { RecentTransactionsList } from './RecentTransactionsList'
 import { usePrivacy } from '@/contexts/privacy-context'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface MonthlyExpenseChartProps {
   month: Date
@@ -25,6 +26,7 @@ export function MonthlyExpenseChart ({
   const { t } = useTranslation('common')
   const { formatAmount } = usePrivacy()
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>()
+  const [type, setType] = useState<'net' | 'expense' | 'income'>('net') // Default to 'net'
 
   // Fetch wallet info for currency
   const { data: wallet } = useQuery({
@@ -33,24 +35,38 @@ export function MonthlyExpenseChart ({
     enabled: !!walletId
   })
 
-  // Fetch expenses for the selected month
+  // Fetch data for the selected month based on type
   const {
-    data: expenses,
+    data: data,
     isLoading,
     error
   } = useQuery({
     queryKey: [
-      'monthly-expenses',
+      'monthly-data',
       walletId,
       month.getFullYear(),
-      month.getMonth()
+      month.getMonth(),
+      type
     ],
-    queryFn: () =>
-      transactionService.getMonthlyExpensesByCategory(
-        walletId,
-        month.getFullYear(),
-        month.getMonth()
-      ),
+    queryFn: async () => {
+      if (type === 'net') {
+        return await transactionService.getMonthlyNetByCategory(
+          walletId,
+          month.getFullYear(),
+          month.getMonth()
+        )
+      } else if (type === 'expense') {
+        return await transactionService.getMonthlyExpensesByCategory(
+          walletId,
+          month.getFullYear(),
+          month.getMonth()
+        )
+      } else {
+        return await transactionService.getCurrentMonthIncomeByCategory(
+          walletId
+        )
+      }
+    },
     enabled: !!walletId && !!month
   })
 
@@ -61,16 +77,15 @@ export function MonthlyExpenseChart ({
     }).format(date)
   }
 
-  const totalExpenses =
-    expenses?.reduce((sum, item) => sum + item.amount, 0) || 0
+  const totalAmount = data?.reduce((sum, item) => sum + item.amount, 0) || 0
 
   const formatCurrency = (amount: number) => {
     const currency = wallet?.currency || 'UAH'
     return formatAmount(amount, currency)
   }
 
-  // Don't render if no expenses and we're showing wallet names (for "All wallets" mode)
-  if (showWalletName && (!expenses || expenses.length === 0)) {
+  // Don't render if no data and we're showing wallet names (for "All wallets" mode)
+  if (showWalletName && (!data || data.length === 0)) {
     return null
   }
 
@@ -120,7 +135,7 @@ export function MonthlyExpenseChart ({
     )
   }
 
-  if (!expenses || expenses.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         <div className='lg:col-span-2 space-y-6'>
@@ -149,24 +164,49 @@ export function MonthlyExpenseChart ({
     <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
       {/* Left Side - Charts */}
       <div className='lg:col-span-2 space-y-6'>
-        {/* Header with Month and Total */}
-        <div className='space-y-2'>
+        {/* Header with Month, Total and Type Switcher */}
+        <div className='space-y-4'>
           {showWalletName && wallet && (
             <div className='text-lg font-semibold text-foreground'>
               {wallet.name}
             </div>
           )}
-          <div className='text-2xl font-medium text-muted-foreground'>
-            {formatMonthYear(month)}
-          </div>
-          <div className='text-3xl font-bold text-foreground'>
-            {formatCurrency(totalExpenses)}
+          <div className='flex flex-col md:flex-row items-start justify-between gap-4'>
+            <div className='space-y-2'>
+              <div className='text-2xl font-medium text-muted-foreground'>
+                {formatMonthYear(month)}
+              </div>
+              <div className='text-3xl font-bold text-foreground'>
+                {formatCurrency(totalAmount)}
+              </div>
+            </div>
+
+            {/* Type Switcher */}
+            <div className='flex flex-col items-end'>
+              <Tabs
+                value={type}
+                onValueChange={value =>
+                  setType(value as 'net' | 'expense' | 'income')
+                }
+                className='w-full md:w-auto'
+              >
+                <TabsList>
+                  <TabsTrigger value='net'>{t('overview.net')}</TabsTrigger>
+                  <TabsTrigger value='expense'>
+                    {t('overview.expenses')}
+                  </TabsTrigger>
+                  <TabsTrigger value='income'>
+                    {t('overview.income')}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
           </div>
         </div>
 
         {/* Bar Chart */}
         <MonthlyExpenseBarChart
-          data={expenses}
+          data={data}
           currency={wallet?.currency || 'UAH'}
           selectedCategory={selectedCategory}
           onCategorySelect={setSelectedCategory}

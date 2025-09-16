@@ -12,9 +12,11 @@ import { CategoryBubbleChart } from '../components/CategoryBubbleChart'
 import { CategoryMonthlyTrendChart } from '../components/CategoryMonthlyTrendChart'
 import { Button } from '@/components/ui/button'
 import { BarChart3 } from 'lucide-react'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export function AnalyticsCategoryClient () {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [dataType, setDataType] = useState<'net' | 'expense' | 'income'>('net')
   const { selectedWallet, isAllWalletsSelected, wallets } = useWallet()
   const { t } = useTranslation('common')
   const selectedWalletId = selectedWallet?.id || ''
@@ -25,7 +27,8 @@ export function AnalyticsCategoryClient () {
       queryKey: [
         'sorted-wallets-category',
         isAllWalletsSelected,
-        wallets.map(w => w.id)
+        wallets.map(w => w.id),
+        dataType
       ],
       queryFn: async () => {
         if (!isAllWalletsSelected) {
@@ -35,18 +38,37 @@ export function AnalyticsCategoryClient () {
 
         if (wallets.length === 0) return []
 
-        // Calculate total transaction amount for each wallet
+        // Calculate total transaction amount for each wallet based on data type
         const walletAmounts = await Promise.all(
           wallets.map(async wallet => {
             try {
-              const [expenses, income] = await Promise.all([
-                transactionService.getCurrentMonthExpensesByCategory(wallet.id),
-                transactionService.getCurrentMonthIncomeByCategory(wallet.id)
-              ])
+              let totalAmount = 0
 
-              const totalAmount =
-                expenses.reduce((sum, item) => sum + item.amount, 0) +
-                income.reduce((sum, item) => sum + item.amount, 0)
+              if (dataType === 'net') {
+                const netData =
+                  await transactionService.getCurrentMonthNetByCategory(
+                    wallet.id
+                  )
+                totalAmount = netData.reduce(
+                  (sum, item) => sum + item.amount,
+                  0
+                )
+              } else if (dataType === 'expense') {
+                const expenses =
+                  await transactionService.getCurrentMonthExpensesByCategory(
+                    wallet.id
+                  )
+                totalAmount = expenses.reduce(
+                  (sum, item) => sum + item.amount,
+                  0
+                )
+              } else {
+                const income =
+                  await transactionService.getCurrentMonthIncomeByCategory(
+                    wallet.id
+                  )
+                totalAmount = income.reduce((sum, item) => sum + item.amount, 0)
+              }
 
               return { wallet, totalAmount }
             } catch (error) {
@@ -77,7 +99,7 @@ export function AnalyticsCategoryClient () {
 
   // Fetch all transactions for the selected wallet(s) to determine available months
   const { data: allTransactions, isLoading: transactionsLoading } = useQuery({
-    queryKey: ['wallet-transactions', selectedWalletId],
+    queryKey: ['wallet-transactions', selectedWalletId, dataType],
     queryFn: async () => {
       if (!selectedWalletId) return []
 
@@ -92,7 +114,11 @@ export function AnalyticsCategoryClient () {
           const filteredTransactions = allTransactions.filter(
             t =>
               new Date(t.date) >= startDate &&
-              t.type === 'expense' &&
+              (dataType === 'expense'
+                ? t.type === 'expense'
+                : dataType === 'income'
+                ? t.type === 'income'
+                : true) &&
               !t.is_deleted &&
               !t.is_hidden
           )
@@ -106,7 +132,11 @@ export function AnalyticsCategoryClient () {
             t =>
               t.wallet_id === selectedWalletId &&
               new Date(t.date) >= startDate &&
-              t.type === 'expense' &&
+              (dataType === 'expense'
+                ? t.type === 'expense'
+                : dataType === 'income'
+                ? t.type === 'income'
+                : true) &&
               !t.is_deleted &&
               !t.is_hidden
           )
@@ -121,7 +151,7 @@ export function AnalyticsCategoryClient () {
     enabled: !!selectedWalletId
   })
 
-  // Calculate category totals for bubble chart
+  // Calculate category totals for bubble chart based on data type
   const categoryTotals = useMemo(() => {
     if (!allTransactions || !categories) return []
 
@@ -142,19 +172,50 @@ export function AnalyticsCategoryClient () {
         })
       })
 
-    // Sum up expenses by category
-    allTransactions.forEach(transaction => {
-      if (transaction.category_id && totals.has(transaction.category_id)) {
-        const current = totals.get(transaction.category_id)!
-        current.total += transaction.amount
-      }
-    })
+    if (dataType === 'net') {
+      // For net, we need to calculate expenses - income per category
+      const categoryNet = new Map<
+        string,
+        { expenses: number; income: number }
+      >()
 
-    // Filter out categories with 0 spending and sort by total
+      allTransactions.forEach(transaction => {
+        if (transaction.category_id && totals.has(transaction.category_id)) {
+          if (!categoryNet.has(transaction.category_id)) {
+            categoryNet.set(transaction.category_id, { expenses: 0, income: 0 })
+          }
+
+          const current = categoryNet.get(transaction.category_id)!
+          if (transaction.type === 'expense') {
+            current.expenses += transaction.amount
+          } else if (transaction.type === 'income') {
+            current.income += transaction.amount
+          }
+        }
+      })
+
+      // Calculate net amounts and update totals
+      categoryNet.forEach((amounts, categoryId) => {
+        const netAmount = amounts.expenses - amounts.income
+        if (netAmount > 0 && totals.has(categoryId)) {
+          const current = totals.get(categoryId)!
+          current.total = netAmount
+        }
+      })
+    } else {
+      // For expense or income, sum up by category
+      allTransactions.forEach(transaction => {
+        if (transaction.category_id && totals.has(transaction.category_id)) {
+          const current = totals.get(transaction.category_id)!
+          current.total += transaction.amount
+        }
+      })
+    }
+
     return Array.from(totals.values())
       .filter(cat => cat.total > 0)
       .sort((a, b) => b.total - a.total)
-  }, [allTransactions, categories])
+  }, [allTransactions, categories, dataType])
 
   // Get available months for trend chart
   const availableMonths = useMemo(() => {
@@ -185,9 +246,14 @@ export function AnalyticsCategoryClient () {
     setSelectedCategory(categoryId)
   }
 
-  const handleBackToOverview = () => {
-    setSelectedCategory(null)
+  const handleTypeChange = (type: 'net' | 'expense' | 'income') => {
+    setDataType(type)
+    setSelectedCategory(null) // Reset selected category when changing type
   }
+
+  // const handleBackToOverview = () => {
+  //   setSelectedCategory(null)
+  // }
 
   const isLoading =
     categoriesLoading || transactionsLoading || sortedWalletsLoading
@@ -206,71 +272,45 @@ export function AnalyticsCategoryClient () {
   return (
     <div className='w-full max-w-none space-y-6 px-6'>
       {isAllWalletsSelected ? (
-        // Multiple charts for each wallet
-        <div className='space-y-8'>
-          {sortedWallets.map(wallet => (
-            <div key={wallet.id} className='space-y-6'>
-              {/* Wallet Header */}
-              <div className='text-center'>
-                <h2 className='text-2xl font-bold text-foreground'>
-                  {wallet.name}
-                </h2>
-                <p className='text-muted-foreground'>Category Analytics</p>
-              </div>
-
-              {/* Category Bubble Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className='flex items-center gap-2'>
-                    <BarChart3 className='h-5 w-5' />
-                    {t('analytics.expensesByCategory')}
-                  </CardTitle>
-                  <p className='text-sm text-muted-foreground'>
-                    {t('analytics.clickToSelect')}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <CategoryBubbleChart
-                    data={categoryTotals.filter(cat =>
-                      allTransactions?.some(
-                        t =>
-                          t.wallet_id === wallet.id && t.category_id === cat.id
-                      )
-                    )}
-                    selectedCategory={selectedCategory}
-                    onCategorySelect={handleCategorySelect}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Monthly Trend Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    {selectedCategory
-                      ? `${
-                          categories?.find(c => c.id === selectedCategory)
-                            ?.name || 'Unknown'
-                        } - ${t('analytics.monthlyTrend')}`
-                      : t('analytics.totalSpending')}
-                  </CardTitle>
-                  <p className='text-sm text-muted-foreground'>
-                    {selectedCategory
-                      ? t('analytics.monthlyTrend')
-                      : t('analytics.noCategorySelected')}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <CategoryMonthlyTrendChart
-                    walletId={wallet.id}
-                    categoryId={selectedCategory}
-                    availableMonths={availableMonths}
-                    isAllWallets={false}
-                  />
-                </CardContent>
-              </Card>
+        // Multiple charts for all wallets
+        <div className='space-y-6'>
+          {sortedWalletsLoading ? (
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              {[1, 2, 3, 4].map(i => (
+                <Card key={i}>
+                  <CardHeader>
+                    <Skeleton className='h-6 w-32' />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className='h-32 w-full' />
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          ))}
+          ) : (
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              {sortedWallets.map(wallet => (
+                <Card key={wallet.id}>
+                  <CardHeader>
+                    <CardTitle className='flex items-center gap-2'>
+                      <BarChart3 className='h-5 w-5' />
+                      {wallet.name}
+                    </CardTitle>
+                    <p className='text-sm text-muted-foreground'>
+                      {t('analytics.clickToSelect')}
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <CategoryBubbleChart
+                      data={categoryTotals}
+                      selectedCategory={selectedCategory}
+                      onCategorySelect={handleCategorySelect}
+                    />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         // Single chart for selected wallet
@@ -291,6 +331,8 @@ export function AnalyticsCategoryClient () {
                 data={categoryTotals}
                 selectedCategory={selectedCategory}
                 onCategorySelect={handleCategorySelect}
+                type={dataType}
+                onTypeChange={handleTypeChange}
               />
             </CardContent>
           </Card>
@@ -325,13 +367,15 @@ export function AnalyticsCategoryClient () {
       )}
 
       {/* Back to Overview Button */}
-      {selectedCategory && (
-        <div className='flex justify-center'>
-          <Button onClick={handleBackToOverview} variant='outline'>
-            {t('analytics.allCategories')}
-          </Button>
-        </div>
-      )}
+      <div className='flex justify-center'>
+        <Button
+          variant='outline'
+          onClick={() => window.history.back()}
+          className='mt-6'
+        >
+          {t('common.back')}
+        </Button>
+      </div>
     </div>
   )
 }

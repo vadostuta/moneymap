@@ -4,6 +4,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface CategoryData {
   id: string
@@ -16,19 +17,45 @@ interface CategoryBubbleChartProps {
   data: CategoryData[]
   selectedCategory: string | null
   onCategorySelect: (categoryId: string | null) => void
+  type?: 'net' | 'expense' | 'income'
+  onTypeChange?: (type: 'net' | 'expense' | 'income') => void
 }
 
 export function CategoryBubbleChart ({
   data,
   selectedCategory,
-  onCategorySelect
+  onCategorySelect,
+  type,
+  onTypeChange
 }: CategoryBubbleChartProps) {
   const { t } = useTranslation('common')
 
   if (!data || data.length === 0) {
     return (
-      <div className='flex items-center justify-center h-32 text-muted-foreground'>
-        {t('analytics.noDataForMonth')}
+      <div className='space-y-4'>
+        {/* Type Switcher */}
+        {/* {onTypeChange && (
+          <div className='flex justify-center'>
+            <Tabs
+              value={type}
+              onValueChange={value =>
+                onTypeChange(value as 'net' | 'expense' | 'income')
+              }
+            >
+              <TabsList>
+                <TabsTrigger value='net'>{t('overview.net')}</TabsTrigger>
+                <TabsTrigger value='expense'>
+                  {t('overview.expenses')}
+                </TabsTrigger>
+                <TabsTrigger value='income'>{t('overview.income')}</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        )} */}
+
+        <div className='flex items-center justify-center h-32 text-muted-foreground'>
+          {t('analytics.noDataForMonth')}
+        </div>
       </div>
     )
   }
@@ -42,32 +69,36 @@ export function CategoryBubbleChart ({
   }
 
   return (
-    <div className='flex flex-wrap gap-2'>
-      {data.map(category => (
-        <button
-          key={category.id}
-          type='button'
-          onClick={() => handleCategoryClick(category.id)}
-          className={cn(
-            'transition-all duration-200 ease-in-out',
-            selectedCategory === category.id ? 'scale-105' : ''
-          )}
-        >
-          <Badge
-            variant={selectedCategory === category.id ? 'default' : 'secondary'}
+    <div className='space-y-4'>
+      <div className='flex flex-wrap gap-2'>
+        {data.map(category => (
+          <button
+            key={category.id}
+            type='button'
+            onClick={() => handleCategoryClick(category.id)}
             className={cn(
-              'py-2 px-3 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center gap-2',
-              selectedCategory === category.id ? 'shadow-sm' : ''
+              'transition-all duration-200 ease-in-out',
+              selectedCategory === category.id ? 'scale-105' : ''
             )}
           >
-            <div
-              className='w-3 h-3 rounded-full'
-              style={{ backgroundColor: category.color }}
-            />
-            <span className='truncate'>{category.name}</span>
-          </Badge>
-        </button>
-      ))}
+            <Badge
+              variant={
+                selectedCategory === category.id ? 'default' : 'secondary'
+              }
+              className={cn(
+                'py-2 px-3 text-sm cursor-pointer hover:opacity-90 flex items-center justify-center gap-2',
+                selectedCategory === category.id ? 'shadow-sm' : ''
+              )}
+            >
+              <div
+                className='w-3 h-3 rounded-full'
+                style={{ backgroundColor: category.color }}
+              />
+              <span className='truncate'>{category.name}</span>
+            </Badge>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
