@@ -156,15 +156,12 @@ export function QuickTransactionForm ({
             }
             className='w-full'
           >
-            <TabsList className='grid w-full grid-cols-3'>
+            <TabsList className='grid w-full grid-cols-2'>
               <TabsTrigger value='expense' className='text-base'>
                 {t('transactions.expense')}
               </TabsTrigger>
               <TabsTrigger value='income' className='text-base'>
                 {t('transactions.income')}
-              </TabsTrigger>
-              <TabsTrigger value='transfer' className='text-base'>
-                {t('transactions.transfer')}
               </TabsTrigger>
             </TabsList>
           </Tabs>

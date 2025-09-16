@@ -174,7 +174,7 @@ export function RecentTransactionItem ({
   })
 
   const cycleTransactionType = () => {
-    const types: TransactionType[] = ['expense', 'income', 'transfer']
+    const types: TransactionType[] = ['expense', 'income']
     const currentIndex = types.indexOf(transaction.type)
     const nextIndex = (currentIndex + 1) % types.length
     updateTypeMutation.mutate(types[nextIndex])
@@ -225,79 +225,71 @@ export function RecentTransactionItem ({
           </div>
 
           <div className='flex flex-wrap items-center gap-2 text-xs sm:text-sm text-muted-foreground'>
-            {transaction.type !== 'transfer' && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity'
-                    type='button'
-                    style={{
-                      backgroundColor: currentCategory?.color_bg?.includes('#')
-                        ? hexToRgba(currentCategory.color_bg, 0.15)
-                        : currentCategory?.color_bg || '#374151'
-                    }}
-                  >
-                    <span className='flex items-center text-muted-foreground'>
-                      {currentCategory?.icon || '📌'}
-                    </span>
-                    <span className='hidden sm:inline text-muted-foreground'>
-                      {getTranslatedCategoryName(
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity'
+                  type='button'
+                  style={{
+                    backgroundColor: currentCategory?.color_bg?.includes('#')
+                      ? hexToRgba(currentCategory.color_bg, 0.15)
+                      : currentCategory?.color_bg || '#374151'
+                  }}
+                >
+                  <span className='flex items-center text-muted-foreground'>
+                    {currentCategory?.icon || '📌'}
+                  </span>
+                  <span className='hidden sm:inline text-muted-foreground'>
+                    {getTranslatedCategoryName(currentCategory?.name ?? '', t)}
+                  </span>
+                  <span className='sm:hidden text-muted-foreground'>
+                    {
+                      getTranslatedCategoryName(
                         currentCategory?.name ?? '',
                         t
-                      )}
-                    </span>
-                    <span className='sm:hidden text-muted-foreground'>
-                      {
-                        getTranslatedCategoryName(
-                          currentCategory?.name ?? '',
-                          t
-                        ).split(' ')[0]
-                      }
-                    </span>
-                    <ChevronDown className='w-3 h-3 ml-1 text-muted-foreground' />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align='start' className='w-48'>
-                  {categories
-                    .filter(category => category.is_active)
-                    .map(category => {
-                      const isSelected = category.id === transaction.category_id
-                      return (
-                        <DropdownMenuItem
-                          key={category.id}
-                          onClick={() =>
-                            handleCategoryChange(
-                              category.name as TransactionCategory
-                            )
-                          }
-                          className={`flex items-center gap-2 rounded-md ${
-                            isSelected
-                              ? 'bg-accent text-accent-foreground'
-                              : 'text-muted-foreground'
-                          }`}
-                          style={{
-                            backgroundColor: isSelected
-                              ? category.color_bg?.includes('#')
-                                ? hexToRgba(category.color_bg, 0.15)
-                                : undefined
+                      ).split(' ')[0]
+                    }
+                  </span>
+                  <ChevronDown className='w-3 h-3 ml-1 text-muted-foreground' />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='start' className='w-48'>
+                {categories
+                  .filter(category => category.is_active)
+                  .map(category => {
+                    const isSelected = category.id === transaction.category_id
+                    return (
+                      <DropdownMenuItem
+                        key={category.id}
+                        onClick={() =>
+                          handleCategoryChange(
+                            category.name as TransactionCategory
+                          )
+                        }
+                        className={`flex items-center gap-2 rounded-md ${
+                          isSelected
+                            ? 'bg-accent text-accent-foreground'
+                            : 'text-muted-foreground'
+                        }`}
+                        style={{
+                          backgroundColor: isSelected
+                            ? category.color_bg?.includes('#')
+                              ? hexToRgba(category.color_bg, 0.15)
                               : undefined
-                          }}
-                        >
-                          <span className='text-muted-foreground'>
-                            {category.icon}
-                          </span>
-                          <span className='text-muted-foreground'>
-                            {getTranslatedCategoryName(category.name, t)}
-                          </span>
-                        </DropdownMenuItem>
-                      )
-                    })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-            {transaction.type === 'transfer' && (
-              <span className='hidden sm:inline'>•</span>
-            )}
+                            : undefined
+                        }}
+                      >
+                        <span className='text-muted-foreground'>
+                          {category.icon}
+                        </span>
+                        <span className='text-muted-foreground'>
+                          {getTranslatedCategoryName(category.name, t)}
+                        </span>
+                      </DropdownMenuItem>
+                    )
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <div className='flex items-center gap-1'>
               <TooltipProvider>
                 <Tooltip>
