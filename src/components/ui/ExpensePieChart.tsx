@@ -70,10 +70,24 @@ export function ExpensePieChart ({
   // Fetch expenses by category with wallet filter
   const { data, isLoading, error } = useQuery({
     queryKey: ['transactions-by-category', selectedWalletId, type],
-    queryFn: () =>
-      type === 'expense'
-        ? transactionService.getCurrentMonthExpensesByCategory(selectedWalletId)
-        : transactionService.getCurrentMonthIncomeByCategory(selectedWalletId)
+    queryFn: async () => {
+      const result =
+        type === 'expense'
+          ? await transactionService.getCurrentMonthExpensesByCategory(
+              selectedWalletId
+            )
+          : await transactionService.getCurrentMonthIncomeByCategory(
+              selectedWalletId
+            )
+
+      // Filter out transfers if needed
+      return (
+        result?.filter(item => {
+          const category = categories.find(cat => cat.id === item.category_id)
+          return category?.name !== 'Transfers'
+        }) || []
+      )
+    }
   })
 
   const totalExpense = data?.reduce((sum, item) => sum + item.amount, 0) || 0

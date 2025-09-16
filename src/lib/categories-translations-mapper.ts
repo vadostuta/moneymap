@@ -51,7 +51,9 @@ export const getTranslatedCategoryName = (
     Extra: 'extra',
     Додатково: 'extra',
     Salary: 'salary',
-    Зарплата: 'salary'
+    Зарплата: 'salary',
+    Transfers: 'transfers',
+    Перекази: 'transfers'
   }
 
   // First try to get the translation key from our map

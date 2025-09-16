@@ -91,7 +91,8 @@ export function TransactionForm ({
     'Entertainment',
     'Healthcare',
     'Education',
-    'Travel'
+    'Travel',
+    'Transfers'
   ]
   const labels: TransactionLabel[] = [
     'Personal',

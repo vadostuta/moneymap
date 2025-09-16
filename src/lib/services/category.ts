@@ -89,7 +89,8 @@ export const categoryService = {
         Sport: 'sport',
         'Style and Beauty': 'beauty',
         Extra: 'extra',
-        Salary: 'salary'
+        Salary: 'salary',
+        Transfers: 'transfers'
       }
 
       // Get the translation key for this category

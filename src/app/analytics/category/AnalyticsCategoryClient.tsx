@@ -130,15 +130,17 @@ export function AnalyticsCategoryClient () {
       { id: string; name: string; total: number; color: string }
     >()
 
-    // Initialize all categories with 0
-    categories.forEach(cat => {
-      totals.set(cat.id, {
-        id: cat.id,
-        name: cat.name,
-        total: 0,
-        color: getCategoryColor(cat.name)
+    // Initialize all categories with 0, excluding Transfers
+    categories
+      .filter(cat => cat.name !== 'Transfers')
+      .forEach(cat => {
+        totals.set(cat.id, {
+          id: cat.id,
+          name: cat.name,
+          total: 0,
+          color: getCategoryColor(cat.name)
+        })
       })
-    })
 
     // Sum up expenses by category
     allTransactions.forEach(transaction => {

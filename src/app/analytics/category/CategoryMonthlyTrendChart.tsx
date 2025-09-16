@@ -19,6 +19,7 @@ import {
   Legend
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { categoryService } from '@/lib/services/category'
 
 interface CategoryMonthlyTrendChartProps {
   walletId: string
@@ -41,12 +42,23 @@ export function CategoryMonthlyTrendChart ({
   const [viewMode, setViewMode] = useState<ViewMode>('monthly')
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
+  // Fetch categories to filter out transfers
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: categoryService.getAllCategories
+  })
+
+  // Get transfers category ID
+  const transfersCategoryId = categories.find(
+    cat => cat.name === 'Transfers'
+  )?.id
+
   // Update the query to handle "All wallets" case
   const { data: monthlyData, isLoading: monthlyLoading } = useQuery({
     queryKey: ['category-monthly-trend', walletId, categoryId, isAllWallets],
     queryFn: async () => {
       if (!categoryId) {
-        // Get total spending for all categories
+        // Get total spending for all categories (excluding transfers)
         const monthlyTotals = await Promise.all(
           availableMonths.map(async month => {
             const year = month.getFullYear()
@@ -60,9 +72,16 @@ export function CategoryMonthlyTrendChart ({
                   year,
                   monthIndex
                 )
+              // Filter out transfers
+              const filteredExpenses = expenses.filter(
+                item => item.category_id !== transfersCategoryId
+              )
               return {
                 month: month.toISOString(),
-                total: expenses.reduce((sum, item) => sum + item.amount, 0)
+                total: filteredExpenses.reduce(
+                  (sum, item) => sum + item.amount,
+                  0
+                )
               }
             } else {
               // For single wallet
@@ -72,16 +91,23 @@ export function CategoryMonthlyTrendChart ({
                   year,
                   monthIndex
                 )
+              // Filter out transfers
+              const filteredExpenses = expenses.filter(
+                item => item.category_id !== transfersCategoryId
+              )
               return {
                 month: month.toISOString(),
-                total: expenses.reduce((sum, item) => sum + item.amount, 0)
+                total: filteredExpenses.reduce(
+                  (sum, item) => sum + item.amount,
+                  0
+                )
               }
             }
           })
         )
         return monthlyTotals
       } else {
-        // Get spending for specific category
+        // Get spending for specific category (already filtered by categoryId)
         const monthlyTotals = await Promise.all(
           availableMonths.map(async month => {
             const year = month.getFullYear()
@@ -134,7 +160,7 @@ export function CategoryMonthlyTrendChart ({
 
   // Fetch daily data for the selected category or all categories
   const { data: dailyData, isLoading: dailyLoading } = useQuery({
-    queryKey: ['daily-trend', walletId, categoryId],
+    queryKey: ['daily-trend', walletId, categoryId, transfersCategoryId],
     queryFn: async () => {
       if (!walletId || availableMonths.length === 0) return []
 
@@ -151,14 +177,15 @@ export function CategoryMonthlyTrendChart ({
         // Get all transactions for the date range
         const allTransactions = await transactionService.getAll()
 
-        // Filter transactions for the selected wallet and date range
+        // Filter transactions for the selected wallet and date range, excluding transfers
         const filteredTransactions = allTransactions.filter(
           t =>
             t.wallet_id === walletId &&
             new Date(t.date) >= startDate &&
             t.type === 'expense' &&
             !t.is_deleted &&
-            !t.is_hidden
+            !t.is_hidden &&
+            t.category_id !== transfersCategoryId // Filter out transfers
         )
 
         // Group by day
@@ -177,7 +204,7 @@ export function CategoryMonthlyTrendChart ({
               )
             }
           } else {
-            // All categories
+            // All categories - we'll filter out transfers later when we have category data
             dailyMap.set(
               dateKey,
               (dailyMap.get(dateKey) || 0) + transaction.amount

@@ -63,6 +63,11 @@ export function MonthlyExpenseBarChart ({
   const categoryColorMap = new Map<string, string>()
 
   const chartData = data
+    .filter(item => {
+      // Filter out transfers category
+      const category = categories.find(cat => cat.id === item.category_id)
+      return category?.name !== 'Transfers'
+    })
     .map((item, index) => {
       const category = categories.find(cat => cat.id === item.category_id)
 
