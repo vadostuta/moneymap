@@ -523,5 +523,61 @@ export const transactionService = {
       category_id,
       amount
     }))
+  },
+
+  async getCurrentMonthNetByCategory (
+    walletId?: string
+  ): Promise<{ category_id: string; amount: number }[]> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    // Get first and last day of current month
+    const now = new Date()
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+
+    let query = supabase
+      .from('transactions')
+      .select('category_id, amount, type')
+      .eq('user_id', user.id)
+      .eq('is_deleted', false)
+      .eq('is_hidden', false)
+      .gte('date', firstDayOfMonth.toISOString())
+      .lte('date', lastDayOfMonth.toISOString())
+
+    // Add wallet filter if specified
+    if (walletId && walletId !== 'all') {
+      query = query.eq('wallet_id', walletId)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    // Group by category_id and calculate net (expenses - income)
+    const categoryTotals = (data || []).reduce((acc, transaction) => {
+      const categoryId = transaction.category_id || 'uncategorized'
+      if (!acc[categoryId]) {
+        acc[categoryId] = { expenses: 0, income: 0 }
+      }
+
+      if (transaction.type === 'expense') {
+        acc[categoryId].expenses += transaction.amount
+      } else if (transaction.type === 'income') {
+        acc[categoryId].income += transaction.amount
+      }
+
+      return acc
+    }, {} as Record<string, { expenses: number; income: number }>)
+
+    // Calculate net amount (expenses - income) and only include categories with positive net
+    return Object.entries(categoryTotals)
+      .map(([category_id, totals]) => ({
+        category_id,
+        amount: totals.expenses - totals.income
+      }))
+      .filter(item => item.amount > 0) // Only show categories with net positive spending
   }
 }

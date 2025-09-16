@@ -205,6 +205,7 @@
     "totalBalance": "Загальний баланс",
     "income": "Доходи",
     "expenses": "Витрати",
+    "net": "Чисті",
     "savings": "Заощадження",
     "recentTransactions": "Останні транзакції",
     "viewAll": "Переглянути всі",

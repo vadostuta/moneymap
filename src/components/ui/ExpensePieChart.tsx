@@ -58,7 +58,7 @@ export function ExpensePieChart ({
   const { t } = useTranslation('common')
   const { selectedWallet } = useWallet()
   const { formatAmount } = usePrivacy()
-  const [type, setType] = React.useState<'expense' | 'income'>('expense')
+  const [type, setType] = React.useState<'net' | 'expense' | 'income'>('net') // Default to 'net'
 
   // Use the provided wallet or fall back to context wallet
   const currentWallet = wallet || selectedWallet
@@ -67,18 +67,25 @@ export function ExpensePieChart ({
   // Get the current wallet's currency
   const currency = currentWallet?.currency || 'UAH' // Fallback to UAH if no wallet selected
 
-  // Fetch expenses by category with wallet filter
+  // Fetch data by category with wallet filter
   const { data, isLoading, error } = useQuery({
     queryKey: ['transactions-by-category', selectedWalletId, type],
     queryFn: async () => {
-      const result =
-        type === 'expense'
-          ? await transactionService.getCurrentMonthExpensesByCategory(
-              selectedWalletId
-            )
-          : await transactionService.getCurrentMonthIncomeByCategory(
-              selectedWalletId
-            )
+      let result
+
+      if (type === 'net') {
+        result = await transactionService.getCurrentMonthNetByCategory(
+          selectedWalletId
+        )
+      } else if (type === 'expense') {
+        result = await transactionService.getCurrentMonthExpensesByCategory(
+          selectedWalletId
+        )
+      } else {
+        result = await transactionService.getCurrentMonthIncomeByCategory(
+          selectedWalletId
+        )
+      }
 
       // Filter out transfers if needed
       return (
@@ -207,10 +214,13 @@ export function ExpensePieChart ({
         <div className='flex flex-col items-end'>
           <Tabs
             value={type}
-            onValueChange={value => setType(value as 'expense' | 'income')}
+            onValueChange={value =>
+              setType(value as 'net' | 'expense' | 'income')
+            }
             className='w-full md:w-auto'
           >
             <TabsList>
+              <TabsTrigger value='net'>{t('overview.net')}</TabsTrigger>
               <TabsTrigger value='expense'>
                 {t('overview.expenses')}
               </TabsTrigger>
