@@ -295,25 +295,11 @@ export function RecentTransactionItem ({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span>
-                      {format(
-                        new Date(
-                          transaction.monobank_id
-                            ? transaction.date
-                            : transaction.created_at
-                        ),
-                        'MMM d, yyyy'
-                      )}
+                      {format(new Date(transaction.date), 'MMM d, yyyy')}
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {format(
-                      new Date(
-                        transaction.monobank_id
-                          ? transaction.date
-                          : transaction.created_at
-                      ),
-                      'MMM d, yyyy HH:mm'
-                    )}
+                    {format(new Date(transaction.date), 'MMM d, yyyy HH:mm')}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
