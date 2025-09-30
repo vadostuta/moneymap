@@ -1,7 +1,10 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite'
 
 const config: StorybookConfig = {
-  stories: ['../src/components/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
+  stories: [
+    '../src/components/**/*.stories.@(js|jsx|mjs|ts|tsx)',
+    '../src/app/**/*.stories.@(js|jsx|mjs|ts|tsx)'
+  ],
   addons: [
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
@@ -10,7 +13,6 @@ const config: StorybookConfig = {
   framework: {
     name: '@storybook/nextjs-vite',
     options: {
-      nextConfigPath: '../next.config.ts',
       builder: {
         viteConfigPath: undefined
       }
@@ -35,7 +37,6 @@ const config: StorybookConfig = {
         plugins: [tailwindcss.default, autoprefixer.default]
       }
     }
-
     return config
   }
 }

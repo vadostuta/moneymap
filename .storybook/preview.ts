@@ -1,8 +1,13 @@
 import type { Preview } from '@storybook/nextjs-vite'
 import '../src/app/globals.css'
+import { withProviders } from './decorators'
 
 const preview: Preview = {
+  decorators: [withProviders],
   parameters: {
+    nextjs: {
+      appDirectory: true
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
