@@ -106,7 +106,7 @@ const SidebarProvider = React.forwardRef<
       const handleKeyDown = (event: KeyboardEvent) => {
         if (
           event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
-          (event.metaKey || event.ctrlKey)
+          (event.metaKey || event.altKey)
         ) {
           event.preventDefault()
           toggleSidebar()
@@ -300,7 +300,7 @@ const SidebarTrigger = React.forwardRef<
             {state === 'expanded' ? t('sidebar.collapse') : t('sidebar.expand')}
           </p>
           <p className='text-xs text-muted-foreground'>
-            {t('sidebar.hotkey.sidebar-toggle', 'Ctrl + S')}
+            {t('sidebar.hotkey.sidebar-toggle', 'Option + S')}
           </p>
         </TooltipContent>
       </Tooltip>

@@ -46,6 +46,7 @@
     "income": "Income",
     "expense": "Expense",
     "transfer": "Transfer",
+    "transfers": "Transfers",
     "fromWallet": "From Wallet",
     "toWallet": "To Wallet",
     "quickAdd": "Quick Add",

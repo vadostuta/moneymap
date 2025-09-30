@@ -49,6 +49,7 @@
     "income": "Дохід",
     "expense": "Витрата",
     "transfer": "Переказ",
+    "transfers": "Перекази",
     "fromWallet": "З гаманця",
     "toWallet": "На гаманець",
     "quickAdd": "Швидке створення",

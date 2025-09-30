@@ -34,7 +34,8 @@ import {
   Settings,
   Receipt,
   BarChart3,
-  PieChart
+  PieChart,
+  FileText
 } from 'lucide-react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -110,6 +111,11 @@ export function AppSidebar () {
       ]
     },
     {
+      href: '/report',
+      label: t('navigation.report', 'Report'),
+      icon: FileText
+    },
+    {
       href: '/wallets',
       label: t('navigation.wallets'),
       icon: Wallet
@@ -124,14 +130,15 @@ export function AppSidebar () {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (window.innerWidth >= 768) {
-        if (event.ctrlKey || event.metaKey) {
+        // Use metaKey (Cmd) for macOS, or ctrlKey for other platforms
+        if (event.metaKey || event.ctrlKey) {
           if (event.key === 's') {
             event.preventDefault()
             toggleSidebar()
           } else if (event.key === 'd') {
             event.preventDefault()
             setDialogOpen(true)
-          } else if (event.key >= '1' && event.key <= '6') {
+          } else if (event.key >= '1' && event.key <= '7') {
             event.preventDefault()
             const index = parseInt(event.key) - 1
             if (index >= 0 && index < navItems.length) {
@@ -243,7 +250,7 @@ export function AppSidebar () {
                       <TooltipContent>
                         <p>{t('transactions.add')}</p>
                         <p className='text-xs text-muted-foreground'>
-                          {t('sidebar.hotkey.add-transaction', 'Ctrl + D')}
+                          {t('sidebar.hotkey.add-transaction', 'Cmd + D')}
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -283,7 +290,7 @@ export function AppSidebar () {
                     <TooltipContent>
                       <p>{item.label}</p>
                       <p className='text-xs text-muted-foreground'>
-                        {t('sidebar.hotkey.nav-route', 'Ctrl + {{number}}', {
+                        {t('sidebar.hotkey.nav-route', 'Cmd + {{number}}', {
                           number: index + 1
                         })}
                       </p>
@@ -506,7 +513,7 @@ export function AppSidebar () {
                           <TooltipContent>
                             <p>{t('transactions.add')}</p>
                             <p className='text-xs text-muted-foreground'>
-                              {t('sidebar.hotkey.add-transaction', 'Ctrl + D')}
+                              {t('sidebar.hotkey.add-transaction', 'Cmd + D')}
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -556,7 +563,7 @@ export function AppSidebar () {
                                       <p className='text-xs text-muted-foreground'>
                                         {t(
                                           'sidebar.hotkey.nav-route',
-                                          'Ctrl + {{number}}',
+                                          'Cmd + {{number}}',
                                           {
                                             number: index + 1
                                           }
@@ -599,7 +606,7 @@ export function AppSidebar () {
                                       <p className='text-xs text-muted-foreground'>
                                         {t(
                                           'sidebar.hotkey.nav-route',
-                                          'Ctrl + {{number}}',
+                                          'Cmd + {{number}}',
                                           {
                                             number: index + 1
                                           }
@@ -640,7 +647,7 @@ export function AppSidebar () {
                                 <p className='text-xs text-muted-foreground'>
                                   {t(
                                     'sidebar.hotkey.nav-route',
-                                    'Ctrl + {{number}}',
+                                    'Cmd + {{number}}',
                                     {
                                       number: index + 1
                                     }
