@@ -38,10 +38,9 @@ const COLORS = [
 export function IncomeAnalysisSection ({
   transactions,
   selectedMonth,
-  walletId,
   currency
 }: IncomeAnalysisSectionProps) {
-  const { t, i18n } = useTranslation('common')
+  const { t } = useTranslation('common')
   const { formatAmount } = usePrivacy()
 
   const { data: categories = [] } = useQuery({
@@ -77,7 +76,7 @@ export function IncomeAnalysisSection ({
   const totalIncome = incomeByCategory.reduce((sum, cat) => sum + cat.amount, 0)
 
   // Month-over-month comparison
-  const previousMonth = useMemo(() => {
+  useMemo(() => {
     const prev = new Date(selectedMonth)
     prev.setMonth(prev.getMonth() - 1)
     return prev

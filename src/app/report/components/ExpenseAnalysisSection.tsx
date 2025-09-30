@@ -18,7 +18,6 @@ import {
   Cell
 } from 'recharts'
 import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
-import { Calendar } from 'lucide-react'
 
 interface ExpenseAnalysisSectionProps {
   transactions: Transaction[]
@@ -41,10 +40,9 @@ const COLORS = [
 export function ExpenseAnalysisSection ({
   transactions,
   selectedMonth,
-  walletId,
   currency
 }: ExpenseAnalysisSectionProps) {
-  const { t, i18n } = useTranslation('common')
+  const { t } = useTranslation('common')
   const { formatAmount } = usePrivacy()
 
   const { data: categories = [] } = useQuery({

@@ -4,6 +4,7 @@ import {
   CreateTransactionDTO,
   TransactionType
 } from '@/lib/types/transaction'
+import { startOfMonth, endOfMonth } from 'date-fns'
 
 export const transactionService = {
   // Create a new transaction
@@ -49,9 +50,15 @@ export const transactionService = {
 
   // Get all transactions for the current user
   async getAll (): Promise<Transaction[]> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User must be logged in')
+
     const { data, error } = await supabase
       .from('transactions')
       .select('*, wallet:wallets(id, name)')
+      .eq('user_id', user.id)
       .eq('is_deleted', false)
       .order('date', { ascending: false })
 
@@ -61,9 +68,15 @@ export const transactionService = {
 
   // Get transactions for a specific wallet
   async getByWalletId (walletId: string): Promise<Transaction[]> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User must be logged in')
+
     const { data, error } = await supabase
       .from('transactions')
       .select('*, wallet:wallets(id, name)')
+      .eq('user_id', user.id)
       .eq('wallet_id', walletId)
       .eq('is_deleted', false)
       .order('date', { ascending: false })
@@ -74,9 +87,15 @@ export const transactionService = {
 
   // Get a specific transaction by ID
   async getById (id: string): Promise<Transaction | null> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User must be logged in')
+
     const { data, error } = await supabase
       .from('transactions')
       .select('*, wallet:wallets(id, name)')
+      .eq('user_id', user.id)
       .eq('id', id)
       .eq('is_deleted', false)
       .single()
@@ -138,9 +157,15 @@ export const transactionService = {
 
   // Add new method for fetching summary
   async getSummary (): Promise<{ totalExpenses: number; totalIncome: number }> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User must be logged in')
+
     const { data, error } = await supabase
       .from('transactions')
       .select('amount, type, wallet:wallets!inner(id)')
+      .eq('user_id', user.id)
       .eq('wallets.is_deleted', false)
 
     if (error) throw error
@@ -366,10 +391,10 @@ export const transactionService = {
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
 
-    // Get first and last day of current month
+    // Get first and last day of current month using date-fns
     const now = new Date()
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const firstDayOfMonth = startOfMonth(now)
+    const lastDayOfMonth = endOfMonth(now)
 
     let query = supabase
       .from('transactions')
@@ -409,10 +434,10 @@ export const transactionService = {
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
 
-    // Get first and last day of current month
+    // Get first and last day of current month using date-fns
     const now = new Date()
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const firstDayOfMonth = startOfMonth(now)
+    const lastDayOfMonth = endOfMonth(now)
 
     let query = supabase
       .from('transactions')
@@ -450,9 +475,15 @@ export const transactionService = {
     offset: number = 0,
     limit: number = 5
   ): Promise<Transaction[]> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User must be logged in')
+
     const { data, error } = await supabase
       .from('transactions')
       .select('*, wallet:wallets(id, name, currency)')
+      .eq('user_id', user.id)
       .eq('is_deleted', false)
       .order('date', { ascending: false })
       .order('id', { ascending: false })
@@ -489,9 +520,10 @@ export const transactionService = {
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
 
-    // Get first and last day of specified month
-    const firstDayOfMonth = new Date(year, month, 1)
-    const lastDayOfMonth = new Date(year, month + 1, 0)
+    // Get first and last day of specified month using date-fns
+    const targetDate = new Date(year, month, 1)
+    const firstDayOfMonth = startOfMonth(targetDate)
+    const lastDayOfMonth = endOfMonth(targetDate)
 
     let query = supabase
       .from('transactions')
@@ -533,10 +565,10 @@ export const transactionService = {
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
 
-    // Get first and last day of current month
+    // Get first and last day of current month using date-fns
     const now = new Date()
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const firstDayOfMonth = startOfMonth(now)
+    const lastDayOfMonth = endOfMonth(now)
 
     let query = supabase
       .from('transactions')
@@ -591,9 +623,10 @@ export const transactionService = {
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User not authenticated')
 
-    // Get first and last day of specified month
-    const firstDayOfMonth = new Date(year, month, 1)
-    const lastDayOfMonth = new Date(year, month + 1, 0)
+    // Get first and last day of specified month using date-fns
+    const targetDate = new Date(year, month, 1)
+    const firstDayOfMonth = startOfMonth(targetDate)
+    const lastDayOfMonth = endOfMonth(targetDate)
 
     let query = supabase
       .from('transactions')

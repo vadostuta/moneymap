@@ -39,7 +39,7 @@ export function CategoryPerformanceSection ({
   walletId,
   currency
 }: CategoryPerformanceSectionProps) {
-  const { t, i18n } = useTranslation('common')
+  const { t } = useTranslation('common')
   const { formatAmount } = usePrivacy()
 
   const { data: categories = [] } = useQuery({
