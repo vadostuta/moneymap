@@ -31,7 +31,8 @@
     "settings": "Settings",
     "categories": "Categories",
     "wallets": "Wallets",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "about": "About"
   },
   "transactions": {
     "title": "Transactions",
@@ -413,5 +414,48 @@
   "errors": {
     "userMustBeLoggedIn": "User must be logged in",
     "unknown": "Unknown"
+  },
+  "about": {
+    "hero": {
+      "description": "MoneyMap helps you take full control of your personal finances — quickly, securely, and in one place.",
+      "subtitle": "It's built for people who want a clear picture of where their money goes without complicated spreadsheets."
+    },
+    "features": {
+      "title": "What You Can Do",
+      "monobank": {
+        "title": "Connect your Monobank account",
+        "description": "Automatically sync your transactions in real time — no manual entry needed.",
+        "details": "Keep everything up to date with secure token-based integration."
+      },
+      "templates": {
+        "title": "Create your own templates",
+        "description": "Build personalized dashboards with charts, expense summaries, or recent transactions.",
+        "details": "Save your favorite layout and reuse it anytime to track what matters most to you."
+      },
+      "search": {
+        "title": "Search all your transactions",
+        "description": "Instantly find any payment or income by description, category, or wallet — across your entire history.",
+        "details": "Powerful search across all your financial data with instant results."
+      },
+      "wallets": {
+        "title": "Manage multiple wallets",
+        "description": "Track your cash, cards, and bank accounts separately, all under one roof.",
+        "details": "Each wallet has its own balance, analytics, and filters. Switch wallets in sidebar → all charts & data update instantly."
+      },
+      "visualize": {
+        "title": "Visualize your finances",
+        "description": "Use clean charts and summaries to spot spending trends, income growth, or where you can save more.",
+        "details": "Beautiful, interactive visualizations that make your financial data easy to understand."
+      }
+    },
+    "privacy": {
+      "title": "Your Data, Your Privacy",
+      "description": "MoneyMap runs securely on Supabase with bank-grade authentication. Only you can see your data — nothing is shared or stored without your consent."
+    },
+    "cta": {
+      "title": "Start Now",
+      "description": "Sign in with Google, add your first wallet, and discover how simple managing money can be. Your financial clarity starts here.",
+      "start": "Get Started"
+    }
   }
 }

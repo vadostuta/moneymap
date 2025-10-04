@@ -32,7 +32,8 @@ import {
   LayoutDashboard,
   Wallet,
   Settings,
-  Receipt
+  Receipt,
+  Info
   // BarChart3,
   // PieChart,
   // FileText
@@ -142,6 +143,11 @@ export function AppSidebar () {
       href: '/settings',
       label: t('navigation.settings'),
       icon: Settings
+    },
+    {
+      href: '/about',
+      label: t('navigation.about'),
+      icon: Info
     }
   ]
 

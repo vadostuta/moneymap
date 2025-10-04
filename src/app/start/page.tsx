@@ -205,6 +205,13 @@ export default function StartPage () {
           {user ? '' : t('start.welcome')}
         </p>
 
+        {!user && (
+          <Button onClick={signInWithGoogle} size='lg' className='gap-2'>
+            <LogIn className='h-5 w-5' />
+            {t('auth.signInWithGoogle')}
+          </Button>
+        )}
+
         {user && wallets.length === 0 && (
           <p className='text-sm text-muted-foreground mb-6'>
             {t('start.createFirstWallet')}{' '}
@@ -215,13 +222,6 @@ export default function StartPage () {
               {t('start.wallet')}
             </Link>
           </p>
-        )}
-
-        {!user && (
-          <Button onClick={signInWithGoogle} size='lg' className='gap-2'>
-            <LogIn className='h-5 w-5' />
-            {t('auth.signInWithGoogle')}
-          </Button>
         )}
 
         {user && (
