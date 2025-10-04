@@ -15,6 +15,7 @@ import { MonthlyExpenseBarChart } from '@/app/analytics/components/MonthlyExpens
 interface TemplateViewerProps {
   template: Template
   className?: string
+  backButton?: React.ReactNode
 }
 
 // Component mapping - maps componentId to actual React components
@@ -145,7 +146,8 @@ function MonthlyExpenseBarChartWrapper ({
 
 export function TemplateViewer ({
   template,
-  className = ''
+  className = '',
+  backButton
 }: TemplateViewerProps) {
   const { selectedWallet } = useWallet()
   const layoutDef = getLayoutById(template.layout)
@@ -162,20 +164,18 @@ export function TemplateViewer ({
     <div className={`space-y-6 ${className}`}>
       {/* Template Header */}
       <div className='flex items-center justify-between'>
-        <div>
+        <div className='flex items-center gap-4'>
+          {backButton}
           <h2 className='text-2xl font-bold'>{template.name}</h2>
-          <p className='text-sm text-muted-foreground'>
-            {layoutDef.name} Layout • {template.blocks.length} components
-          </p>
         </div>
       </div>
 
       {/* Render layout structure */}
       {template.layout === '2-1-side' ? (
         // Special handling for side-by-side layout
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 h-[600px]'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 h-[600px]'>
           {/* Left side - 2 stacked blocks */}
-          <div className='lg:col-span-2 space-y-4'>
+          <div className='space-y-4'>
             {template.blocks.slice(0, 2).map((block, index) => (
               <div key={block.id} className='h-[calc(50%-0.5rem)]'>
                 {renderComponent(block, selectedWallet)}
@@ -183,7 +183,7 @@ export function TemplateViewer ({
             ))}
           </div>
           {/* Right side - 1 full height block */}
-          <div className='lg:col-span-1'>
+          <div>
             {template.blocks[2] && (
               <div key={template.blocks[2].id} className='h-full'>
                 {renderComponent(template.blocks[2], selectedWallet)}

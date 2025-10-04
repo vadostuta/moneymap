@@ -135,9 +135,9 @@ function LayoutPreview ({
   // Special handling for side-by-side layout
   if (layout === '2-1-side') {
     return (
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 h-80'>
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 h-80'>
         {/* Left side - 2 stacked blocks */}
-        <div className='lg:col-span-2 space-y-4'>
+        <div className='space-y-4'>
           {components.slice(0, 2).map((componentId, index) => (
             <div
               key={componentId || `empty-${index}`}
@@ -157,7 +157,7 @@ function LayoutPreview ({
           ))}
         </div>
         {/* Right side - 1 full height block */}
-        <div className='lg:col-span-1'>
+        <div>
           {components[2] ? (
             <SortablePreviewItem componentId={components[2]} index={2} />
           ) : (

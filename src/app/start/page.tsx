@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { LogIn, Plus, Calendar, Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Template } from '@/types/template'
 import { TemplateBuilderModal } from '@/components/template/TemplateBuilderModal'
-import { TemplateViewModal } from '@/components/template/TemplateViewModal'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { templateService } from '@/lib/services/template'
 import { toast } from '@/components/ui/use-toast'
@@ -26,14 +26,11 @@ export default function StartPage () {
   const { user, signInWithGoogle, loading } = useAuth()
   const { wallets, isLoading: walletsLoading } = useWallet()
   const { t } = useTranslation('common')
+  const router = useRouter()
   const queryClient = useQueryClient()
 
   // Template state
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
-    null
-  )
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 
   // Fetch templates using React Query
   const {
@@ -77,13 +74,7 @@ export default function StartPage () {
   }
 
   const handleViewTemplate = (template: Template) => {
-    setSelectedTemplate(template)
-    setIsViewModalOpen(true)
-  }
-
-  const handleCloseViewModal = () => {
-    setIsViewModalOpen(false)
-    setSelectedTemplate(null)
+    router.push(`/template/${template.id}`)
   }
 
   if (loading || walletsLoading || templatesLoading) {
@@ -355,13 +346,6 @@ export default function StartPage () {
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
         onSave={handleCreateTemplate}
-      />
-
-      {/* Template View Modal */}
-      <TemplateViewModal
-        template={selectedTemplate}
-        isOpen={isViewModalOpen}
-        onClose={handleCloseViewModal}
       />
     </main>
   )
