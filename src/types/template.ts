@@ -33,5 +33,13 @@ export interface Template {
   name: string
   blocks: TemplateBlock[]
   layout: LayoutType
-  createdAt: string
+  created_at: string
+  user_id?: string
+  is_deleted?: boolean
+}
+
+export interface CreateTemplateDTO {
+  name: string
+  blocks: TemplateBlock[]
+  layout: LayoutType
 }

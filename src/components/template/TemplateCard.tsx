@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getComponentById } from '@/lib/template-registry'
 import { getLayoutById } from '@/lib/layout-registry'
-import { Calendar, MoreHorizontal, Trash2 } from 'lucide-react'
+import { Calendar, MoreHorizontal, Trash2, Eye } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,12 +24,14 @@ interface TemplateCardProps {
   template: Template
   onDelete?: (templateId: string) => void
   onEdit?: (template: Template) => void
+  onView?: (template: Template) => void
 }
 
 export function TemplateCard ({
   template,
   onDelete,
-  onEdit
+  onEdit,
+  onView
 }: TemplateCardProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -47,7 +49,7 @@ export function TemplateCard ({
             <CardTitle className='text-lg'>{template.name}</CardTitle>
             <CardDescription className='flex items-center gap-1 text-sm'>
               <Calendar className='h-3 w-3' />
-              Created {formatDate(template.createdAt)}
+              Created {formatDate(template.created_at)}
             </CardDescription>
           </div>
           <DropdownMenu>
@@ -57,6 +59,12 @@ export function TemplateCard ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
+              {onView && (
+                <DropdownMenuItem onClick={() => onView(template)}>
+                  <Eye className='h-4 w-4 mr-2' />
+                  View Template
+                </DropdownMenuItem>
+              )}
               {onEdit && (
                 <DropdownMenuItem onClick={() => onEdit(template)}>
                   Edit Template
@@ -101,6 +109,21 @@ export function TemplateCard ({
             <p className='text-sm text-muted-foreground italic'>
               No components selected
             </p>
+          )}
+
+          {/* View Button */}
+          {onView && (
+            <div className='pt-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                className='w-full'
+                onClick={() => onView(template)}
+              >
+                <Eye className='h-4 w-4 mr-2' />
+                View Template
+              </Button>
+            </div>
           )}
         </div>
       </CardContent>

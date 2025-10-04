@@ -24,13 +24,7 @@ import {
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical } from 'lucide-react'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -44,13 +38,12 @@ import {
   getComponentsByCategory,
   getComponentById
 } from '@/lib/template-registry'
-import {
-  getLayoutById,
-  getAllLayouts,
-  getPredefinedLayouts
-} from '@/lib/layout-registry'
+import { getLayoutById, getPredefinedLayouts } from '@/lib/layout-registry'
 import { LayoutPreviewVisual } from './LayoutPreviewVisual'
 import Image from 'next/image'
+import { templateService } from '@/lib/services/template'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from '@/components/ui/use-toast'
 
 interface TemplateBuilderModalProps {
   isOpen: boolean
@@ -199,6 +192,8 @@ export function TemplateBuilderModal ({
   >([])
   const [selectedLayout, setSelectedLayout] = useState<LayoutType>('2-1')
 
+  const queryClient = useQueryClient()
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -234,27 +229,45 @@ export function TemplateBuilderModal ({
     }
   }
 
+  const createTemplateMutation = useMutation({
+    mutationFn: templateService.create,
+    onSuccess: newTemplate => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+      toast({
+        title: 'Template Created',
+        description: `Template "${newTemplate?.name}" has been created successfully.`
+      })
+      onSave(newTemplate!)
+      setTemplateName('')
+      setSelectedComponents([])
+      setSelectedLayout('2-1')
+      onClose()
+    },
+    onError: error => {
+      toast({
+        title: 'Error',
+        description: 'Failed to create template. Please try again.',
+        variant: 'destructive'
+      })
+      console.error('Template creation failed:', error)
+    }
+  })
+
   const handleSave = () => {
     if (!templateName.trim() || selectedComponents.length === 0) {
       return
     }
 
-    const newTemplate: Template = {
-      id: crypto.randomUUID(),
+    const templateData = {
       name: templateName.trim(),
       blocks: selectedComponents.map(componentId => ({
         id: crypto.randomUUID(),
         componentId
       })),
-      layout: selectedLayout,
-      createdAt: new Date().toISOString()
+      layout: selectedLayout
     }
 
-    onSave(newTemplate)
-    setTemplateName('')
-    setSelectedComponents([])
-    setSelectedLayout('2-1')
-    onClose()
+    createTemplateMutation.mutate(templateData)
   }
 
   const handleCancel = () => {
@@ -459,9 +472,13 @@ export function TemplateBuilderModal ({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={!templateName.trim() || selectedComponents.length === 0}
+            disabled={
+              !templateName.trim() ||
+              selectedComponents.length === 0 ||
+              createTemplateMutation.isPending
+            }
           >
-            Save Template
+            {createTemplateMutation.isPending ? 'Creating...' : 'Save Template'}
           </Button>
         </DialogFooter>
       </DialogContent>

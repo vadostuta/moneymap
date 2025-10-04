@@ -9,31 +9,94 @@ import { LogIn, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Template } from '@/types/template'
 import { TemplateBuilderModal } from '@/components/template/TemplateBuilderModal'
-import { TemplateCard } from '@/components/template/TemplateCard'
+import { SimpleTemplateList } from '@/components/template/SimpleTemplateList'
+import { TemplateViewModal } from '@/components/template/TemplateViewModal'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { templateService } from '@/lib/services/template'
+import { toast } from '@/components/ui/use-toast'
 
 export default function StartPage () {
   const { user, signInWithGoogle, loading } = useAuth()
   const { wallets, isLoading: walletsLoading } = useWallet()
   const { t } = useTranslation('common')
+  const queryClient = useQueryClient()
 
   // Template state
-  const [templates, setTemplates] = useState<Template[]>([])
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
+    null
+  )
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+
+  // Fetch templates using React Query
+  const {
+    data: templates = [],
+    isLoading: templatesLoading,
+    error: templatesError
+  } = useQuery({
+    queryKey: ['templates'],
+    queryFn: templateService.getAll,
+    enabled: !!user
+  })
+
+  // Delete template mutation
+  const deleteTemplateMutation = useMutation({
+    mutationFn: templateService.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+      toast({
+        title: 'Template Deleted',
+        description: 'Template has been deleted successfully.'
+      })
+    },
+    onError: error => {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete template. Please try again.',
+        variant: 'destructive'
+      })
+      console.error('Template deletion failed:', error)
+    }
+  })
 
   const handleCreateTemplate = (template: Template) => {
-    setTemplates(prev => [...prev, template])
+    // This is now handled by the mutation in TemplateBuilderModal
+    // Just close the modal
+    setIsTemplateModalOpen(false)
   }
 
   const handleDeleteTemplate = (templateId: string) => {
-    setTemplates(prev => prev.filter(t => t.id !== templateId))
+    deleteTemplateMutation.mutate(templateId)
   }
 
-  if (loading || walletsLoading) {
+  const handleViewTemplate = (template: Template) => {
+    setSelectedTemplate(template)
+    setIsViewModalOpen(true)
+  }
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false)
+    setSelectedTemplate(null)
+  }
+
+  if (loading || walletsLoading || templatesLoading) {
     return (
       <main className='flex min-h-screen flex-col items-center justify-center p-24'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4'></div>
           <p>Loading...</p>
+        </div>
+      </main>
+    )
+  }
+
+  if (templatesError) {
+    return (
+      <main className='flex min-h-screen flex-col items-center justify-center p-24'>
+        <div className='text-center'>
+          <p className='text-destructive'>
+            Error loading templates: {templatesError.message}
+          </p>
         </div>
       </main>
     )
@@ -115,22 +178,13 @@ export default function StartPage () {
               </Button>
             </div>
 
-            {/* Templates Section */}
+            {/* Simplified Templates Section */}
             {templates.length > 0 && (
-              <div className='w-full space-y-4'>
-                <h2 className='text-2xl font-semibold text-foreground text-left w-full'>
-                  Your Templates
-                </h2>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full'>
-                  {templates.map(template => (
-                    <TemplateCard
-                      key={template.id}
-                      template={template}
-                      onDelete={handleDeleteTemplate}
-                    />
-                  ))}
-                </div>
-              </div>
+              <SimpleTemplateList
+                templates={templates}
+                onView={handleViewTemplate}
+                onDelete={handleDeleteTemplate}
+              />
             )}
 
             {templates.length === 0 && (
@@ -150,6 +204,13 @@ export default function StartPage () {
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
         onSave={handleCreateTemplate}
+      />
+
+      {/* Template View Modal */}
+      <TemplateViewModal
+        template={selectedTemplate}
+        isOpen={isViewModalOpen}
+        onClose={handleCloseViewModal}
       />
     </main>
   )
