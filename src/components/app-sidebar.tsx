@@ -32,10 +32,10 @@ import {
   LayoutDashboard,
   Wallet,
   Settings,
-  Receipt,
-  BarChart3,
-  PieChart,
-  FileText
+  Receipt
+  // BarChart3,
+  // PieChart,
+  // FileText
 } from 'lucide-react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -54,6 +54,17 @@ import {
 } from '@/components/ui/select'
 import { Eye, EyeOff } from 'lucide-react'
 import { usePrivacy } from '@/contexts/privacy-context'
+
+type NavItem = {
+  href: string
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+  subItems?: {
+    href: string
+    label: string
+    icon: React.ComponentType<{ className?: string }>
+  }[]
+}
 
 export function AppSidebar () {
   const { user, signInWithGoogle, signOut } = useAuth()
@@ -82,7 +93,12 @@ export function AppSidebar () {
     }
   }
 
-  const navItems = [
+  const navItems: NavItem[] = [
+    {
+      href: '/start',
+      label: t('navigation.start', 'Start'),
+      icon: LayoutDashboard
+    },
     {
       href: '/overview',
       label: t('navigation.overview'),
@@ -93,28 +109,30 @@ export function AppSidebar () {
       label: t('navigation.transactions'),
       icon: Receipt
     },
-    {
-      href: '/analytics',
-      label: t('navigation.analytics'),
-      icon: BarChart3,
-      subItems: [
-        {
-          href: '/analytics',
-          label: t('navigation.analyticsOverview'),
-          icon: BarChart3
-        },
-        {
-          href: '/analytics/category',
-          label: t('navigation.analyticsTrend'),
-          icon: PieChart
-        }
-      ]
-    },
-    {
-      href: '/report',
-      label: t('navigation.report', 'Report'),
-      icon: FileText
-    },
+    // Temporarily disabled analytics
+    // {
+    //   href: '/analytics',
+    //   label: t('navigation.analytics'),
+    //   icon: BarChart3,
+    //   subItems: [
+    //     {
+    //       href: '/analytics',
+    //       label: t('navigation.analyticsOverview'),
+    //       icon: BarChart3
+    //     },
+    //     {
+    //       href: '/analytics/category',
+    //       label: t('navigation.analyticsTrend'),
+    //       icon: PieChart
+    //     }
+    //   ]
+    // },
+    // Temporarily disabled report
+    // {
+    //   href: '/report',
+    //   label: t('navigation.report', 'Report'),
+    //   icon: FileText
+    // },
     {
       href: '/wallets',
       label: t('navigation.wallets'),
@@ -168,7 +186,7 @@ export function AppSidebar () {
           </button>
 
           <Link
-            href='/overview'
+            href='/start'
             className='text-foreground hover:text-primary transition-colors'
           >
             <svg
@@ -362,7 +380,7 @@ export function AppSidebar () {
               }`}
             >
               <Link
-                href='/overview'
+                href='/start'
                 className={`font-bold ${
                   collapsed === 'collapsed' ? 'text-base' : ''
                 } text-sidebar-foreground hover:text-sidebar-primary transition-colors`}
