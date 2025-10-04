@@ -63,6 +63,16 @@ export const LAYOUT_REGISTRY: Record<LayoutType, LayoutDefinition> = {
     totalBlocks: 4,
     structure: [1, 3],
     preview: '⬜⬜⬜\n⬜⬜⬜'
+  },
+  '2-1-side': {
+    id: '2-1-side',
+    name: 'Two Left + One Right',
+    description:
+      'Left side with 2 stacked blocks, right side with 1 full-height block',
+    rows: 1,
+    totalBlocks: 3,
+    structure: [2, 1],
+    preview: '⬜⬜|⬜\n⬜⬜|⬜'
   }
 }
 

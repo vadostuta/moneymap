@@ -171,39 +171,62 @@ export function TemplateViewer ({
       </div>
 
       {/* Render layout structure */}
-      {layoutDef.structure.map((blocksInRow, rowIndex) => (
-        <div
-          key={rowIndex}
-          className={`grid gap-4 ${
-            blocksInRow === 1
-              ? 'grid-cols-1'
-              : blocksInRow === 2
-              ? 'grid-cols-1 md:grid-cols-2'
-              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-          }`}
-        >
-          {Array.from({ length: blocksInRow }).map((_, blockIndex) => {
-            // Calculate which block from the template.blocks array this position corresponds to
-            const componentIndex =
-              layoutDef.structure
-                .slice(0, rowIndex)
-                .reduce((acc, r) => acc + r, 0) + blockIndex
-
-            const block = template.blocks[componentIndex]
-
-            // Only render if block exists, otherwise skip (no empty slot display)
-            if (!block) {
-              return null
-            }
-
-            return (
-              <div key={block.id} className='w-full'>
+      {template.layout === '2-1-side' ? (
+        // Special handling for side-by-side layout
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 h-[600px]'>
+          {/* Left side - 2 stacked blocks */}
+          <div className='lg:col-span-2 space-y-4'>
+            {template.blocks.slice(0, 2).map((block, index) => (
+              <div key={block.id} className='h-[calc(50%-0.5rem)]'>
                 {renderComponent(block, selectedWallet)}
               </div>
-            )
-          })}
+            ))}
+          </div>
+          {/* Right side - 1 full height block */}
+          <div className='lg:col-span-1'>
+            {template.blocks[2] && (
+              <div key={template.blocks[2].id} className='h-full'>
+                {renderComponent(template.blocks[2], selectedWallet)}
+              </div>
+            )}
+          </div>
         </div>
-      ))}
+      ) : (
+        // Standard row-based layout
+        layoutDef.structure.map((blocksInRow, rowIndex) => (
+          <div
+            key={rowIndex}
+            className={`grid gap-4 ${
+              blocksInRow === 1
+                ? 'grid-cols-1'
+                : blocksInRow === 2
+                ? 'grid-cols-1 md:grid-cols-2'
+                : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+            }`}
+          >
+            {Array.from({ length: blocksInRow }).map((_, blockIndex) => {
+              // Calculate which block from the template.blocks array this position corresponds to
+              const componentIndex =
+                layoutDef.structure
+                  .slice(0, rowIndex)
+                  .reduce((acc, r) => acc + r, 0) + blockIndex
+
+              const block = template.blocks[componentIndex]
+
+              // Only render if block exists, otherwise skip (no empty slot display)
+              if (!block) {
+                return null
+              }
+
+              return (
+                <div key={block.id} className='w-full'>
+                  {renderComponent(block, selectedWallet)}
+                </div>
+              )
+            })}
+          </div>
+        ))
+      )}
     </div>
   )
 }

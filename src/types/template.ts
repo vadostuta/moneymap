@@ -17,6 +17,7 @@ export type LayoutType =
   | '1-2-1' // First row: 1 block, Second row: 2 blocks, Third row: 1 block
   | '3-1' // First row: 3 blocks, Second row: 1 full width block
   | '1-3' // First row: 1 full width block, Second row: 3 blocks
+  | '2-1-side' // Left side: 2 stacked blocks, Right side: 1 full height block
 
 export interface LayoutDefinition {
   id: LayoutType

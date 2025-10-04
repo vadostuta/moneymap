@@ -132,6 +132,48 @@ function LayoutPreview ({
 
   if (!layoutDef) return null
 
+  // Special handling for side-by-side layout
+  if (layout === '2-1-side') {
+    return (
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 h-80'>
+        {/* Left side - 2 stacked blocks */}
+        <div className='lg:col-span-2 space-y-4'>
+          {components.slice(0, 2).map((componentId, index) => (
+            <div
+              key={componentId || `empty-${index}`}
+              className='h-[calc(50%-0.5rem)]'
+            >
+              {componentId ? (
+                <SortablePreviewItem componentId={componentId} index={index} />
+              ) : (
+                <div className='border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 h-full flex items-center justify-center text-muted-foreground'>
+                  <div className='text-center'>
+                    <div className='text-2xl mb-1'>📦</div>
+                    <div className='text-xs'>Empty slot</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        {/* Right side - 1 full height block */}
+        <div className='lg:col-span-1'>
+          {components[2] ? (
+            <SortablePreviewItem componentId={components[2]} index={2} />
+          ) : (
+            <div className='border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 h-full flex items-center justify-center text-muted-foreground'>
+              <div className='text-center'>
+                <div className='text-2xl mb-1'>📦</div>
+                <div className='text-xs'>Empty slot</div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Standard row-based layout
   return (
     <div className='space-y-3'>
       {layoutDef.structure.map((row, rowIndex) => (
