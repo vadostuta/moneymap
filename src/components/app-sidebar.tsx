@@ -99,11 +99,11 @@ export function AppSidebar () {
       label: t('navigation.start'),
       icon: LayoutDashboard
     },
-    {
-      href: '/overview',
-      label: t('navigation.overview'),
-      icon: LayoutDashboard
-    },
+    // {
+    //   href: '/overview',
+    //   label: t('navigation.overview'),
+    //   icon: LayoutDashboard
+    // },
     {
       href: '/transactions',
       label: t('navigation.transactions'),
