@@ -25,7 +25,13 @@ const COMPONENT_MAP = {
   monthlyExpenseBarChart: MonthlyExpenseBarChart
 } as const
 
-function renderComponent (block: Template['blocks'][0], selectedWallet: any) {
+function renderComponent (
+  block: Template['blocks'][0],
+  selectedWallet: any,
+  selectedCategory?: string,
+  onCategorySelect?: (category: string | undefined) => void,
+  onResetCategory?: () => void
+) {
   const Component = COMPONENT_MAP[block.componentId]
 
   if (!Component) {
@@ -47,8 +53,8 @@ function renderComponent (block: Template['blocks'][0], selectedWallet: any) {
       return (
         <ExpensePieChart
           key={block.id}
-          onCategorySelect={() => {}} // No-op for template preview
-          selectedCategory={undefined}
+          onCategorySelect={onCategorySelect || (() => {})}
+          selectedCategory={selectedCategory}
           showWalletName={true}
           wallet={selectedWallet}
         />
@@ -58,8 +64,8 @@ function renderComponent (block: Template['blocks'][0], selectedWallet: any) {
       return (
         <RecentTransactions
           key={block.id}
-          selectedCategory={undefined}
-          onResetCategory={() => {}}
+          selectedCategory={selectedCategory}
+          onResetCategory={onResetCategory || (() => {})}
           selectedWalletId={selectedWallet?.id}
         />
       )
@@ -69,6 +75,8 @@ function renderComponent (block: Template['blocks'][0], selectedWallet: any) {
         <MonthlyExpenseBarChartWrapper
           key={block.id}
           selectedWallet={selectedWallet}
+          selectedCategory={selectedCategory}
+          onCategorySelect={onCategorySelect}
         />
       )
 
@@ -88,12 +96,14 @@ function renderComponent (block: Template['blocks'][0], selectedWallet: any) {
 
 // Wrapper component for MonthlyExpenseBarChart that provides real data
 function MonthlyExpenseBarChartWrapper ({
-  selectedWallet
+  selectedWallet,
+  selectedCategory,
+  onCategorySelect
 }: {
   selectedWallet: any
+  selectedCategory?: string
+  onCategorySelect?: (category: string | undefined) => void
 }) {
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>()
-
   // Use real data like other components - fetch from transactionService
   const {
     data: realData = [],
@@ -139,7 +149,7 @@ function MonthlyExpenseBarChartWrapper ({
       data={realData}
       currency={selectedWallet?.currency || 'UAH'}
       selectedCategory={selectedCategory}
-      onCategorySelect={setSelectedCategory}
+      onCategorySelect={onCategorySelect || (() => {})}
     />
   )
 }
@@ -151,6 +161,15 @@ export function TemplateViewer ({
 }: TemplateViewerProps) {
   const { selectedWallet } = useWallet()
   const layoutDef = getLayoutById(template.layout)
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>()
+
+  const handleCategorySelect = (category: string | undefined) => {
+    setSelectedCategory(category)
+  }
+
+  const handleResetCategory = () => {
+    setSelectedCategory(undefined)
+  }
 
   if (!layoutDef) {
     return (
@@ -178,7 +197,13 @@ export function TemplateViewer ({
           <div className='space-y-4'>
             {template.blocks.slice(0, 2).map((block, index) => (
               <div key={block.id} className='h-[calc(50%-0.5rem)]'>
-                {renderComponent(block, selectedWallet)}
+                {renderComponent(
+                  block,
+                  selectedWallet,
+                  selectedCategory,
+                  handleCategorySelect,
+                  handleResetCategory
+                )}
               </div>
             ))}
           </div>
@@ -186,7 +211,13 @@ export function TemplateViewer ({
           <div>
             {template.blocks[2] && (
               <div key={template.blocks[2].id} className='h-full'>
-                {renderComponent(template.blocks[2], selectedWallet)}
+                {renderComponent(
+                  template.blocks[2],
+                  selectedWallet,
+                  selectedCategory,
+                  handleCategorySelect,
+                  handleResetCategory
+                )}
               </div>
             )}
           </div>
@@ -220,7 +251,13 @@ export function TemplateViewer ({
 
               return (
                 <div key={block.id} className='w-full'>
-                  {renderComponent(block, selectedWallet)}
+                  {renderComponent(
+                    block,
+                    selectedWallet,
+                    selectedCategory,
+                    handleCategorySelect,
+                    handleResetCategory
+                  )}
                 </div>
               )
             })}
