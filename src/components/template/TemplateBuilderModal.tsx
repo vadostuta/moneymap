@@ -39,11 +39,17 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Template, TemplateComponentId } from '@/types/template'
+import { Template, TemplateComponentId, LayoutType } from '@/types/template'
 import {
   getComponentsByCategory,
   getComponentById
 } from '@/lib/template-registry'
+import {
+  getLayoutById,
+  getAllLayouts,
+  getPredefinedLayouts
+} from '@/lib/layout-registry'
+import { LayoutPreviewVisual } from './LayoutPreviewVisual'
 import Image from 'next/image'
 
 interface TemplateBuilderModalProps {
@@ -121,6 +127,67 @@ function SortablePreviewItem ({
   )
 }
 
+// Layout Preview Component
+function LayoutPreview ({
+  layout,
+  components
+}: {
+  layout: LayoutType
+  components: TemplateComponentId[]
+}) {
+  const layoutDef = getLayoutById(layout)
+
+  if (!layoutDef) return null
+
+  return (
+    <div className='space-y-3'>
+      {layoutDef.structure.map((row, rowIndex) => (
+        <div
+          key={rowIndex}
+          className={`grid gap-3 ${
+            row === 1
+              ? 'grid-cols-1'
+              : row === 2
+              ? 'grid-cols-1 md:grid-cols-2'
+              : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+          }`}
+        >
+          {Array.from({ length: row }).map((_, blockIndex) => {
+            const componentIndex =
+              layoutDef.structure
+                .slice(0, rowIndex)
+                .reduce((acc, r) => acc + r, 0) + blockIndex
+
+            const componentId = components[componentIndex]
+
+            if (!componentId) {
+              return (
+                <div
+                  key={`empty-${rowIndex}-${blockIndex}`}
+                  className='border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 h-32 flex items-center justify-center text-muted-foreground'
+                >
+                  <div className='text-center'>
+                    <div className='text-2xl mb-1'>📦</div>
+                    <div className='text-xs'>Empty slot</div>
+                  </div>
+                </div>
+              )
+            }
+
+            return (
+              <SortablePreviewItem
+                key={componentId}
+                componentId={componentId}
+                index={componentIndex}
+              />
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function TemplateBuilderModal ({
   isOpen,
   onClose,
@@ -130,9 +197,7 @@ export function TemplateBuilderModal ({
   const [selectedComponents, setSelectedComponents] = useState<
     TemplateComponentId[]
   >([])
-  const [gridLayout, setGridLayout] = useState<'1-col' | '2-col' | '3-col'>(
-    '2-col'
-  )
+  const [selectedLayout, setSelectedLayout] = useState<LayoutType>('2-1')
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -142,6 +207,8 @@ export function TemplateBuilderModal ({
   )
 
   const componentCategories = getComponentsByCategory()
+  const predefinedLayouts = getPredefinedLayouts()
+  const currentLayout = getLayoutById(selectedLayout)
 
   const handleComponentToggle = (componentId: TemplateComponentId) => {
     setSelectedComponents(prev =>
@@ -149,6 +216,10 @@ export function TemplateBuilderModal ({
         ? prev.filter(id => id !== componentId)
         : [...prev, componentId]
     )
+  }
+
+  const handleLayoutChange = (layoutId: LayoutType) => {
+    setSelectedLayout(layoutId)
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -175,18 +246,21 @@ export function TemplateBuilderModal ({
         id: crypto.randomUUID(),
         componentId
       })),
+      layout: selectedLayout,
       createdAt: new Date().toISOString()
     }
 
     onSave(newTemplate)
     setTemplateName('')
     setSelectedComponents([])
+    setSelectedLayout('2-1')
     onClose()
   }
 
   const handleCancel = () => {
     setTemplateName('')
     setSelectedComponents([])
+    setSelectedLayout('2-1')
     onClose()
   }
 
@@ -212,6 +286,41 @@ export function TemplateBuilderModal ({
                 value={templateName}
                 onChange={e => setTemplateName(e.target.value)}
               />
+            </div>
+
+            {/* Layout Selection */}
+            <div className='space-y-2'>
+              <Label className='text-sm'>Choose Layout</Label>
+              <div className='grid grid-cols-3 sm:grid-cols-4 gap-1.5'>
+                {predefinedLayouts.map(layout => (
+                  <div
+                    key={layout.id}
+                    className={`cursor-pointer transition-all rounded-md border-2 p-2 ${
+                      selectedLayout === layout.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-muted hover:border-primary/50 hover:bg-muted/30'
+                    }`}
+                    onClick={() => handleLayoutChange(layout.id)}
+                  >
+                    <div className='space-y-1.5'>
+                      <div className='flex items-center justify-between'>
+                        <h4 className='text-xs font-medium truncate'>
+                          {layout.name}
+                        </h4>
+                        <Badge
+                          variant='outline'
+                          className='text-xs px-1 py-0 h-3 text-[10px]'
+                        >
+                          {layout.totalBlocks}
+                        </Badge>
+                      </div>
+                      <div className='flex justify-center'>
+                        <LayoutPreviewVisual layout={layout} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Component Selection */}
@@ -318,21 +427,9 @@ export function TemplateBuilderModal ({
                       <span className='text-xs text-muted-foreground'>
                         Layout:
                       </span>
-                      <div className='flex gap-1'>
-                        {(['1-col', '2-col', '3-col'] as const).map(layout => (
-                          <button
-                            key={layout}
-                            onClick={() => setGridLayout(layout)}
-                            className={`px-2 py-1 text-xs rounded ${
-                              gridLayout === layout
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted hover:bg-muted/80'
-                            }`}
-                          >
-                            {layout.replace('-col', '')}
-                          </button>
-                        ))}
-                      </div>
+                      <Badge variant='outline' className='text-xs'>
+                        {currentLayout?.name || 'Custom'}
+                      </Badge>
                     </div>
                   </div>
                   <DndContext
@@ -344,23 +441,10 @@ export function TemplateBuilderModal ({
                       items={selectedComponents}
                       strategy={verticalListSortingStrategy}
                     >
-                      <div
-                        className={`grid gap-3 ${
-                          gridLayout === '1-col'
-                            ? 'grid-cols-1'
-                            : gridLayout === '2-col'
-                            ? 'grid-cols-1 md:grid-cols-2'
-                            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                        }`}
-                      >
-                        {selectedComponents.map((componentId, index) => (
-                          <SortablePreviewItem
-                            key={componentId}
-                            componentId={componentId}
-                            index={index}
-                          />
-                        ))}
-                      </div>
+                      <LayoutPreview
+                        layout={selectedLayout}
+                        components={selectedComponents}
+                      />
                     </SortableContext>
                   </DndContext>
                 </div>

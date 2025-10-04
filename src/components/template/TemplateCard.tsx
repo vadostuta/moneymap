@@ -11,6 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getComponentById } from '@/lib/template-registry'
+import { getLayoutById } from '@/lib/layout-registry'
 import { Calendar, MoreHorizontal, Trash2 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -77,20 +78,23 @@ export function TemplateCard ({
 
       <CardContent className='pt-0'>
         <div className='space-y-3'>
-          <div>
-            <p className='text-sm text-muted-foreground mb-2'>
+          <div className='flex items-center justify-between'>
+            <p className='text-sm text-muted-foreground'>
               Components ({template.blocks.length})
             </p>
-            <div className='flex flex-wrap gap-1'>
-              {template.blocks.map(block => {
-                const component = getComponentById(block.componentId)
-                return (
-                  <Badge key={block.id} variant='outline' className='text-xs'>
-                    {component?.icon} {component?.name}
-                  </Badge>
-                )
-              })}
-            </div>
+            <Badge variant='secondary' className='text-xs'>
+              {getLayoutById(template.layout)?.name || 'Custom'} Layout
+            </Badge>
+          </div>
+          <div className='flex flex-wrap gap-1'>
+            {template.blocks.map(block => {
+              const component = getComponentById(block.componentId)
+              return (
+                <Badge key={block.id} variant='outline' className='text-xs'>
+                  {component?.icon} {component?.name}
+                </Badge>
+              )
+            })}
           </div>
 
           {template.blocks.length === 0 && (
