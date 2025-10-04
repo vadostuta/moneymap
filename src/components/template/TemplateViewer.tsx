@@ -5,6 +5,7 @@ import { getLayoutById } from '@/lib/layout-registry'
 import { getComponentById } from '@/lib/template-registry'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useWallet } from '@/contexts/wallet-context'
 
 // Import your actual chart components
 import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
@@ -23,7 +24,7 @@ const COMPONENT_MAP = {
   monthlyExpenseBarChart: MonthlyExpenseBarChart
 } as const
 
-function renderComponent (block: Template['blocks'][0]) {
+function renderComponent (block: Template['blocks'][0], selectedWallet: any) {
   const Component = COMPONENT_MAP[block.componentId]
 
   if (!Component) {
@@ -43,34 +44,53 @@ function renderComponent (block: Template['blocks'][0]) {
   switch (block.componentId) {
     case 'expensePieChart':
       return (
-        <Component
+        <ExpensePieChart
           key={block.id}
           onCategorySelect={() => {}} // No-op for template preview
           selectedCategory={undefined}
-          showWalletName={false}
+          showWalletName={true}
+          wallet={selectedWallet}
         />
       )
 
     case 'recentTransactionsList':
       return (
-        <Component
+        <RecentTransactions
           key={block.id}
           selectedCategory={undefined}
           onResetCategory={() => {}}
-          selectedWalletId={undefined}
+          selectedWalletId={selectedWallet?.id}
         />
       )
 
     case 'monthlyExpenseBarChart':
-      return <MonthlyExpenseBarChartWrapper key={block.id} />
+      return (
+        <MonthlyExpenseBarChartWrapper
+          key={block.id}
+          selectedWallet={selectedWallet}
+        />
+      )
 
     default:
-      return <Component key={block.id} />
+      return (
+        <div className='border border-dashed border-muted-foreground/25 rounded-lg p-4 h-32 flex items-center justify-center text-muted-foreground'>
+          <div className='text-center'>
+            <div className='text-2xl mb-1'>❌</div>
+            <div className='text-xs'>
+              Unknown component: {block.componentId}
+            </div>
+          </div>
+        </div>
+      )
   }
 }
 
 // Wrapper component for MonthlyExpenseBarChart that provides real data
-function MonthlyExpenseBarChartWrapper () {
+function MonthlyExpenseBarChartWrapper ({
+  selectedWallet
+}: {
+  selectedWallet: any
+}) {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>()
 
   // Use real data like other components - fetch from transactionService
@@ -79,11 +99,13 @@ function MonthlyExpenseBarChartWrapper () {
     isLoading,
     error
   } = useQuery({
-    queryKey: ['transactions-by-category', 'current-month'],
+    queryKey: ['transactions-by-category', 'current-month', selectedWallet?.id],
     queryFn: async () => {
       // Import transactionService here to avoid circular dependencies
       const { transactionService } = await import('@/lib/services/transaction')
-      return await transactionService.getCurrentMonthExpensesByCategory()
+      return await transactionService.getCurrentMonthExpensesByCategory(
+        selectedWallet?.id
+      )
     }
   })
 
@@ -114,7 +136,7 @@ function MonthlyExpenseBarChartWrapper () {
   return (
     <MonthlyExpenseBarChart
       data={realData}
-      currency='USD' // You might want to get this from wallet context
+      currency={selectedWallet?.currency || 'UAH'}
       selectedCategory={selectedCategory}
       onCategorySelect={setSelectedCategory}
     />
@@ -125,6 +147,7 @@ export function TemplateViewer ({
   template,
   className = ''
 }: TemplateViewerProps) {
+  const { selectedWallet } = useWallet()
   const layoutDef = getLayoutById(template.layout)
 
   if (!layoutDef) {
@@ -175,7 +198,7 @@ export function TemplateViewer ({
 
             return (
               <div key={block.id} className='w-full'>
-                {renderComponent(block)}
+                {renderComponent(block, selectedWallet)}
               </div>
             )
           })}
