@@ -2,10 +2,11 @@
 
 import { Template } from '@/types/template'
 import { getLayoutById } from '@/lib/layout-registry'
-import { getComponentById } from '@/lib/template-registry'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useWallet } from '@/contexts/wallet-context'
+import { Wallet } from '@/lib/types/wallet'
+import { useTranslation } from 'react-i18next'
 
 // Import your actual chart components
 import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
@@ -27,7 +28,7 @@ const COMPONENT_MAP = {
 
 function renderComponent (
   block: Template['blocks'][0],
-  selectedWallet: any,
+  selectedWallet: Wallet | null,
   selectedCategory?: string,
   onCategorySelect?: (category: string | undefined) => void,
   onResetCategory?: () => void
@@ -56,7 +57,7 @@ function renderComponent (
           onCategorySelect={onCategorySelect || (() => {})}
           selectedCategory={selectedCategory}
           showWalletName={true}
-          wallet={selectedWallet}
+          wallet={selectedWallet || undefined}
         />
       )
 
@@ -100,10 +101,11 @@ function MonthlyExpenseBarChartWrapper ({
   selectedCategory,
   onCategorySelect
 }: {
-  selectedWallet: any
+  selectedWallet: Wallet | null
   selectedCategory?: string
   onCategorySelect?: (category: string | undefined) => void
 }) {
+  const { t } = useTranslation('common')
   // Use real data like other components - fetch from transactionService
   const {
     data: realData = [],
@@ -195,7 +197,7 @@ export function TemplateViewer ({
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 h-[600px]'>
           {/* Left side - 2 stacked blocks */}
           <div className='space-y-4'>
-            {template.blocks.slice(0, 2).map((block, index) => (
+            {template.blocks.slice(0, 2).map(block => (
               <div key={block.id} className='h-[calc(50%-0.5rem)]'>
                 {renderComponent(
                   block,

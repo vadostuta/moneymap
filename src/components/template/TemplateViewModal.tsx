@@ -2,15 +2,7 @@
 
 import { Template } from '@/types/template'
 import { TemplateViewer } from './TemplateViewer'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { X } from 'lucide-react'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 interface TemplateViewModalProps {
   template: Template | null

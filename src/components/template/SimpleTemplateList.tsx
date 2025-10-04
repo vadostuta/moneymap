@@ -2,7 +2,6 @@
 
 import { Template } from '@/types/template'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { useTranslation } from 'react-i18next'
 import { Calendar, Trash2 } from 'lucide-react'
 
@@ -17,7 +16,7 @@ export function SimpleTemplateList ({
   onView,
   onDelete
 }: SimpleTemplateListProps) {
-  const { t, i18n } = useTranslation('common')
+  const { i18n } = useTranslation('common')
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(
       i18n.language === 'ua' ? 'uk-UA' : 'en-US',
@@ -32,8 +31,6 @@ export function SimpleTemplateList ({
     <div className='w-full space-y-4'>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
         {templates.map(template => {
-          const layoutDef = getLayoutById(template.layout)
-
           return (
             <div
               key={template.id}
