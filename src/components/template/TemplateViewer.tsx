@@ -138,7 +138,7 @@ function MonthlyExpenseBarChartWrapper ({
       <div className='border border-destructive rounded-lg p-4 h-32 flex items-center justify-center'>
         <div className='text-center text-destructive'>
           <div className='text-2xl mb-1'>⚠️</div>
-          <div className='text-sm'>Failed to load chart data</div>
+          <div className='text-sm'>{t('ui.failedToLoad')}</div>
         </div>
       </div>
     )

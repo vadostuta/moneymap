@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/auth-context'
 import { useWallet } from '@/contexts/wallet-context'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { LogIn, Plus, Calendar, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -14,18 +13,11 @@ import { TemplateBuilderModal } from '@/components/template/TemplateBuilderModal
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { templateService } from '@/lib/services/template'
 import { toast } from '@/components/ui/use-toast'
-import { getLayoutById } from '@/lib/layout-registry'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 
 export default function StartPage () {
   const { user, signInWithGoogle, loading } = useAuth()
   const { wallets, isLoading: walletsLoading } = useWallet()
-  const { t } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
   const router = useRouter()
   const queryClient = useQueryClient()
 
@@ -49,14 +41,14 @@ export default function StartPage () {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       toast({
-        title: 'Template Deleted',
-        description: 'Template has been deleted successfully.'
+        title: t('templates.deleted'),
+        description: t('templates.deleteSuccess')
       })
     },
     onError: error => {
       toast({
-        title: 'Error',
-        description: 'Failed to delete template. Please try again.',
+        title: t('common.error'),
+        description: t('templates.deleteError'),
         variant: 'destructive'
       })
       console.error('Template deletion failed:', error)
@@ -111,11 +103,13 @@ export default function StartPage () {
               <circle cx='100' cy='100' r='40' fill='#fff' />
             </svg>
 
-            <h1 className='text-4xl font-bold text-foreground'>Loading...</h1>
+            <h1 className='text-4xl font-bold text-foreground'>
+              {t('common.loading')}
+            </h1>
           </div>
 
           <p className='text-lg text-muted-foreground'>
-            Please wait while we load your data...
+            {t('start.loadingData')}
           </p>
 
           <div className='space-y-8 flex flex-col items-center w-full'>
@@ -160,7 +154,7 @@ export default function StartPage () {
       <main className='flex min-h-screen flex-col items-center justify-center p-24'>
         <div className='text-center'>
           <p className='text-destructive'>
-            Error loading templates: {templatesError.message}
+            {t('templates.loadError', { message: templatesError.message })}
           </p>
         </div>
       </main>
@@ -201,24 +195,24 @@ export default function StartPage () {
           </svg>
 
           <h1 className='text-4xl font-bold text-foreground'>
-            {user ? `Hey ${user.email?.split('@')[0]}!` : 'Hey! Login here'}
+            {user
+              ? t('start.heyUser', { username: user.email?.split('@')[0] })
+              : t('start.heyLogin')}
           </h1>
         </div>
 
         <p className='text-lg text-muted-foreground'>
-          {user
-            ? ''
-            : 'Welcome to MoneyMap! Sign in to start tracking your finances.'}
+          {user ? '' : t('start.welcome')}
         </p>
 
         {user && wallets.length === 0 && (
           <p className='text-sm text-muted-foreground mb-6'>
-            First you need to create your first{' '}
+            {t('start.createFirstWallet')}{' '}
             <Link
               href='/wallets'
               className='text-primary hover:underline font-medium'
             >
-              wallet
+              {t('start.wallet')}
             </Link>
           </p>
         )}
@@ -248,15 +242,13 @@ export default function StartPage () {
                       <Plus className='h-4 w-4 text-primary' />
                     </div>
                     <h3 className='font-semibold text-foreground text-sm group-hover:text-primary transition-colors duration-200'>
-                      Create Template
+                      {t('templates.create')}
                     </h3>
                   </div>
                 </div>
 
                 {/* Existing Templates */}
                 {templates.map(template => {
-                  const layoutDef = getLayoutById(template.layout)
-
                   return (
                     <div
                       key={template.id}
@@ -268,30 +260,17 @@ export default function StartPage () {
 
                       {/* Delete button - positioned at top right */}
                       <div className='absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant='ghost'
-                              size='sm'
-                              onClick={e => e.stopPropagation()}
-                              className='h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive transition-colors'
-                            >
-                              <Trash2 className='h-3.5 w-3.5' />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end' className='w-40'>
-                            <DropdownMenuItem
-                              onClick={e => {
-                                e.stopPropagation()
-                                handleDeleteTemplate(template.id)
-                              }}
-                              className='text-destructive focus:text-destructive focus:bg-destructive/10 text-sm'
-                            >
-                              <Trash2 className='h-3 w-3 mr-2' />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleDeleteTemplate(template.id)
+                          }}
+                          className='h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive transition-colors'
+                        >
+                          <Trash2 className='h-3.5 w-3.5' />
+                        </Button>
                       </div>
 
                       <div className='relative z-10 pr-8 flex flex-col justify-center h-full'>
@@ -301,12 +280,12 @@ export default function StartPage () {
                         </h3>
 
                         {/* Meta information */}
-                        <div className='flex items-center justify-between text-sm text-muted-foreground min-w-0'>
-                          <div className='flex items-center gap-1.5 flex-shrink-0'>
+                        <div className='flex items-center text-sm text-muted-foreground'>
+                          <div className='flex items-center gap-1.5'>
                             <Calendar className='h-3.5 w-3.5' />
                             <span className='font-medium'>
                               {new Date(template.created_at).toLocaleDateString(
-                                'en-US',
+                                i18n.language === 'ua' ? 'uk-UA' : 'en-US',
                                 {
                                   month: 'short',
                                   day: 'numeric'
@@ -314,13 +293,6 @@ export default function StartPage () {
                               )}
                             </span>
                           </div>
-
-                          <Badge
-                            variant='secondary'
-                            className='text-xs px-2 py-1 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 transition-colors flex-shrink-0 ml-2'
-                          >
-                            {layoutDef?.name || 'Custom'}
-                          </Badge>
                         </div>
                       </div>
                     </div>
@@ -331,8 +303,7 @@ export default function StartPage () {
               {templates.length === 0 && (
                 <div className='text-center py-8'>
                   <p className='text-muted-foreground mb-4'>
-                    No templates created yet. Create your first template to get
-                    started!
+                    {t('templates.noTemplatesYet')}
                   </p>
                 </div>
               )}

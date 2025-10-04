@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -36,9 +37,13 @@ import {
 import { Template, TemplateComponentId, LayoutType } from '@/types/template'
 import {
   getComponentsByCategory,
-  getComponentById
+  getTranslatedComponentMetadata
 } from '@/lib/template-registry'
-import { getLayoutById, getPredefinedLayouts } from '@/lib/layout-registry'
+import {
+  getLayoutById,
+  getPredefinedLayouts,
+  getTranslatedLayoutMetadata
+} from '@/lib/layout-registry'
 import { LayoutPreviewVisual } from './LayoutPreviewVisual'
 import Image from 'next/image'
 import { templateService } from '@/lib/services/template'
@@ -54,10 +59,12 @@ interface TemplateBuilderModalProps {
 // Sortable Item Component
 function SortablePreviewItem ({
   componentId,
-  index
+  index,
+  t
 }: {
   componentId: TemplateComponentId
   index: number
+  t: (key: string) => string
 }) {
   const {
     attributes,
@@ -74,7 +81,7 @@ function SortablePreviewItem ({
     opacity: isDragging ? 0.5 : 1
   }
 
-  const component = getComponentById(componentId)
+  const component = getTranslatedComponentMetadata(componentId, t)
 
   return (
     <div ref={setNodeRef} style={style} className='relative group'>
@@ -88,7 +95,7 @@ function SortablePreviewItem ({
               <span className='text-sm'>{component.icon}</span>
             )}
             <span className='text-xs text-muted-foreground'>
-              Position {index + 1}
+              {t('templates.position').replace('{{number}}', String(index + 1))}
             </span>
           </div>
           <div
@@ -123,10 +130,12 @@ function SortablePreviewItem ({
 // Layout Preview Component
 function LayoutPreview ({
   layout,
-  components
+  components,
+  t
 }: {
   layout: LayoutType
   components: TemplateComponentId[]
+  t: (key: string) => string
 }) {
   const layoutDef = getLayoutById(layout)
 
@@ -144,12 +153,16 @@ function LayoutPreview ({
               className='h-[calc(50%-0.5rem)]'
             >
               {componentId ? (
-                <SortablePreviewItem componentId={componentId} index={index} />
+                <SortablePreviewItem
+                  componentId={componentId}
+                  index={index}
+                  t={t}
+                />
               ) : (
                 <div className='border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 h-full flex items-center justify-center text-muted-foreground'>
                   <div className='text-center'>
                     <div className='text-2xl mb-1'>📦</div>
-                    <div className='text-xs'>Empty slot</div>
+                    <div className='text-xs'>{t('templates.emptySlot')}</div>
                   </div>
                 </div>
               )}
@@ -159,7 +172,7 @@ function LayoutPreview ({
         {/* Right side - 1 full height block */}
         <div>
           {components[2] ? (
-            <SortablePreviewItem componentId={components[2]} index={2} />
+            <SortablePreviewItem componentId={components[2]} index={2} t={t} />
           ) : (
             <div className='border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 h-full flex items-center justify-center text-muted-foreground'>
               <div className='text-center'>
@@ -203,7 +216,7 @@ function LayoutPreview ({
                 >
                   <div className='text-center'>
                     <div className='text-2xl mb-1'>📦</div>
-                    <div className='text-xs'>Empty slot</div>
+                    <div className='text-xs'>{t('templates.emptySlot')}</div>
                   </div>
                 </div>
               )
@@ -214,6 +227,7 @@ function LayoutPreview ({
                 key={componentId}
                 componentId={componentId}
                 index={componentIndex}
+                t={t}
               />
             )
           })}
@@ -228,6 +242,7 @@ export function TemplateBuilderModal ({
   onClose,
   onSave
 }: TemplateBuilderModalProps) {
+  const { t } = useTranslation('common')
   const [templateName, setTemplateName] = useState('')
   const [selectedComponents, setSelectedComponents] = useState<
     TemplateComponentId[]
@@ -243,9 +258,11 @@ export function TemplateBuilderModal ({
     })
   )
 
-  const componentCategories = getComponentsByCategory()
-  const predefinedLayouts = getPredefinedLayouts()
-  const currentLayout = getLayoutById(selectedLayout)
+  const componentCategories = getComponentsByCategory(t)
+  const predefinedLayouts = getPredefinedLayouts(t)
+  const currentLayout =
+    getTranslatedLayoutMetadata(selectedLayout, t) ||
+    getLayoutById(selectedLayout)
 
   const handleComponentToggle = (componentId: TemplateComponentId) => {
     setSelectedComponents(prev =>
@@ -276,8 +293,8 @@ export function TemplateBuilderModal ({
     onSuccess: newTemplate => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
       toast({
-        title: 'Template Created',
-        description: `Template "${newTemplate?.name}" has been created successfully.`
+        title: t('templates.created'),
+        description: t('templates.createSuccess', { name: newTemplate?.name })
       })
       onSave(newTemplate!)
       setTemplateName('')
@@ -287,8 +304,8 @@ export function TemplateBuilderModal ({
     },
     onError: error => {
       toast({
-        title: 'Error',
-        description: 'Failed to create template. Please try again.',
+        title: t('common.error'),
+        description: t('templates.createError'),
         variant: 'destructive'
       })
       console.error('Template creation failed:', error)
@@ -323,9 +340,9 @@ export function TemplateBuilderModal ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='max-w-6xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
-          <DialogTitle>Template Creation</DialogTitle>
+          <DialogTitle>{t('templates.title')}</DialogTitle>
           <DialogDescription>
-            Create a new template by selecting components to include.
+            {t('templates.createDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -334,10 +351,10 @@ export function TemplateBuilderModal ({
           <div className='space-y-6'>
             {/* Template Name Input */}
             <div className='space-y-2'>
-              <Label htmlFor='template-name'>Template Name</Label>
+              <Label htmlFor='template-name'>{t('templates.name')}</Label>
               <Input
                 id='template-name'
-                placeholder='Enter template name...'
+                placeholder={t('templates.namePlaceholder')}
                 value={templateName}
                 onChange={e => setTemplateName(e.target.value)}
               />
@@ -345,7 +362,7 @@ export function TemplateBuilderModal ({
 
             {/* Layout Selection */}
             <div className='space-y-2'>
-              <Label className='text-sm'>Choose Layout</Label>
+              <Label className='text-sm'>{t('templates.chooseLayout')}</Label>
               <div className='grid grid-cols-3 sm:grid-cols-4 gap-1.5'>
                 {predefinedLayouts.map(layout => (
                   <div
@@ -380,7 +397,7 @@ export function TemplateBuilderModal ({
 
             {/* Component Selection */}
             <div className='space-y-4'>
-              <Label>Select Components</Label>
+              <Label>{t('templates.selectComponents')}</Label>
               <div className='space-y-4'>
                 {componentCategories.map(({ category, components }) => (
                   <div key={category} className='space-y-2'>
@@ -437,12 +454,17 @@ export function TemplateBuilderModal ({
             {/* Selected Components Summary */}
             {selectedComponents.length > 0 && (
               <div className='space-y-2'>
-                <Label>Selected Components ({selectedComponents.length})</Label>
+                <Label>
+                  {t('templates.selectedComponents', {
+                    count: selectedComponents.length
+                  })}
+                </Label>
                 <div className='flex flex-wrap gap-2'>
                   {selectedComponents.map(componentId => {
-                    const component = componentCategories
-                      .flatMap(cat => cat.components)
-                      .find(comp => comp.id === componentId)
+                    const component = getTranslatedComponentMetadata(
+                      componentId,
+                      t
+                    )
                     return (
                       <Badge
                         key={componentId}
@@ -460,30 +482,32 @@ export function TemplateBuilderModal ({
 
           {/* Right Column - Preview */}
           <div className='space-y-4'>
-            <Label>Preview</Label>
+            <Label>{t('templates.preview')}</Label>
             <div className='border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 min-h-[400px] bg-muted/20'>
               {selectedComponents.length === 0 ? (
                 <div className='flex items-center justify-center h-full text-muted-foreground'>
                   <div className='text-center'>
                     <div className='text-4xl mb-2'>👀</div>
-                    <p className='text-sm'>Select components to see preview</p>
+                    <p className='text-sm'>
+                      {t('templates.selectComponentsToPreview')}
+                    </p>
                   </div>
                 </div>
               ) : (
                 <div className='space-y-4'>
                   <div className='flex items-center justify-between mb-4'>
                     <div className='text-sm text-muted-foreground'>
-                      Template:{' '}
+                      {t('templates.template')}:{' '}
                       <span className='font-medium'>
-                        {templateName || 'Untitled'}
+                        {templateName || t('templates.untitled')}
                       </span>
                     </div>
                     <div className='flex items-center gap-2'>
                       <span className='text-xs text-muted-foreground'>
-                        Layout:
+                        {t('templates.layout')}:
                       </span>
                       <Badge variant='outline' className='text-xs'>
-                        {currentLayout?.name || 'Custom'}
+                        {currentLayout?.name || t('templates.custom')}
                       </Badge>
                     </div>
                   </div>
@@ -499,6 +523,7 @@ export function TemplateBuilderModal ({
                       <LayoutPreview
                         layout={selectedLayout}
                         components={selectedComponents}
+                        t={t}
                       />
                     </SortableContext>
                   </DndContext>
@@ -510,7 +535,7 @@ export function TemplateBuilderModal ({
 
         <DialogFooter>
           <Button variant='outline' onClick={handleCancel}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             onClick={handleSave}
@@ -520,7 +545,9 @@ export function TemplateBuilderModal ({
               createTemplateMutation.isPending
             }
           >
-            {createTemplateMutation.isPending ? 'Creating...' : 'Save Template'}
+            {createTemplateMutation.isPending
+              ? t('templates.creating')
+              : t('templates.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

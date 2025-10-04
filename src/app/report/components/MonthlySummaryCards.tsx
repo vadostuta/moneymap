@@ -47,21 +47,21 @@ export function MonthlySummaryCards ({
 
   const cards = [
     {
-      title: t('report.cards.income', 'Total Income'),
+      title: t('report.cards.income'),
       value: formatAmount(metrics.income, currency),
       icon: TrendingUp,
       color: 'text-green-600',
       bgColor: 'bg-green-100 dark:bg-green-900/20'
     },
     {
-      title: t('report.cards.expenses', 'Total Expenses'),
+      title: t('report.cards.expenses'),
       value: formatAmount(metrics.expenses, currency),
       icon: TrendingDown,
       color: 'text-red-600',
       bgColor: 'bg-red-100 dark:bg-red-900/20'
     },
     {
-      title: t('report.cards.net', 'Net Savings'),
+      title: t('report.cards.net'),
       value: formatAmount(metrics.net, currency),
       icon: DollarSign,
       color: metrics.net >= 0 ? 'text-blue-600' : 'text-orange-600',
@@ -71,7 +71,7 @@ export function MonthlySummaryCards ({
           : 'bg-orange-100 dark:bg-orange-900/20'
     },
     {
-      title: t('report.cards.savingsRate', 'Savings Rate'),
+      title: t('report.cards.savingsRate'),
       value: `${metrics.savingsRate.toFixed(1)}%`,
       icon: PiggyBank,
       color: metrics.savingsRate >= 20 ? 'text-green-600' : 'text-yellow-600',
@@ -114,4 +114,3 @@ export function MonthlySummaryCards ({
     </div>
   )
 }
-

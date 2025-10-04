@@ -1,10 +1,25 @@
 import { LayoutDefinition, LayoutType } from '@/types/template'
 
+// Translation keys for layouts
+export const getTranslatedLayoutMetadata = (
+  id: LayoutType,
+  t: (key: string) => string
+): LayoutDefinition | undefined => {
+  const baseLayout = LAYOUT_REGISTRY[id]
+  if (!baseLayout) return undefined
+
+  return {
+    ...baseLayout,
+    name: t(`layouts.${id}.name`),
+    description: t(`layouts.${id}.description`)
+  }
+}
+
 export const LAYOUT_REGISTRY: Record<LayoutType, LayoutDefinition> = {
   '2-1': {
     id: '2-1',
-    name: 'Two + One',
-    description: 'First row with 2 blocks, second row with 1 full-width block',
+    name: '2-1', // Fallback - will be overridden by translation
+    description: 'Layout with 2 blocks in first row, 1 block in second row', // Fallback - will be overridden by translation
     rows: 2,
     totalBlocks: 3,
     structure: [2, 1],
@@ -12,8 +27,8 @@ export const LAYOUT_REGISTRY: Record<LayoutType, LayoutDefinition> = {
   },
   '1-2': {
     id: '1-2',
-    name: 'One + Two',
-    description: 'First row with 1 full-width block, second row with 2 blocks',
+    name: '1-2', // Fallback - will be overridden by translation
+    description: 'Layout with 1 block in first row, 2 blocks in second row', // Fallback - will be overridden by translation
     rows: 2,
     totalBlocks: 3,
     structure: [1, 2],
@@ -21,8 +36,8 @@ export const LAYOUT_REGISTRY: Record<LayoutType, LayoutDefinition> = {
   },
   '1-1-1': {
     id: '1-1-1',
-    name: 'Three Stacked',
-    description: 'Three rows with one block each',
+    name: '1-1-1', // Fallback - will be overridden by translation
+    description: 'Layout with three rows, one block each', // Fallback - will be overridden by translation
     rows: 3,
     totalBlocks: 3,
     structure: [1, 1, 1],
@@ -30,8 +45,8 @@ export const LAYOUT_REGISTRY: Record<LayoutType, LayoutDefinition> = {
   },
   '2-2': {
     id: '2-2',
-    name: 'Two by Two',
-    description: 'Two rows with two blocks each',
+    name: '2-2', // Fallback - will be overridden by translation
+    description: 'Layout with two rows, two blocks each', // Fallback - will be overridden by translation
     rows: 2,
     totalBlocks: 4,
     structure: [2, 2],
@@ -39,8 +54,8 @@ export const LAYOUT_REGISTRY: Record<LayoutType, LayoutDefinition> = {
   },
   '1-2-1': {
     id: '1-2-1',
-    name: 'One + Two + One',
-    description: 'First row: 1 block, Second row: 2 blocks, Third row: 1 block',
+    name: '1-2-1', // Fallback - will be overridden by translation
+    description: 'Layout with 1 block, then 2 blocks, then 1 block', // Fallback - will be overridden by translation
     rows: 3,
     totalBlocks: 4,
     structure: [1, 2, 1],
@@ -48,8 +63,8 @@ export const LAYOUT_REGISTRY: Record<LayoutType, LayoutDefinition> = {
   },
   '3-1': {
     id: '3-1',
-    name: 'Three + One',
-    description: 'First row with 3 blocks, second row with 1 full-width block',
+    name: '3-1', // Fallback - will be overridden by translation
+    description: 'Layout with 3 blocks in first row, 1 block in second row', // Fallback - will be overridden by translation
     rows: 2,
     totalBlocks: 4,
     structure: [3, 1],
@@ -57,8 +72,8 @@ export const LAYOUT_REGISTRY: Record<LayoutType, LayoutDefinition> = {
   },
   '1-3': {
     id: '1-3',
-    name: 'One + Three',
-    description: 'First row with 1 full-width block, second row with 3 blocks',
+    name: '1-3', // Fallback - will be overridden by translation
+    description: 'Layout with 1 block in first row, 3 blocks in second row', // Fallback - will be overridden by translation
     rows: 2,
     totalBlocks: 4,
     structure: [1, 3],
@@ -66,9 +81,9 @@ export const LAYOUT_REGISTRY: Record<LayoutType, LayoutDefinition> = {
   },
   '2-1-side': {
     id: '2-1-side',
-    name: 'Two Left + One Right',
+    name: '2-1', // Fallback - will be overridden by translation
     description:
-      'Left side with 2 stacked blocks, right side with 1 full-height block',
+      'Layout with 2 stacked blocks on left, 1 full-height block on right', // Fallback - will be overridden by translation
     rows: 1,
     totalBlocks: 3,
     structure: [2, 1],
@@ -84,6 +99,14 @@ export const getAllLayouts = (): LayoutDefinition[] => {
   return Object.values(LAYOUT_REGISTRY)
 }
 
-export const getPredefinedLayouts = (): LayoutDefinition[] => {
-  return Object.values(LAYOUT_REGISTRY)
+export const getPredefinedLayouts = (
+  t?: (key: string) => string
+): LayoutDefinition[] => {
+  if (!t) return Object.values(LAYOUT_REGISTRY)
+
+  return Object.keys(LAYOUT_REGISTRY).map(
+    id =>
+      getTranslatedLayoutMetadata(id as LayoutType, t) ||
+      LAYOUT_REGISTRY[id as LayoutType]
+  )
 }

@@ -96,7 +96,7 @@ export function AppSidebar () {
   const navItems: NavItem[] = [
     {
       href: '/start',
-      label: t('navigation.start', 'Start'),
+      label: t('navigation.start'),
       icon: LayoutDashboard
     },
     {

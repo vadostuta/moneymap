@@ -22,6 +22,7 @@
   },
   "navigation": {
     "home": "Home",
+    "start": "Start",
     "transactions": "Transactions",
     "overview": "Overview",
     "analytics": "Analytics",
@@ -290,5 +291,127 @@
     "hide": "Hide amounts",
     "amountsHidden": "Amounts are hidden",
     "amountsVisible": "Amounts are visible"
+  },
+  "start": {
+    "welcome": "Welcome to MoneyMap! Sign in to start tracking your finances.",
+    "heyUser": "Hey {{username}}!",
+    "heyLogin": "Hey! Login here",
+    "createFirstWallet": "First you need to create your first",
+    "wallet": "wallet",
+    "loadingData": "Please wait while we load your data..."
+  },
+  "templates": {
+    "title": "Templates",
+    "create": "Create Template",
+    "creating": "Creating...",
+    "save": "Save Template",
+    "created": "Template Created",
+    "deleted": "Template Deleted",
+    "createSuccess": "Template \"{{name}}\" has been created successfully.",
+    "deleteSuccess": "Template deleted successfully",
+    "createError": "Failed to create template. Please try again.",
+    "deleteError": "Failed to delete template. Please try again.",
+    "loadError": "Error loading templates: {{message}}",
+    "untitled": "Untitled",
+    "custom": "Custom",
+    "layout": "Layout",
+    "noTemplatesYet": "No templates created yet. Create your first template to get started!",
+    "createDescription": "Create a new template by selecting components to include.",
+    "name": "Template Name",
+    "namePlaceholder": "Enter template name...",
+    "chooseLayout": "Choose Layout",
+    "selectComponents": "Select Components",
+    "selectedComponents": "Selected Components ({{count}})",
+    "preview": "Preview",
+    "selectComponentsToPreview": "Select components to see preview",
+    "template": "Template",
+    "position": "Position {{number}}",
+    "emptySlot": "Empty slot",
+    "layout": "Layout"
+  },
+  "components": {
+    "expensePieChart": {
+      "name": "Expense Pie Chart",
+      "description": "Visualize expense distribution by category",
+      "category": "Charts"
+    },
+    "recentTransactionsList": {
+      "name": "Recent Transactions",
+      "description": "Display list of recent transactions",
+      "category": "Lists"
+    },
+    "monthlyExpenseBarChart": {
+      "name": "Monthly Expense Bar Chart",
+      "description": "Show monthly expense trends over time",
+      "category": "Charts"
+    }
+  },
+  "categories": {
+    "Charts": "Charts",
+    "Lists": "Lists"
+  },
+  "layouts": {
+    "2-1": {
+      "name": "Two + One",
+      "description": "First row with 2 blocks, second row with 1 full-width block"
+    },
+    "1-2": {
+      "name": "One + Two",
+      "description": "First row with 1 full-width block, second row with 2 blocks"
+    },
+    "1-1-1": {
+      "name": "Three Stacked",
+      "description": "Three rows with one block each"
+    },
+    "2-2": {
+      "name": "Two by Two",
+      "description": "Two rows with two blocks each"
+    },
+    "1-2-1": {
+      "name": "One + Two + One",
+      "description": "First row: 1 block, Second row: 2 blocks, Third row: 1 block"
+    },
+    "3-1": {
+      "name": "Three + One",
+      "description": "First row with 3 blocks, second row with 1 full-width block"
+    },
+    "1-3": {
+      "name": "One + Three",
+      "description": "First row with 1 full-width block, second row with 3 blocks"
+    },
+    "2-1-side": {
+      "name": "Two Left + One Right",
+      "description": "Left side with 2 stacked blocks, right side with 1 full-height block"
+    }
+  },
+  "report": {
+    "cards": {
+      "income": "Total Income",
+      "expenses": "Total Expenses",
+      "net": "Net Savings",
+      "savingsRate": "Savings Rate"
+    }
+  },
+  "ui": {
+    "selectWallet": "Select wallet",
+    "total": "Total",
+    "failedToLoad": "Failed to load chart data",
+    "failedToLoadWallets": "Failed to load wallets.",
+    "failedToCreateWallet": "Failed to create wallet",
+    "failedToUpdateWallet": "Failed to update wallet",
+    "failedToLoadWallet": "Failed to load wallet",
+    "failedToSetPrimaryWallet": "Failed to set primary wallet",
+    "failedToFetchWallets": "Failed to fetch wallets",
+    "failedToFetchTransactionData": "Failed to fetch transaction data",
+    "failedToSetDefaultWallet": "Failed to set default wallet",
+    "failedToLoadBankIntegrations": "Failed to load bank integrations",
+    "failedToDeleteAccount": "Failed to delete account",
+    "failedToDeleteUserData": "Failed to delete user data",
+    "failedToDeleteAuthUser": "Failed to delete auth user",
+    "failedToDeleteUser": "Failed to delete user"
+  },
+  "errors": {
+    "userMustBeLoggedIn": "User must be logged in",
+    "unknown": "Unknown"
   }
 }

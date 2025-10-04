@@ -9,43 +9,63 @@ export interface ComponentMetadata {
   previewImage: string
 }
 
+// Translation keys for components
+export const getTranslatedComponentMetadata = (
+  id: TemplateComponentId,
+  t: (key: string) => string
+): ComponentMetadata | undefined => {
+  const baseComponent = COMPONENT_REGISTRY[id]
+  if (!baseComponent) return undefined
+
+  return {
+    ...baseComponent,
+    name: t(`components.${id}.name`),
+    description: t(`components.${id}.description`),
+    category: t(`components.${id}.category`)
+  }
+}
+
 export const COMPONENT_REGISTRY: Record<
   TemplateComponentId,
   ComponentMetadata
 > = {
   expensePieChart: {
     id: 'expensePieChart',
-    name: 'Expense Pie Chart',
-    description: 'Visualize expense distribution by category',
-    category: 'Charts',
+    name: 'Component expensePieChart', // Fallback - will be overridden by translation
+    description: 'Chart component for expense visualization', // Fallback - will be overridden by translation
+    category: 'Charts', // Fallback - will be overridden by translation
     icon: '📊',
     previewImage: '/preview-images/expense_pie_chart.png'
   },
   recentTransactionsList: {
     id: 'recentTransactionsList',
-    name: 'Recent Transactions',
-    description: 'Display list of recent transactions',
-    category: 'Lists',
+    name: 'Component recentTransactionsList', // Fallback - will be overridden by translation
+    description: 'List component for recent transactions', // Fallback - will be overridden by translation
+    category: 'Lists', // Fallback - will be overridden by translation
     icon: '📋',
     previewImage: '/preview-images/recent_transactions.png'
   },
   monthlyExpenseBarChart: {
     id: 'monthlyExpenseBarChart',
-    name: 'Monthly Expense Bar Chart',
-    description: 'Show monthly expense trends over time',
-    category: 'Charts',
+    name: 'Component monthlyExpenseBarChart', // Fallback - will be overridden by translation
+    description: 'Chart component for monthly expense trends', // Fallback - will be overridden by translation
+    category: 'Charts', // Fallback - will be overridden by translation
     icon: '📈',
     previewImage: '/preview-images/monthly_expense_bar_chart.png'
   }
 }
 
-export const getComponentsByCategory = () => {
+export const getComponentsByCategory = (t?: (key: string) => string) => {
   const components = Object.values(COMPONENT_REGISTRY)
   const categories = [...new Set(components.map(c => c.category))]
 
   return categories.map(category => ({
-    category,
-    components: components.filter(c => c.category === category)
+    category: t ? t(`categories.${category}`) : category,
+    components: t
+      ? components
+          .filter(c => c.category === category)
+          .map(comp => getTranslatedComponentMetadata(comp.id, t)!)
+      : components.filter(c => c.category === category)
   }))
 }
 
