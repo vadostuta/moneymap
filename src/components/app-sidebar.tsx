@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { LogIn, LogOut, Plus, Menu, X } from 'lucide-react'
+import { Logo } from '@/components/ui/Logo'
 import {
   Dialog,
   DialogContent,
@@ -195,34 +196,7 @@ export function AppSidebar () {
             href='/start'
             className='text-foreground hover:text-primary transition-colors'
           >
-            <svg
-              width='24'
-              height='24'
-              viewBox='0 0 200 200'
-              xmlns='http://www.w3.org/2000/svg'
-              className='text-foreground'
-            >
-              {/* Pie Chart Segments */}
-              <circle cx='100' cy='100' r='70' fill='currentColor' />
-              <path
-                d='M100,30 A70,70 0 0,1 170,100 L140,100 A40,40 0 0,0 100,60 Z'
-                fill='#57C6E1'
-              />
-              <path
-                d='M170,100 A70,70 0 0,1 100,170 L100,140 A40,40 0 0,0 140,100 Z'
-                fill='#4DA3FF'
-              />
-              <path
-                d='M100,170 A70,70 0 0,1 30,100 L60,100 A40,40 0 0,0 100,140 Z'
-                fill='#FF6B6B'
-              />
-              <path
-                d='M30,100 A70,70 0 0,1 100,30 L100,60 A40,40 0 0,0 60,100 Z'
-                fill='#FFD93D'
-              />
-              {/* Inner Circle (White Center) */}
-              <circle cx='100' cy='100' r='40' fill='#fff' />
-            </svg>
+            <Logo size='sm' className='text-foreground' />
           </Link>
         </div>
       </div>
@@ -393,65 +367,11 @@ export function AppSidebar () {
               >
                 {collapsed === 'expanded' ? (
                   <div className='flex flex-col items-center'>
-                    <svg
-                      width='40'
-                      height='40'
-                      viewBox='0 0 200 200'
-                      xmlns='http://www.w3.org/2000/svg'
-                      className='text-sidebar-foreground'
-                    >
-                      {/* Pie Chart Segments */}
-                      <circle cx='100' cy='100' r='70' fill='currentColor' />
-                      <path
-                        d='M100,30 A70,70 0 0,1 170,100 L140,100 A40,40 0 0,0 100,60 Z'
-                        fill='#57C6E1'
-                      />
-                      <path
-                        d='M170,100 A70,70 0 0,1 100,170 L100,140 A40,40 0 0,0 140,100 Z'
-                        fill='#4DA3FF'
-                      />
-                      <path
-                        d='M100,170 A70,70 0 0,1 30,100 L60,100 A40,40 0 0,0 100,140 Z'
-                        fill='#FF6B6B'
-                      />
-                      <path
-                        d='M30,100 A70,70 0 0,1 100,30 L100,60 A40,40 0 0,0 60,100 Z'
-                        fill='#FFD93D'
-                      />
-                      {/* Inner Circle (White Center) */}
-                      <circle cx='100' cy='100' r='40' fill='#fff' />
-                    </svg>
+                    <Logo size='md' className='text-sidebar-foreground' />
                     <span>MoneyMap</span>
                   </div>
                 ) : (
-                  <svg
-                    width='24'
-                    height='24'
-                    viewBox='0 0 200 200'
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='text-sidebar-foreground'
-                  >
-                    {/* Pie Chart Segments */}
-                    <circle cx='100' cy='100' r='70' fill='currentColor' />
-                    <path
-                      d='M100,30 A70,70 0 0,1 170,100 L140,100 A40,40 0 0,0 100,60 Z'
-                      fill='#57C6E1'
-                    />
-                    <path
-                      d='M170,100 A70,70 0 0,1 100,170 L100,140 A40,40 0 0,0 140,100 Z'
-                      fill='#4DA3FF'
-                    />
-                    <path
-                      d='M100,170 A70,70 0 0,1 30,100 L60,100 A40,40 0 0,0 100,140 Z'
-                      fill='#FF6B6B'
-                    />
-                    <path
-                      d='M30,100 A70,70 0 0,1 100,30 L100,60 A40,40 0 0,0 60,100 Z'
-                      fill='#FFD93D'
-                    />
-                    {/* Inner Circle (White Center) */}
-                    <circle cx='100' cy='100' r='40' fill='#fff' />
-                  </svg>
+                  <Logo size='sm' className='text-sidebar-foreground' />
                 )}
               </Link>
               <div className='flex items-center gap-2'>
