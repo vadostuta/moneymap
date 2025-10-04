@@ -24,6 +24,15 @@ MoneyMap is a modern, full-stack personal finance management application built w
 - Expense vs income comparisons
 - Interactive pie charts and bar charts for data visualization
 
+### 🏦 Bank Integration
+- **Monobank API Integration** - Connect your Monobank account for automatic transaction sync
+- Real-time transaction synchronization with 1-minute cooldown
+- Automatic category mapping using MCC (Merchant Category Codes)
+- Secure API token storage and management
+- Historical transaction import (last 30 days on setup)
+- Duplicate transaction prevention
+- Wallet-specific integration mapping
+
 ### 🔐 User Authentication
 - Google OAuth integration for secure login
 - User session management
@@ -33,6 +42,14 @@ MoneyMap is a modern, full-stack personal finance management application built w
 - Multi-language support (English, Ukrainian)
 - Dynamic language switching
 - Localized content and UI elements
+
+### 📋 Custom Templates
+- Create personalized dashboard templates with drag-and-drop builder
+- Choose from multiple layout options (2-1, 1-2, 1-1-1, 2-2, etc.)
+- Select and arrange components (charts, transaction lists, etc.)
+- Preview templates in real-time during creation
+- Save and reuse custom dashboard layouts
+- Template management with create, view, and delete operations
 
 ### 🎨 Modern UI/UX
 - Responsive design for mobile and desktop
@@ -58,6 +75,7 @@ MoneyMap is a modern, full-stack personal finance management application built w
 - **PostgreSQL** - Database
 - **Row Level Security (RLS)** - Data protection
 - **Real-time subscriptions** - Live data updates
+- **Bank Integration APIs** - Monobank API for transaction sync
 
 ### Authentication & Security
 - **Supabase Auth** - User authentication
@@ -94,12 +112,13 @@ src/
 ## Key Components
 
 ### Core Pages
-- **Start Page** (`/start`) - Welcome page with login prompt and wallet setup
+- **Start Page** (`/start`) - Welcome page with login prompt, wallet setup, and template management
 - **Overview** (`/overview`) - Main dashboard with financial summary
 - **Transactions** (`/transactions`) - Transaction list and management
 - **Wallets** (`/wallets`) - Wallet creation and management
 - **Analytics** (`/analytics`) - Spending analysis and charts
-- **Settings** (`/settings`) - User preferences and account management
+- **Settings** (`/settings`) - User preferences, account management, and bank integrations
+- **Template Viewer** (`/template/[id]`) - View and interact with custom dashboard templates
 
 ### Important Contexts
 - **AuthContext** - User authentication state
@@ -139,18 +158,77 @@ interface Transaction {
 }
 ```
 
+### Template
+```typescript
+interface Template {
+  id: string
+  name: string
+  blocks: TemplateBlock[]
+  layout: LayoutType
+  created_at: string
+  user_id?: string
+  is_deleted?: boolean
+}
+
+interface TemplateBlock {
+  id: string
+  componentId: TemplateComponentId
+}
+
+type TemplateComponentId = 
+  | 'expensePieChart'
+  | 'recentTransactionsList'
+  | 'monthlyExpenseBarChart'
+
+type LayoutType = 
+  | '2-1' | '1-2' | '1-1-1' | '2-2' 
+  | '1-2-1' | '3-1' | '1-3' | '2-1-side'
+```
+
+### Bank Integration
+```typescript
+interface BankIntegration {
+  id: string
+  user_id: string
+  provider: 'monobank'
+  api_token: string
+  wallet_id: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  last_sync_at: string | null
+}
+
+interface MonobankTransaction {
+  id: string
+  time: number
+  description: string
+  mcc: number
+  amount: number
+  operationAmount: number
+  currencyCode: number
+  commissionRate: number
+  cashbackAmount: number
+  balance: number
+}
+```
+
 ## Usage Patterns
 
 ### For Users
 1. **Initial Setup**: Sign in with Google → Create first wallet → Start tracking transactions
-2. **Daily Usage**: Add transactions → View overview → Analyze spending patterns
-3. **Financial Planning**: Use analytics to understand spending habits and make informed decisions
+2. **Bank Integration**: Connect Monobank account → Automatic transaction sync → Review and categorize
+3. **Daily Usage**: Add transactions manually or rely on bank sync → View overview → Analyze spending patterns
+4. **Template Creation**: Create custom dashboard templates → Select components and layouts → Save for reuse
+5. **Financial Planning**: Use analytics and custom templates to understand spending habits and make informed decisions
 
 ### For Developers
 1. **Adding Features**: Follow the established patterns for contexts, components, and pages
 2. **Data Management**: Use the service layer in `lib/services/` for API calls
 3. **UI Components**: Extend the shadcn/ui component library for consistent design
-4. **Internationalization**: Add new strings to locale files in `lib/locales/`
+4. **Template System**: Add new components to `lib/template-registry.ts` and layouts to `lib/layout-registry.ts`
+5. **Bank Integrations**: Extend `MonobankService` class for new bank providers or enhance existing integration
+6. **Internationalization**: Add new strings to locale files in `lib/locales/`
 
 ## Development Setup
 
@@ -179,9 +257,10 @@ interface Transaction {
 
 ### Navigation Flow
 - Root (`/`) redirects to `/start`
-- `/start` is the main landing page with authentication
-- Authenticated users see dashboard, unauthenticated users see login prompt
+- `/start` is the main landing page with authentication and template management
+- Authenticated users see dashboard and templates, unauthenticated users see login prompt
 - Sidebar provides navigation to all major sections
+- Templates can be viewed at `/template/[id]` for full-screen dashboard experience
 
 ### State Management
 - React Context for global state (auth, wallets, language, theme)
