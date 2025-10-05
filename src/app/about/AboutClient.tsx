@@ -3,9 +3,12 @@
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/auth-context'
 
 export function AboutClient () {
   const { t } = useTranslation('common')
+
+  const { user } = useAuth()
 
   const features = [
     {
@@ -97,19 +100,21 @@ export function AboutClient () {
           </div>
 
           {/* Document Footer */}
-          <div className='mt-16 pt-8 border-t border-slate-200 dark:border-slate-700'>
-            <h2 className='text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6'>
-              {t('about.cta.title')}
-            </h2>
-            <p className='text-slate-700 dark:text-slate-300 leading-relaxed mb-8 text-base'>
-              {t('about.cta.description')}
-            </p>
-            <div className='text-center'>
-              <Button asChild size='lg' className='px-6 py-2 text-base'>
-                <Link href='/start'>{t('about.cta.start')}</Link>
-              </Button>
+          {!user && (
+            <div className='mt-16 pt-8 border-t border-slate-200 dark:border-slate-700'>
+              <h2 className='text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6'>
+                {t('about.cta.title')}
+              </h2>
+              <p className='text-slate-700 dark:text-slate-300 leading-relaxed mb-8 text-base'>
+                {t('about.cta.description')}
+              </p>
+              <div className='text-center'>
+                <Button asChild size='lg' className='px-6 py-2 text-base'>
+                  <Link href='/start'>{t('about.cta.start')}</Link>
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
