@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -25,17 +26,11 @@ import {
   SelectValue
 } from "@/components/ui/select"
 
-// Updated chartConfig to include expenses and income
-const chartConfig = {
-  expenses: {
-    label: "Expenses",
-    color: "hsl(341 90% 62%)", // Deep red
-  },
-  income: {
-    label: "Income",
-    color: "hsl(151 75% 48%)", // Bright green
-  },
-} satisfies ChartConfig
+// Chart colors (labels will be set dynamically using translations)
+const CHART_COLORS = {
+  expenses: "hsl(341 90% 62%)", // Deep red
+  income: "hsl(151 75% 48%)", // Bright green
+} as const
 
 // Interface for transaction data
 interface TransactionData {
@@ -72,6 +67,19 @@ export function RevenueCard({
   onWalletChange,
   refreshTrigger
 }: RevenueCardProps) {
+  const { t, i18n } = useTranslation('common')
+  
+  // Create translated chart config
+  const translatedChartConfig = {
+    expenses: {
+      label: t('overview.expenses'),
+      color: CHART_COLORS.expenses,
+    },
+    income: {
+      label: t('overview.income'),
+      color: CHART_COLORS.income,
+    },
+  } satisfies ChartConfig
   const [chartData, setChartData] = React.useState<TransactionData[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [activeChart, setActiveChart] = React.useState<"expenses" | "income">("expenses");
@@ -206,10 +214,10 @@ export function RevenueCard({
         >
           <TabsList className="grid w-full sm:w-[200px] grid-cols-2">
             <TabsTrigger value="expenses" className="text-xs">
-              Expenses
+              {t('overview.expenses')}
             </TabsTrigger>
             <TabsTrigger value="income" className="text-xs">
-              Income
+              {t('overview.income')}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -223,7 +231,7 @@ export function RevenueCard({
           }}
         >
           <SelectTrigger className="w-full sm:w-[150px] mt-2 sm:mt-0">
-            <SelectValue placeholder="Select wallet" />
+            <SelectValue placeholder={t('ui.selectWallet')} />
           </SelectTrigger>
           <SelectContent>
             {wallets.map(wallet => (
@@ -239,15 +247,15 @@ export function RevenueCard({
       <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
         <div className="flex flex-col">
           <span className="text-sm font-medium order-1 sm:order-none">
-            {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            {currentDate.toLocaleDateString(i18n.language === 'ua' ? 'uk-UA' : 'en-US', { month: 'long', year: 'numeric' })}
           </span>
           {/* Only show total if a specific wallet is selected */}
           {selectedWalletId !== 'all' && selectedWalletCurrency && (
             <span 
-              style={{ color: chartConfig[activeChart].color }} 
+              style={{ color: translatedChartConfig[activeChart].color }} 
               className="text-base sm:text-sm font-semibold sm:font-normal"
             >
-              Total: {new Intl.NumberFormat('en-US', {
+              {t('ui.total')}: {new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: selectedWalletCurrency || 'USD'
               }).format(total)}
@@ -283,7 +291,7 @@ export function RevenueCard({
           <CardHeaderContent />
         </CardHeader>
         <CardContent className="flex items-center justify-center h-[400px]">
-          <p>Loading transaction data...</p>
+          <p>{t('common.loading')}</p>
         </CardContent>
       </Card>
     );
@@ -296,7 +304,7 @@ export function RevenueCard({
           <CardHeaderContent />
         </CardHeader>
         <CardContent className="flex items-center justify-center h-[400px]">
-          <p>No transaction data available for {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}.</p>
+          <p>{t('transactions.noTransactions')} {currentDate.toLocaleDateString(i18n.language === 'ua' ? 'uk-UA' : 'en-US', { month: 'long', year: 'numeric' })}.</p>
         </CardContent>
       </Card>
     );
@@ -309,7 +317,7 @@ export function RevenueCard({
       </CardHeader>
       <CardContent className="px-0 sm:px-6 pb-6">
         <ChartContainer
-          config={chartConfig}
+          config={translatedChartConfig}
           className="aspect-auto h-[300px] sm:h-[250px] w-full px-2 sm:px-0"
         >
           <BarChart
@@ -351,7 +359,7 @@ export function RevenueCard({
                   maximumFractionDigits: 0
                 }).format(value as number);
                 
-                return [formattedValue, name === 'expenses' ? 'Expenses' : 'Income'];
+                return [formattedValue, name === 'expenses' ? t('overview.expenses') : t('overview.income')];
               }}
               labelFormatter={(value) => {
                 return new Date(value).toLocaleDateString("en-US", {
@@ -373,7 +381,7 @@ export function RevenueCard({
             />
             <Bar 
               dataKey={activeChart} 
-              fill={chartConfig[activeChart].color}
+              fill={translatedChartConfig[activeChart].color}
               style={{
                 cursor: 'pointer',
               }}

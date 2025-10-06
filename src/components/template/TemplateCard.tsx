@@ -1,0 +1,141 @@
+'use client'
+
+import { Template } from '@/types/template'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { getTranslatedComponentMetadata } from '@/lib/template-registry'
+import { useTranslation } from 'react-i18next'
+import { Calendar, MoreHorizontal, Trash2, Eye } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+
+interface TemplateCardProps {
+  template: Template
+  onDelete?: (templateId: string) => void
+  onEdit?: (template: Template) => void
+  onView?: (template: Template) => void
+}
+
+export function TemplateCard ({
+  template,
+  onDelete,
+  onEdit,
+  onView
+}: TemplateCardProps) {
+  const { t, i18n } = useTranslation('common')
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(
+      i18n.language === 'ua' ? 'uk-UA' : 'en-US',
+      {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }
+    )
+  }
+
+  return (
+    <Card className='w-full'>
+      <CardHeader className='pb-3'>
+        <div className='flex items-start justify-between'>
+          <div className='space-y-1'>
+            <CardTitle className='text-lg'>{template.name}</CardTitle>
+            <CardDescription className='flex items-center gap-1 text-sm'>
+              <Calendar className='h-3 w-3' />
+              Created {formatDate(template.created_at)}
+            </CardDescription>
+          </div>
+          <div className='flex items-center gap-1'>
+            {onDelete && (
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => onDelete(template.id)}
+                className='h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive'
+              >
+                <Trash2 className='h-4 w-4' />
+              </Button>
+            )}
+            {(onView || onEdit) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
+                    <MoreHorizontal className='h-4 w-4' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end'>
+                  {onView && (
+                    <DropdownMenuItem onClick={() => onView(template)}>
+                      <Eye className='h-4 w-4 mr-2' />
+                      View Template
+                    </DropdownMenuItem>
+                  )}
+                  {onEdit && (
+                    <DropdownMenuItem onClick={() => onEdit(template)}>
+                      Edit Template
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className='pt-0'>
+        <div className='space-y-3'>
+          <div className='flex items-center'>
+            <p className='text-sm text-muted-foreground'>
+              Components ({template.blocks.length})
+            </p>
+          </div>
+          <div className='flex flex-wrap gap-1'>
+            {template.blocks.map(block => {
+              const component = getTranslatedComponentMetadata(
+                block.componentId,
+                t
+              )
+              return (
+                <Badge key={block.id} variant='outline' className='text-xs'>
+                  {component?.icon} {component?.name}
+                </Badge>
+              )
+            })}
+          </div>
+
+          {template.blocks.length === 0 && (
+            <p className='text-sm text-muted-foreground italic'>
+              No components selected
+            </p>
+          )}
+
+          {/* View Button */}
+          {onView && (
+            <div className='pt-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                className='w-full'
+                onClick={() => onView(template)}
+              >
+                <Eye className='h-4 w-4 mr-2' />
+                View Template
+              </Button>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}

@@ -15,7 +15,7 @@ import { QuickTransactionForm } from '@/components/transaction/QuickTransactionF
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Sidebar } from './Sidebar'
+import { Sidebar } from '@/components/ui/Sidebar'
 
 export function MobileNav () {
   const [open, setOpen] = useState(false)

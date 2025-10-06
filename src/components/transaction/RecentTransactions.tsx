@@ -44,12 +44,13 @@ export function RecentTransactions ({
     hasNextPage,
     isFetchingNextPage
   } = useInfiniteQuery({
-    queryKey: ['recent-transactions', selectedCategory],
+    queryKey: ['recent-transactions', selectedCategory, selectedWalletId],
     queryFn: async ({ pageParam = 0 }) => {
       if (!user) return []
       const offset = pageParam * ITEMS_PER_PAGE
       return await transactionService.getFilteredTransactions({
         userId: user.id,
+        walletId: selectedWalletId,
         offset,
         limit: ITEMS_PER_PAGE,
         category: selectedCategory,

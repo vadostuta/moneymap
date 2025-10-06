@@ -106,7 +106,7 @@ export const Notification: Story = {
               Your order has been confirmed
             </p>
             <p className='text-sm text-muted-foreground'>
-              We'll send you a shipping confirmation when your item ships.
+              We&apos;ll send you a shipping confirmation when your item ships.
             </p>
           </div>
         </div>

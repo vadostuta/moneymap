@@ -45,7 +45,7 @@ export const Default: Story = {
       is_hidden: false,
       user_id: 'user-1',
       wallet_id: '1',
-      label: '',
+      label: 'Personal',
       created_at: '2024-01-15T10:30:00Z',
       updated_at: '2024-01-15T10:30:00Z',
       wallet: {
@@ -55,7 +55,7 @@ export const Default: Story = {
       }
     },
     activeWalletId: '1',
-    onDelete: (id: string, onUndo: () => void) => {
+    onDelete: (id: string) => {
       console.log('Transaction deleted:', id)
     }
   }
@@ -73,7 +73,7 @@ export const IncomeTransaction: Story = {
       is_hidden: false,
       user_id: 'user-1',
       wallet_id: '1',
-      label: '',
+      label: 'Personal',
       created_at: '2024-01-14T09:00:00Z',
       updated_at: '2024-01-14T09:00:00Z',
       wallet: {
@@ -83,7 +83,7 @@ export const IncomeTransaction: Story = {
       }
     },
     activeWalletId: '1',
-    onDelete: (id: string, onUndo: () => void) => {
+    onDelete: (id: string) => {
       console.log('Transaction deleted:', id)
     }
   },

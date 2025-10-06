@@ -22,6 +22,7 @@
   },
   "navigation": {
     "home": "Home",
+    "start": "Start",
     "transactions": "Transactions",
     "overview": "Overview",
     "analytics": "Analytics",
@@ -30,7 +31,8 @@
     "settings": "Settings",
     "categories": "Categories",
     "wallets": "Wallets",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "about": "About"
   },
   "transactions": {
     "title": "Transactions",
@@ -290,5 +292,170 @@
     "hide": "Hide amounts",
     "amountsHidden": "Amounts are hidden",
     "amountsVisible": "Amounts are visible"
+  },
+  "start": {
+    "welcome": "Welcome to MoneyMap! Sign in to start tracking your finances.",
+    "heyUser": "Hey {{username}}!",
+    "heyLogin": "Hey! Login here",
+    "createFirstWallet": "First you need to create your first",
+    "wallet": "wallet",
+    "loadingData": "Please wait while we load your data..."
+  },
+  "templates": {
+    "title": "Templates",
+    "create": "Create Template",
+    "creating": "Creating...",
+    "save": "Save Template",
+    "created": "Template Created",
+    "deleted": "Template Deleted",
+    "createSuccess": "Template \"{{name}}\" has been created successfully.",
+    "deleteSuccess": "Template deleted successfully",
+    "createError": "Failed to create template. Please try again.",
+    "deleteError": "Failed to delete template. Please try again.",
+    "loadError": "Error loading templates: {{message}}",
+    "untitled": "Untitled",
+    "custom": "Custom",
+    "layout": "Layout",
+    "noTemplatesYet": "No templates created yet. Create your first template to get started!",
+    "createDescription": "Create a new template by selecting components to include.",
+    "name": "Template Name",
+    "namePlaceholder": "Enter template name...",
+    "chooseLayout": "Choose Layout",
+    "selectComponents": "Select Components",
+    "selectedComponents": "Selected Components ({{count}})",
+    "preview": "Preview",
+    "selectComponentsToPreview": "Select components to see preview",
+    "template": "Template",
+    "position": "Position {{number}}",
+    "emptySlot": "Empty slot",
+    "layout": "Layout"
+  },
+  "components": {
+    "expensePieChart": {
+      "name": "Expense Pie Chart",
+      "description": "Visualize expense distribution by category",
+      "category": "Charts"
+    },
+    "recentTransactionsList": {
+      "name": "Recent Transactions",
+      "description": "Display list of recent transactions",
+      "category": "Lists"
+    },
+    "monthlyExpenseBarChart": {
+      "name": "Monthly Expense Bar Chart",
+      "description": "Show monthly expense trends over time",
+      "category": "Charts"
+    }
+  },
+  "categories": {
+    "Charts": "Charts",
+    "Lists": "Lists"
+  },
+  "layouts": {
+    "2-1": {
+      "name": "Two + One",
+      "description": "First row with 2 blocks, second row with 1 full-width block"
+    },
+    "1-2": {
+      "name": "One + Two",
+      "description": "First row with 1 full-width block, second row with 2 blocks"
+    },
+    "1-1-1": {
+      "name": "Three Stacked",
+      "description": "Three rows with one block each"
+    },
+    "2-2": {
+      "name": "Two by Two",
+      "description": "Two rows with two blocks each"
+    },
+    "1-2-1": {
+      "name": "One + Two + One",
+      "description": "First row: 1 block, Second row: 2 blocks, Third row: 1 block"
+    },
+    "3-1": {
+      "name": "Three + One",
+      "description": "First row with 3 blocks, second row with 1 full-width block"
+    },
+    "1-3": {
+      "name": "One + Three",
+      "description": "First row with 1 full-width block, second row with 3 blocks"
+    },
+    "2-1-side": {
+      "name": "Two Left + One Right",
+      "description": "Left side with 2 stacked blocks, right side with 1 full-height block"
+    }
+  },
+  "report": {
+    "cards": {
+      "income": "Total Income",
+      "expenses": "Total Expenses",
+      "net": "Net Savings",
+      "savingsRate": "Savings Rate"
+    }
+  },
+  "ui": {
+    "selectWallet": "Select wallet",
+    "total": "Total",
+    "failedToLoad": "Failed to load chart data",
+    "failedToLoadWallets": "Failed to load wallets.",
+    "failedToCreateWallet": "Failed to create wallet",
+    "failedToUpdateWallet": "Failed to update wallet",
+    "failedToLoadWallet": "Failed to load wallet",
+    "failedToSetPrimaryWallet": "Failed to set primary wallet",
+    "failedToFetchWallets": "Failed to fetch wallets",
+    "failedToFetchTransactionData": "Failed to fetch transaction data",
+    "failedToSetDefaultWallet": "Failed to set default wallet",
+    "failedToLoadBankIntegrations": "Failed to load bank integrations",
+    "failedToDeleteAccount": "Failed to delete account",
+    "failedToDeleteUserData": "Failed to delete user data",
+    "failedToDeleteAuthUser": "Failed to delete auth user",
+    "failedToDeleteUser": "Failed to delete user"
+  },
+  "errors": {
+    "userMustBeLoggedIn": "User must be logged in",
+    "unknown": "Unknown"
+  },
+  "about": {
+    "hero": {
+      "description": "MoneyMap helps you take full control of your personal finances — quickly, securely, and in one place.",
+      "subtitle": "It's built for people who want a clear picture of where their money goes without complicated spreadsheets."
+    },
+    "features": {
+      "title": "What You Can Do",
+      "monobank": {
+        "title": "Connect your Monobank account",
+        "description": "Automatically sync your transactions in real time — no manual entry needed.",
+        "details": "Keep everything up to date with secure token-based integration."
+      },
+      "templates": {
+        "title": "Create your own templates",
+        "description": "Build personalized dashboards with charts, expense summaries, or recent transactions.",
+        "details": "Save your favorite layout and reuse it anytime to track what matters most to you."
+      },
+      "search": {
+        "title": "Search all your transactions",
+        "description": "Instantly find any payment or income by description, category, or wallet — across your entire history.",
+        "details": "Powerful search across all your financial data with instant results."
+      },
+      "wallets": {
+        "title": "Manage multiple wallets",
+        "description": "Track your cash, cards, and bank accounts separately, all under one roof.",
+        "details": "Each wallet has its own balance, analytics, and filters. Switch wallets in sidebar → all charts & data update instantly."
+      },
+      "visualize": {
+        "title": "Visualize your finances",
+        "description": "Use clean charts and summaries to spot spending trends, income growth, or where you can save more.",
+        "details": "Beautiful, interactive visualizations that make your financial data easy to understand."
+      }
+    },
+    "privacy": {
+      "title": "Your Data, Your Privacy",
+      "description": "MoneyMap runs securely on Supabase with bank-grade authentication. Only you can see your data — nothing is shared or stored without your consent."
+    },
+    "cta": {
+      "title": "Start Now",
+      "description": "Sign in with Google, add your first wallet, and discover how simple managing money can be. Your financial clarity starts here.",
+      "start": "Get Started"
+    }
   }
 }

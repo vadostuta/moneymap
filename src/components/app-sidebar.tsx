@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { LogIn, LogOut, Plus, Menu, X } from 'lucide-react'
+import { Logo } from '@/components/ui/Logo'
 import {
   Dialog,
   DialogContent,
@@ -33,9 +34,10 @@ import {
   Wallet,
   Settings,
   Receipt,
-  BarChart3,
-  PieChart,
-  FileText
+  Info
+  // BarChart3,
+  // PieChart,
+  // FileText
 } from 'lucide-react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -54,6 +56,17 @@ import {
 } from '@/components/ui/select'
 import { Eye, EyeOff } from 'lucide-react'
 import { usePrivacy } from '@/contexts/privacy-context'
+
+type NavItem = {
+  href: string
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+  subItems?: {
+    href: string
+    label: string
+    icon: React.ComponentType<{ className?: string }>
+  }[]
+}
 
 export function AppSidebar () {
   const { user, signInWithGoogle, signOut } = useAuth()
@@ -82,39 +95,46 @@ export function AppSidebar () {
     }
   }
 
-  const navItems = [
+  const navItems: NavItem[] = [
     {
-      href: '/overview',
-      label: t('navigation.overview'),
+      href: '/start',
+      label: t('navigation.start'),
       icon: LayoutDashboard
     },
+    // {
+    //   href: '/overview',
+    //   label: t('navigation.overview'),
+    //   icon: LayoutDashboard
+    // },
     {
       href: '/transactions',
       label: t('navigation.transactions'),
       icon: Receipt
     },
-    {
-      href: '/analytics',
-      label: t('navigation.analytics'),
-      icon: BarChart3,
-      subItems: [
-        {
-          href: '/analytics',
-          label: t('navigation.analyticsOverview'),
-          icon: BarChart3
-        },
-        {
-          href: '/analytics/category',
-          label: t('navigation.analyticsTrend'),
-          icon: PieChart
-        }
-      ]
-    },
-    {
-      href: '/report',
-      label: t('navigation.report', 'Report'),
-      icon: FileText
-    },
+    // Temporarily disabled analytics
+    // {
+    //   href: '/analytics',
+    //   label: t('navigation.analytics'),
+    //   icon: BarChart3,
+    //   subItems: [
+    //     {
+    //       href: '/analytics',
+    //       label: t('navigation.analyticsOverview'),
+    //       icon: BarChart3
+    //     },
+    //     {
+    //       href: '/analytics/category',
+    //       label: t('navigation.analyticsTrend'),
+    //       icon: PieChart
+    //     }
+    //   ]
+    // },
+    // Temporarily disabled report
+    // {
+    //   href: '/report',
+    //   label: t('navigation.report', 'Report'),
+    //   icon: FileText
+    // },
     {
       href: '/wallets',
       label: t('navigation.wallets'),
@@ -124,6 +144,11 @@ export function AppSidebar () {
       href: '/settings',
       label: t('navigation.settings'),
       icon: Settings
+    },
+    {
+      href: '/about',
+      label: t('navigation.about'),
+      icon: Info
     }
   ]
 
@@ -168,37 +193,10 @@ export function AppSidebar () {
           </button>
 
           <Link
-            href='/overview'
+            href='/start'
             className='text-foreground hover:text-primary transition-colors'
           >
-            <svg
-              width='24'
-              height='24'
-              viewBox='0 0 200 200'
-              xmlns='http://www.w3.org/2000/svg'
-              className='text-foreground'
-            >
-              {/* Pie Chart Segments */}
-              <circle cx='100' cy='100' r='70' fill='currentColor' />
-              <path
-                d='M100,30 A70,70 0 0,1 170,100 L140,100 A40,40 0 0,0 100,60 Z'
-                fill='#57C6E1'
-              />
-              <path
-                d='M170,100 A70,70 0 0,1 100,170 L100,140 A40,40 0 0,0 140,100 Z'
-                fill='#4DA3FF'
-              />
-              <path
-                d='M100,170 A70,70 0 0,1 30,100 L60,100 A40,40 0 0,0 100,140 Z'
-                fill='#FF6B6B'
-              />
-              <path
-                d='M30,100 A70,70 0 0,1 100,30 L100,60 A40,40 0 0,0 60,100 Z'
-                fill='#FFD93D'
-              />
-              {/* Inner Circle (White Center) */}
-              <circle cx='100' cy='100' r='40' fill='#fff' />
-            </svg>
+            <Logo size='sm' className='text-foreground' />
           </Link>
         </div>
       </div>
@@ -362,72 +360,18 @@ export function AppSidebar () {
               }`}
             >
               <Link
-                href='/overview'
+                href='/start'
                 className={`font-bold ${
                   collapsed === 'collapsed' ? 'text-base' : ''
                 } text-sidebar-foreground hover:text-sidebar-primary transition-colors`}
               >
                 {collapsed === 'expanded' ? (
                   <div className='flex flex-col items-center'>
-                    <svg
-                      width='40'
-                      height='40'
-                      viewBox='0 0 200 200'
-                      xmlns='http://www.w3.org/2000/svg'
-                      className='text-sidebar-foreground'
-                    >
-                      {/* Pie Chart Segments */}
-                      <circle cx='100' cy='100' r='70' fill='currentColor' />
-                      <path
-                        d='M100,30 A70,70 0 0,1 170,100 L140,100 A40,40 0 0,0 100,60 Z'
-                        fill='#57C6E1'
-                      />
-                      <path
-                        d='M170,100 A70,70 0 0,1 100,170 L100,140 A40,40 0 0,0 140,100 Z'
-                        fill='#4DA3FF'
-                      />
-                      <path
-                        d='M100,170 A70,70 0 0,1 30,100 L60,100 A40,40 0 0,0 100,140 Z'
-                        fill='#FF6B6B'
-                      />
-                      <path
-                        d='M30,100 A70,70 0 0,1 100,30 L100,60 A40,40 0 0,0 60,100 Z'
-                        fill='#FFD93D'
-                      />
-                      {/* Inner Circle (White Center) */}
-                      <circle cx='100' cy='100' r='40' fill='#fff' />
-                    </svg>
+                    <Logo size='md' className='text-sidebar-foreground' />
                     <span>MoneyMap</span>
                   </div>
                 ) : (
-                  <svg
-                    width='24'
-                    height='24'
-                    viewBox='0 0 200 200'
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='text-sidebar-foreground'
-                  >
-                    {/* Pie Chart Segments */}
-                    <circle cx='100' cy='100' r='70' fill='currentColor' />
-                    <path
-                      d='M100,30 A70,70 0 0,1 170,100 L140,100 A40,40 0 0,0 100,60 Z'
-                      fill='#57C6E1'
-                    />
-                    <path
-                      d='M170,100 A70,70 0 0,1 100,170 L100,140 A40,40 0 0,0 140,100 Z'
-                      fill='#4DA3FF'
-                    />
-                    <path
-                      d='M100,170 A70,70 0 0,1 30,100 L60,100 A40,40 0 0,0 100,140 Z'
-                      fill='#FF6B6B'
-                    />
-                    <path
-                      d='M30,100 A70,70 0 0,1 100,30 L100,60 A40,40 0 0,0 60,100 Z'
-                      fill='#FFD93D'
-                    />
-                    {/* Inner Circle (White Center) */}
-                    <circle cx='100' cy='100' r='40' fill='#fff' />
-                  </svg>
+                  <Logo size='sm' className='text-sidebar-foreground' />
                 )}
               </Link>
               <div className='flex items-center gap-2'>
