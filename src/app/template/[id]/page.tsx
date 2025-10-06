@@ -74,8 +74,8 @@ export default function TemplatePage () {
   }
 
   return (
-    <main className='flex min-h-screen mt-[-5rem] flex-col items-start justify-start p-24 w-full'>
-      <div className='max-w-7xl mx-auto w-full'>
+    <main className='flex min-h-screen mt-[-5rem] flex-col items-start justify-start p-6 sm:p-8 md:p-4 lg:p-24 w-full'>
+      <div className='w-full max-w-full md:max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto'>
         {/* Template Content */}
         <TemplateViewer
           template={template}
