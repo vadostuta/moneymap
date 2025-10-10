@@ -196,11 +196,11 @@ export function TemplateViewer ({
       {/* Render layout structure */}
       {template.layout === '2-1-side' ? (
         // Special handling for side-by-side layout
-        <div className='grid grid-cols-1 min-[821px]:grid-cols-2 gap-4 min-[821px]:h-[600px]'>
+        <div className='grid grid-cols-1 min-[821px]:grid-cols-2 gap-4'>
           {/* Left side - 2 stacked blocks */}
-          <div className='space-y-4'>
+          <div className='space-y-8 min-[821px]:pr-3'>
             {template.blocks.slice(0, 2).map(block => (
-              <div key={block.id} className='min-[821px]:h-[calc(50%-0.5rem)]'>
+              <div key={block.id}>
                 {renderComponent(
                   block,
                   selectedWallet,
@@ -214,7 +214,7 @@ export function TemplateViewer ({
           {/* Right side - 1 full height block */}
           <div>
             {template.blocks[2] && (
-              <div key={template.blocks[2].id} className='min-[821px]:h-full'>
+              <div key={template.blocks[2].id}>
                 {renderComponent(
                   template.blocks[2],
                   selectedWallet,
