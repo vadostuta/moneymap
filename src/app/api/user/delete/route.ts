@@ -13,7 +13,6 @@ export async function POST () {
     } = await supabase.auth.getUser()
 
     if (userError) {
-      console.error('Error getting user:', userError)
       return NextResponse.json(
         { error: 'Authentication error', details: userError },
         { status: 401 }
@@ -32,7 +31,6 @@ export async function POST () {
     })
 
     if (deleteError) {
-      console.error('Error deleting user data:', deleteError)
       return NextResponse.json(
         { error: 'Failed to delete user data', details: deleteError },
         { status: 500 }
@@ -43,7 +41,6 @@ export async function POST () {
 
     // Check if service role key is available
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('SUPABASE_SERVICE_ROLE_KEY is not set')
       return NextResponse.json(
         { error: 'Server configuration error: Missing service role key' },
         { status: 500 }
@@ -51,7 +48,6 @@ export async function POST () {
     }
 
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      console.error('NEXT_PUBLIC_SUPABASE_URL is not set')
       return NextResponse.json(
         { error: 'Server configuration error: Missing Supabase URL' },
         { status: 500 }
@@ -78,15 +74,7 @@ export async function POST () {
     )
 
     const responseData = await response.json()
-    console.log('Delete user response status:', response.status)
-    console.log('Delete user response data:', responseData)
-
     if (!response.ok) {
-      console.error('Error response from Supabase:', {
-        status: response.status,
-        statusText: response.statusText,
-        data: responseData
-      })
       return NextResponse.json(
         {
           error: 'Failed to delete auth user',
@@ -109,7 +97,6 @@ export async function POST () {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Unexpected error in delete user route:', error)
     return NextResponse.json(
       {
         error: 'Failed to delete user',

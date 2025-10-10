@@ -14,6 +14,7 @@ import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/Sidebar'
 import { ThemeProvider } from '@/contexts/theme-context'
 import { PrivacyProvider } from '@/contexts/privacy-context'
+import { Analytics } from '@vercel/analytics/react'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -75,6 +76,7 @@ export default function RootLayout ({
           </PrivacyProvider>
         </ThemeProvider>
         <ClientToaster />
+        <Analytics />
       </body>
     </html>
   )
