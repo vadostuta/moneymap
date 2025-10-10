@@ -187,18 +187,20 @@ export function TemplateViewer ({
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-4'>
           {backButton}
-          <h2 className='text-2xl font-bold'>{template.name}</h2>
+          <h2 className='text-xl sm:text-2xl font-bold truncate'>
+            {template.name}
+          </h2>
         </div>
       </div>
 
       {/* Render layout structure */}
       {template.layout === '2-1-side' ? (
         // Special handling for side-by-side layout
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 h-[600px]'>
+        <div className='grid grid-cols-1 min-[821px]:grid-cols-2 gap-4'>
           {/* Left side - 2 stacked blocks */}
-          <div className='space-y-4'>
+          <div className='space-y-8 min-[821px]:pr-3'>
             {template.blocks.slice(0, 2).map(block => (
-              <div key={block.id} className='h-[calc(50%-0.5rem)]'>
+              <div key={block.id}>
                 {renderComponent(
                   block,
                   selectedWallet,
@@ -212,7 +214,7 @@ export function TemplateViewer ({
           {/* Right side - 1 full height block */}
           <div>
             {template.blocks[2] && (
-              <div key={template.blocks[2].id} className='h-full'>
+              <div key={template.blocks[2].id}>
                 {renderComponent(
                   template.blocks[2],
                   selectedWallet,
@@ -233,8 +235,8 @@ export function TemplateViewer ({
               blocksInRow === 1
                 ? 'grid-cols-1'
                 : blocksInRow === 2
-                ? 'grid-cols-1 md:grid-cols-2'
-                : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                ? 'grid-cols-1 min-[821px]:grid-cols-2'
+                : 'grid-cols-1 min-[821px]:grid-cols-2 lg:grid-cols-3'
             }`}
           >
             {Array.from({ length: blocksInRow }).map((_, blockIndex) => {
