@@ -306,10 +306,22 @@ export class MonobankService {
       } else {
         // Start from the last synced transaction date
         from = new Date(lastTransaction.date)
-        console.log(
-          `Fetching transactions from ${from.toISOString()} to ${to.toISOString()}`
-        )
       }
+
+      // Monobank API limit: maximum 31 days per request
+      const MAX_DAYS = 31
+      const maxFromDate = new Date(to.getTime() - MAX_DAYS * 24 * 60 * 60 * 1000)
+
+      if (from < maxFromDate) {
+        console.log(
+          `Date range exceeds ${MAX_DAYS} days. Limiting from ${from.toISOString()} to ${maxFromDate.toISOString()}`
+        )
+        from = maxFromDate
+      }
+
+      console.log(
+        `Fetching transactions from ${from.toISOString()} to ${to.toISOString()}`
+      )
 
       // Only fetch if there's a meaningful time gap (at least 1 minute)
       const timeDiff = to.getTime() - from.getTime()

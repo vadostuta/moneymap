@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { MonobankService } from '@/lib/services/monobank'
 // import { toastService } from '@/lib/services/toast'
@@ -13,10 +13,11 @@ export function MonobankSyncProvider ({
 }) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
-  const FETCH_COOLDOWN = 60000 // 1 minute cooldown
+  const FETCH_COOLDOWN = 120000 // 2 minutes cooldown
+  const syncInitiatedRef = useRef(false)
 
   // Replace the existing sync logic with:
-  const { mutate: syncTransactions } = useMutation({
+  const { mutate: syncTransactions, isPending } = useMutation({
     mutationFn: async () => {
       if (!user) return
       await MonobankService.syncNewTransactions()
@@ -33,17 +34,30 @@ export function MonobankSyncProvider ({
     if (!user) {
       queryClient.removeQueries({ queryKey: ['transactions'] })
       queryClient.removeQueries({ queryKey: ['last-synced-transaction'] })
+      syncInitiatedRef.current = false
       return
     }
 
-    // Initial sync
-    syncTransactions()
+    // Prevent duplicate initial sync if already initiated
+    if (syncInitiatedRef.current) return
+
+    syncInitiatedRef.current = true
+
+    // Initial sync - only if not already pending
+    if (!isPending) {
+      syncTransactions()
+    }
 
     // Set up interval for subsequent syncs
-    const interval = setInterval(syncTransactions, FETCH_COOLDOWN)
+    const interval = setInterval(() => {
+      if (!isPending) {
+        syncTransactions()
+      }
+    }, FETCH_COOLDOWN)
 
     return () => clearInterval(interval)
-  }, [user, syncTransactions])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   return <>{children}</>
 }
