@@ -471,6 +471,53 @@ export const transactionService = {
     }))
   },
 
+  async getMonthlyIncomeByCategory (
+    walletId: string,
+    year: number,
+    month: number
+  ): Promise<{ category_id: string; amount: number }[]> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    // Get first and last day of specified month using date-fns
+    const targetDate = new Date(year, month, 1)
+    const firstDayOfMonth = startOfMonth(targetDate)
+    const lastDayOfMonth = endOfMonth(targetDate)
+
+    let query = supabase
+      .from('transactions')
+      .select('category_id, amount')
+      .eq('user_id', user.id)
+      .eq('type', 'income')
+      .eq('is_deleted', false)
+      .eq('is_hidden', false)
+      .gte('date', firstDayOfMonth.toISOString())
+      .lte('date', lastDayOfMonth.toISOString())
+
+    // Add wallet filter if specified
+    if (walletId && walletId !== 'all') {
+      query = query.eq('wallet_id', walletId)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    // Group by category_id and sum amounts
+    const categoryTotals = (data || []).reduce((acc, transaction) => {
+      const categoryId = transaction.category_id || 'uncategorized'
+      acc[categoryId] = (acc[categoryId] || 0) + transaction.amount
+      return acc
+    }, {} as Record<string, number>)
+
+    return Object.entries(categoryTotals).map(([category_id, amount]) => ({
+      category_id,
+      amount
+    }))
+  },
+
   async getRecentTransactions (
     offset: number = 0,
     limit: number = 5

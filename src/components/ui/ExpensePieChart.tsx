@@ -47,13 +47,15 @@ interface ExpensePieChartProps {
   selectedCategory?: string
   wallet?: Wallet // Optional wallet prop to override context wallet
   showWalletName?: boolean // Whether to show wallet name in the header
+  month?: Date // Optional month prop for filtering data
 }
 
 export function ExpensePieChart ({
   onCategorySelect,
   selectedCategory,
   wallet,
-  showWalletName = false
+  showWalletName = false,
+  month
 }: ExpensePieChartProps) {
   const { t } = useTranslation('common')
   const { selectedWallet } = useWallet()
@@ -67,24 +69,53 @@ export function ExpensePieChart ({
   // Get the current wallet's currency
   const currency = currentWallet?.currency || 'UAH' // Fallback to UAH if no wallet selected
 
+  // Determine which month to use
+  const targetMonth = month || new Date()
+  const year = targetMonth.getFullYear()
+  const monthIndex = targetMonth.getMonth()
+
   // Fetch data by category with wallet filter
   const { data, isLoading, error } = useQuery({
-    queryKey: ['transactions-by-category', selectedWalletId, type],
+    queryKey: [
+      'transactions-by-category',
+      selectedWalletId,
+      type,
+      year,
+      monthIndex
+    ],
     queryFn: async () => {
       let result
 
       if (type === 'net') {
-        result = await transactionService.getCurrentMonthNetByCategory(
-          selectedWalletId
-        )
+        result = month
+          ? await transactionService.getMonthlyNetByCategory(
+              selectedWalletId,
+              year,
+              monthIndex
+            )
+          : await transactionService.getCurrentMonthNetByCategory(
+              selectedWalletId
+            )
       } else if (type === 'expense') {
-        result = await transactionService.getCurrentMonthExpensesByCategory(
-          selectedWalletId
-        )
+        result = month
+          ? await transactionService.getMonthlyExpensesByCategory(
+              selectedWalletId,
+              year,
+              monthIndex
+            )
+          : await transactionService.getCurrentMonthExpensesByCategory(
+              selectedWalletId
+            )
       } else {
-        result = await transactionService.getCurrentMonthIncomeByCategory(
-          selectedWalletId
-        )
+        result = month
+          ? await transactionService.getMonthlyIncomeByCategory(
+              selectedWalletId,
+              year,
+              monthIndex
+            )
+          : await transactionService.getCurrentMonthIncomeByCategory(
+              selectedWalletId
+            )
       }
 
       // Filter out transfers if needed

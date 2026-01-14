@@ -16,12 +16,14 @@ interface RecentTransactionsProps {
   selectedCategory?: TransactionCategory
   onResetCategory?: () => void
   selectedWalletId?: string
+  month?: Date
 }
 
 export function RecentTransactions ({
   selectedCategory,
   onResetCategory,
-  selectedWalletId
+  selectedWalletId,
+  month
 }: RecentTransactionsProps) {
   const { t } = useTranslation('common')
   const { user, loading: authLoading } = useAuth()
@@ -31,10 +33,10 @@ export function RecentTransactions ({
     onUndo: () => void
   } | null>(null)
 
-  // Get current month date range
-  const currentDate = new Date()
-  const fromDate = startOfMonth(currentDate)
-  const toDate = endOfMonth(currentDate)
+  // Use provided month or current month
+  const targetMonth = month || new Date()
+  const fromDate = startOfMonth(targetMonth)
+  const toDate = endOfMonth(targetMonth)
 
   const {
     data,
@@ -44,7 +46,13 @@ export function RecentTransactions ({
     hasNextPage,
     isFetchingNextPage
   } = useInfiniteQuery({
-    queryKey: ['recent-transactions', selectedCategory, selectedWalletId],
+    queryKey: [
+      'recent-transactions',
+      selectedCategory,
+      selectedWalletId,
+      month?.getFullYear(),
+      month?.getMonth()
+    ],
     queryFn: async ({ pageParam = 0 }) => {
       if (!user) return []
       const offset = pageParam * ITEMS_PER_PAGE

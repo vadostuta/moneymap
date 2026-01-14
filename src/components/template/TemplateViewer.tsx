@@ -2,16 +2,19 @@
 
 import { Template } from '@/types/template'
 import { getLayoutById } from '@/lib/layout-registry'
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useWallet } from '@/contexts/wallet-context'
 import { Wallet } from '@/lib/types/wallet'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '@/contexts/auth-context'
+import { transactionService } from '@/lib/services/transaction'
 
 // Import your actual chart components
 import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
 import { RecentTransactions } from '@/components/transaction/RecentTransactions'
 import { MonthlyExpenseBarChart } from '@/app/analytics/components/MonthlyExpenseBarChart'
+import { MonthSelector } from './MonthSelector'
 
 interface TemplateViewerProps {
   template: Template
@@ -30,6 +33,7 @@ function renderComponent (
   block: Template['blocks'][0],
   selectedWallet: Wallet | null,
   selectedCategory?: string,
+  selectedMonth?: Date,
   onCategorySelect?: (category: string | undefined) => void,
   onResetCategory?: () => void
 ) {
@@ -58,6 +62,7 @@ function renderComponent (
           selectedCategory={selectedCategory}
           showWalletName={true}
           wallet={selectedWallet || undefined}
+          month={selectedMonth}
         />
       )
 
@@ -68,6 +73,7 @@ function renderComponent (
           selectedCategory={selectedCategory}
           onResetCategory={onResetCategory || (() => {})}
           selectedWalletId={selectedWallet?.id}
+          month={selectedMonth}
         />
       )
 
@@ -78,6 +84,7 @@ function renderComponent (
           selectedWallet={selectedWallet}
           selectedCategory={selectedCategory}
           onCategorySelect={onCategorySelect}
+          month={selectedMonth}
         />
       )
 
@@ -99,11 +106,13 @@ function renderComponent (
 function MonthlyExpenseBarChartWrapper ({
   selectedWallet,
   selectedCategory,
-  onCategorySelect
+  onCategorySelect,
+  month
 }: {
   selectedWallet: Wallet | null
   selectedCategory?: string
   onCategorySelect?: (category: string | undefined) => void
+  month?: Date
 }) {
   const { t } = useTranslation('common')
   // Use real data like other components - fetch from transactionService
@@ -112,13 +121,27 @@ function MonthlyExpenseBarChartWrapper ({
     isLoading,
     error
   } = useQuery({
-    queryKey: ['transactions-by-category', 'current-month', selectedWallet?.id],
+    queryKey: [
+      'transactions-by-category',
+      month ? 'specific-month' : 'current-month',
+      selectedWallet?.id,
+      month?.getFullYear(),
+      month?.getMonth()
+    ],
     queryFn: async () => {
       // Import transactionService here to avoid circular dependencies
       const { transactionService } = await import('@/lib/services/transaction')
-      return await transactionService.getCurrentMonthExpensesByCategory(
-        selectedWallet?.id
-      )
+      if (month) {
+        return await transactionService.getMonthlyExpensesByCategory(
+          selectedWallet?.id || '',
+          month.getFullYear(),
+          month.getMonth()
+        )
+      } else {
+        return await transactionService.getCurrentMonthExpensesByCategory(
+          selectedWallet?.id
+        )
+      }
     }
   })
 
@@ -162,8 +185,68 @@ export function TemplateViewer ({
   backButton
 }: TemplateViewerProps) {
   const { selectedWallet } = useWallet()
+  const { user } = useAuth()
   const layoutDef = getLayoutById(template.layout)
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>()
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
+
+  // Fetch wallet transactions to calculate available months
+  const { data: allTransactions } = useQuery({
+    queryKey: ['wallet-transactions', selectedWallet?.id],
+    queryFn: async () => {
+      if (!selectedWallet?.id) return []
+      const currentDate = new Date()
+      const startDate = new Date(currentDate.getFullYear() - 2, 0, 1)
+      const allTransactions = await transactionService.getAll()
+
+      return allTransactions.filter(
+        t =>
+          t.wallet_id === selectedWallet.id &&
+          new Date(t.date) >= startDate &&
+          t.type === 'expense' &&
+          !t.is_deleted &&
+          !t.is_hidden
+      )
+    },
+    enabled: !!selectedWallet?.id && !!user
+  })
+
+  // Calculate available months from transactions
+  const availableMonths = useMemo(() => {
+    if (!allTransactions || allTransactions.length === 0) return []
+
+    const monthMap = new Map<string, Date>()
+    allTransactions.forEach(transaction => {
+      if (transaction.type === 'expense' && transaction.amount > 0) {
+        const date = new Date(transaction.date)
+        const monthKey = `${date.getFullYear()}-${date.getMonth()}`
+        if (!monthMap.has(monthKey)) {
+          monthMap.set(
+            monthKey,
+            new Date(date.getFullYear(), date.getMonth(), 1)
+          )
+        }
+      }
+    })
+
+    return Array.from(monthMap.values()).sort(
+      (a, b) => b.getTime() - a.getTime()
+    )
+  }, [allTransactions])
+
+  // Auto-sync selected month when available months change
+  useEffect(() => {
+    if (
+      availableMonths.length > 0 &&
+      !availableMonths.some(
+        month =>
+          month.getMonth() === selectedMonth.getMonth() &&
+          month.getFullYear() === selectedMonth.getFullYear()
+      )
+    ) {
+      setSelectedMonth(availableMonths[0])
+    }
+  }, [availableMonths, selectedMonth])
 
   const handleCategorySelect = (category: string | undefined) => {
     setSelectedCategory(category)
@@ -171,6 +254,10 @@ export function TemplateViewer ({
 
   const handleResetCategory = () => {
     setSelectedCategory(undefined)
+  }
+
+  const handleMonthSelect = (month: Date) => {
+    setSelectedMonth(month)
   }
 
   if (!layoutDef) {
@@ -193,6 +280,17 @@ export function TemplateViewer ({
         </div>
       </div>
 
+      {/* Month Selector - permanent control */}
+      {selectedWallet && availableMonths.length > 0 && (
+        <div className='w-full'>
+          <MonthSelector
+            selectedMonth={selectedMonth}
+            onMonthSelect={handleMonthSelect}
+            availableMonths={availableMonths}
+          />
+        </div>
+      )}
+
       {/* Render layout structure */}
       {template.layout === '2-1-side' ? (
         // Special handling for side-by-side layout
@@ -205,6 +303,7 @@ export function TemplateViewer ({
                   block,
                   selectedWallet,
                   selectedCategory,
+                  selectedMonth,
                   handleCategorySelect,
                   handleResetCategory
                 )}
@@ -219,6 +318,7 @@ export function TemplateViewer ({
                   template.blocks[2],
                   selectedWallet,
                   selectedCategory,
+                  selectedMonth,
                   handleCategorySelect,
                   handleResetCategory
                 )}
@@ -259,6 +359,7 @@ export function TemplateViewer ({
                     block,
                     selectedWallet,
                     selectedCategory,
+                    selectedMonth,
                     handleCategorySelect,
                     handleResetCategory
                   )}

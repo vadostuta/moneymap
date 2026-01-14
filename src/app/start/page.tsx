@@ -100,9 +100,9 @@ export default function StartPage () {
           <div className='space-y-8 flex flex-col items-center w-full'>
             {/* Templates Section with Create Button */}
             <div className='w-full space-y-4'>
-              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+              <div className='flex flex-wrap justify-center gap-4'>
                 {/* Loading skeleton for create button */}
-                <div className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[80px] animate-pulse'>
+                <div className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[80px] animate-pulse w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'>
                   <div className='flex items-center justify-center h-full text-center gap-2'>
                     <div className='p-2 rounded-full bg-muted/20'>
                       <div className='h-4 w-4 bg-muted/40 rounded'></div>
@@ -115,7 +115,7 @@ export default function StartPage () {
                 {[1, 2, 3].map(i => (
                   <div
                     key={i}
-                    className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[80px] animate-pulse'
+                    className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[80px] animate-pulse w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
                   >
                     <div className='relative z-10 pr-8 flex flex-col justify-center h-full'>
                       <div className='h-5 w-32 bg-muted/40 rounded mb-2'></div>
@@ -199,10 +199,10 @@ export default function StartPage () {
           <div className='space-y-8 flex flex-col items-center w-full'>
             {/* Templates Section with Create Button */}
             <div className='w-full space-y-4'>
-              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+              <div className='flex flex-wrap justify-center gap-4'>
                 {/* Create Template Button - styled like template cards */}
                 <div
-                  className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 hover:shadow-md hover:shadow-primary/5 hover:border-primary/20 transition-all duration-200 cursor-pointer overflow-hidden h-[80px]'
+                  className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 hover:shadow-md hover:shadow-primary/5 hover:border-primary/20 transition-all duration-200 cursor-pointer overflow-hidden h-[80px] w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
                   onClick={() => setIsTemplateModalOpen(true)}
                 >
                   {/* Subtle background pattern */}
@@ -223,7 +223,7 @@ export default function StartPage () {
                   return (
                     <div
                       key={template.id}
-                      className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 hover:shadow-md hover:shadow-primary/5 hover:border-primary/20 transition-all duration-200 cursor-pointer overflow-hidden h-[80px]'
+                      className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 hover:shadow-md hover:shadow-primary/5 hover:border-primary/20 transition-all duration-200 cursor-pointer overflow-hidden h-[80px] w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
                       onClick={() => handleViewTemplate(template)}
                     >
                       {/* Subtle background pattern */}
