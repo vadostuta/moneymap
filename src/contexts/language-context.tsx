@@ -14,16 +14,20 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 
 export function LanguageProvider ({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation('common')
-  const [currentLanguage, setCurrentLanguage] = useState(i18n.language)
+  const [currentLanguage, setCurrentLanguage] = useState('en')
+  const [mounted, setMounted] = useState(false)
 
   // Set language from localStorage on mount
   useEffect(() => {
+    setMounted(true)
     const savedLanguage = localStorage.getItem('language')
     console.log('savedLanguage', savedLanguage)
-    if (savedLanguage && savedLanguage !== i18n.language) {
-      i18n.changeLanguage(savedLanguage)
-      setCurrentLanguage(savedLanguage)
+    const languageToUse = savedLanguage || i18n.language
+
+    if (languageToUse !== i18n.language) {
+      i18n.changeLanguage(languageToUse)
     }
+    setCurrentLanguage(languageToUse)
   }, [i18n])
 
   // Update state when language changes

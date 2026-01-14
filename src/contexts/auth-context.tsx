@@ -36,12 +36,24 @@ export function AuthProvider ({
   }, [])
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+
+      if (error) {
+        console.error('Google sign-in error:', error)
+        throw error
       }
-    })
+
+      console.log('Google sign-in initiated:', data)
+    } catch (error) {
+      console.error('Failed to sign in with Google:', error)
+      throw error
+    }
   }
 
   const signOut = async () => {

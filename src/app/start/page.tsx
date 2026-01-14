@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useWallet } from '@/contexts/wallet-context'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { LogIn, Plus, Calendar, Trash2 } from 'lucide-react'
+import { LogIn, Plus, Calendar, Trash2, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Template } from '@/types/template'
 import { TemplateBuilderModal } from '@/components/template/TemplateBuilderModal'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -21,6 +21,17 @@ export default function StartPage () {
   const { t, i18n } = useTranslation('common')
   const router = useRouter()
   const queryClient = useQueryClient()
+  const searchParams = useSearchParams()
+  const [authError, setAuthError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const error = searchParams.get('error')
+    const message = searchParams.get('message')
+    if (error) {
+      setAuthError(message || `Authentication failed: ${error}`)
+      console.error('Auth error from URL:', { error, message })
+    }
+  }, [searchParams])
 
   // Template state
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false)
@@ -151,6 +162,19 @@ export default function StartPage () {
         <p className='text-lg text-muted-foreground'>
           {user ? '' : t('start.welcome')}
         </p>
+
+        {authError && (
+          <div className='mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex items-start gap-3 max-w-md'>
+            <AlertCircle className='h-5 w-5 text-destructive flex-shrink-0 mt-0.5' />
+            <div className='flex-1'>
+              <p className='text-sm font-medium text-destructive mb-1'>Authentication Error</p>
+              <p className='text-xs text-destructive/90'>{authError}</p>
+              <p className='text-xs text-muted-foreground mt-2'>
+                Check the terminal/console for detailed error logs.
+              </p>
+            </div>
+          </div>
+        )}
 
         {!user && (
           <Button onClick={signInWithGoogle} size='lg' className='gap-2'>
