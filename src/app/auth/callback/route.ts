@@ -55,11 +55,11 @@ export async function GET (request: Request) {
       }
 
       console.log('✅ Session exchanged successfully:', { userId: data?.user?.id, email: data?.user?.email })
-    } catch (err: any) {
+    } catch (err) {
       console.error('❌ Unexpected error during session exchange')
       console.error('Exception:', err)
-      console.error('Stack:', err.stack)
-      return NextResponse.redirect(`${requestUrl.origin}?error=unexpected&message=${encodeURIComponent(err.message)}`)
+      console.error('Stack:', err)
+      return NextResponse.redirect(`${requestUrl.origin}?error=unexpected&message=${encodeURIComponent((err as Error).message)}`)
     }
   }
 
