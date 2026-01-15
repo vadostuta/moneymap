@@ -100,17 +100,7 @@ export default function StartPage () {
           <div className='space-y-8 flex flex-col items-center w-full'>
             {/* Templates Section with Create Button */}
             <div className='w-full space-y-4'>
-              <div className='flex flex-wrap justify-center gap-4'>
-                {/* Loading skeleton for create button */}
-                <div className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[80px] animate-pulse w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'>
-                  <div className='flex items-center justify-center h-full text-center gap-2'>
-                    <div className='p-2 rounded-full bg-muted/20'>
-                      <div className='h-4 w-4 bg-muted/40 rounded'></div>
-                    </div>
-                    <div className='h-4 w-24 bg-muted/40 rounded'></div>
-                  </div>
-                </div>
-
+              <div className='flex flex-wrap justify-start gap-4'>
                 {/* Loading skeleton for template cards */}
                 {[1, 2, 3].map(i => (
                   <div
@@ -126,6 +116,16 @@ export default function StartPage () {
                     </div>
                   </div>
                 ))}
+
+                {/* Loading skeleton for create button (now last) */}
+                <div className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[80px] animate-pulse w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'>
+                  <div className='flex items-center justify-center h-full text-center gap-2'>
+                    <div className='p-2 rounded-full bg-muted/20'>
+                      <div className='h-4 w-4 bg-muted/40 rounded'></div>
+                    </div>
+                    <div className='h-4 w-24 bg-muted/40 rounded'></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -199,25 +199,7 @@ export default function StartPage () {
           <div className='space-y-8 flex flex-col items-center w-full'>
             {/* Templates Section with Create Button */}
             <div className='w-full space-y-4'>
-              <div className='flex flex-wrap justify-center gap-4'>
-                {/* Create Template Button - styled like template cards */}
-                <div
-                  className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 hover:shadow-md hover:shadow-primary/5 hover:border-primary/20 transition-all duration-200 cursor-pointer overflow-hidden h-[80px] w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
-                  onClick={() => setIsTemplateModalOpen(true)}
-                >
-                  {/* Subtle background pattern */}
-                  <div className='absolute inset-0 bg-gradient-to-br from-primary/2 via-transparent to-primary/1 opacity-0 group-hover:opacity-100 transition-opacity duration-200' />
-
-                  <div className='relative z-10 flex items-center justify-center h-full text-center gap-2'>
-                    <div className='p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors'>
-                      <Plus className='h-4 w-4 text-primary' />
-                    </div>
-                    <h3 className='font-semibold text-foreground text-sm group-hover:text-primary transition-colors duration-200'>
-                      {t('templates.create')}
-                    </h3>
-                  </div>
-                </div>
-
+              <div className='flex flex-wrap justify-start gap-4'>
                 {/* Existing Templates */}
                 {templates.map(template => {
                   return (
@@ -269,6 +251,24 @@ export default function StartPage () {
                     </div>
                   )
                 })}
+
+                {/* Create Template Button - styled like template cards (now last) */}
+                <div
+                  className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 hover:shadow-md hover:shadow-primary/5 hover:border-primary/20 transition-all duration-200 cursor-pointer overflow-hidden h-[80px] w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
+                  onClick={() => setIsTemplateModalOpen(true)}
+                >
+                  {/* Subtle background pattern */}
+                  <div className='absolute inset-0 bg-gradient-to-br from-primary/2 via-transparent to-primary/1 opacity-0 group-hover:opacity-100 transition-opacity duration-200' />
+
+                  <div className='relative z-10 flex items-center justify-center h-full text-center gap-2'>
+                    <div className='p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors'>
+                      <Plus className='h-4 w-4 text-primary' />
+                    </div>
+                    <h3 className='font-semibold text-foreground text-sm group-hover:text-primary transition-colors duration-200'>
+                      {t('templates.create')}
+                    </h3>
+                  </div>
+                </div>
               </div>
 
               {templates.length === 0 && (
