@@ -2,7 +2,7 @@
 
 import { Template } from '@/types/template'
 import { getLayoutById } from '@/lib/layout-registry'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useWallet } from '@/contexts/wallet-context'
 import { Wallet } from '@/lib/types/wallet'
@@ -190,49 +190,19 @@ export function TemplateViewer ({
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>()
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
 
-  // Fetch wallet transactions to calculate available months
-  const { data: allTransactions } = useQuery({
-    queryKey: ['wallet-transactions', selectedWallet?.id],
+  // Fetch available months efficiently (only fetches date field, not full transactions)
+  const { data: availableMonths = [] } = useQuery({
+    queryKey: ['available-months', selectedWallet?.id],
     queryFn: async () => {
       if (!selectedWallet?.id) return []
-      const currentDate = new Date()
-      const startDate = new Date(currentDate.getFullYear() - 2, 0, 1)
-      const allTransactions = await transactionService.getAll()
-
-      return allTransactions.filter(
-        t =>
-          t.wallet_id === selectedWallet.id &&
-          new Date(t.date) >= startDate &&
-          t.type === 'expense' &&
-          !t.is_deleted &&
-          !t.is_hidden
+      return await transactionService.getAvailableMonthsForWallet(
+        selectedWallet.id,
+        2 // Look back 2 years
       )
     },
-    enabled: !!selectedWallet?.id && !!user
+    enabled: !!selectedWallet?.id && !!user,
+    staleTime: 5 * 60 * 1000 // Cache for 5 minutes
   })
-
-  // Calculate available months from transactions
-  const availableMonths = useMemo(() => {
-    if (!allTransactions || allTransactions.length === 0) return []
-
-    const monthMap = new Map<string, Date>()
-    allTransactions.forEach(transaction => {
-      if (transaction.type === 'expense' && transaction.amount > 0) {
-        const date = new Date(transaction.date)
-        const monthKey = `${date.getFullYear()}-${date.getMonth()}`
-        if (!monthMap.has(monthKey)) {
-          monthMap.set(
-            monthKey,
-            new Date(date.getFullYear(), date.getMonth(), 1)
-          )
-        }
-      }
-    })
-
-    return Array.from(monthMap.values()).sort(
-      (a, b) => b.getTime() - a.getTime()
-    )
-  }, [allTransactions])
 
   // Auto-sync selected month when available months change
   useEffect(() => {
@@ -286,7 +256,7 @@ export function TemplateViewer ({
           <MonthSelector
             selectedMonth={selectedMonth}
             onMonthSelect={handleMonthSelect}
-            availableMonths={availableMonths}
+            availableMonths={availableMonths.slice(0, 12)}
           />
         </div>
       )}

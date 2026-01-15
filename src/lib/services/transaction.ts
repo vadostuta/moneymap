@@ -55,15 +55,33 @@ export const transactionService = {
     } = await supabase.auth.getUser()
     if (!user) throw new Error('User must be logged in')
 
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*, wallet:wallets(id, name)')
-      .eq('user_id', user.id)
-      .eq('is_deleted', false)
-      .order('date', { ascending: false })
+    // Fetch all transactions using pagination to overcome Supabase's 1000 row limit
+    let allTransactions: Transaction[] = []
+    let page = 0
+    const pageSize = 1000
+    let hasMore = true
 
-    if (error) throw error
-    return data || []
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*, wallet:wallets(id, name)')
+        .eq('user_id', user.id)
+        .eq('is_deleted', false)
+        .order('date', { ascending: false })
+        .range(page * pageSize, (page + 1) * pageSize - 1)
+
+      if (error) throw error
+
+      if (data && data.length > 0) {
+        allTransactions = allTransactions.concat(data)
+        page++
+        hasMore = data.length === pageSize
+      } else {
+        hasMore = false
+      }
+    }
+
+    return allTransactions
   },
 
   // Get transactions for a specific wallet
@@ -716,5 +734,29 @@ export const transactionService = {
         amount: totals.expenses - totals.income
       }))
       .filter(item => item.amount > 0) // Only show categories with net positive spending
+  },
+
+  // Efficiently get available months with expense transactions for a wallet
+  // Uses Supabase RPC function to aggregate months in the database
+  async getAvailableMonthsForWallet (
+    walletId: string,
+    lookbackYears: number = 2
+  ): Promise<Date[]> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User must be logged in')
+
+    // Call the PostgreSQL RPC function
+    // This runs the aggregation directly in the database instead of fetching all rows
+    const { data, error } = await supabase.rpc('get_available_months', {
+      p_wallet_id: walletId,
+      p_lookback_years: lookbackYears
+    })
+
+    if (error) throw error
+
+    // Convert the returned date strings to Date objects
+    return (data || []).map((row: { month_date: string }) => new Date(row.month_date))
   }
 }
