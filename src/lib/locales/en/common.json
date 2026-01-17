@@ -457,5 +457,19 @@
       "description": "Sign in with Google, add your first wallet, and discover how simple managing money can be. Your financial clarity starts here.",
       "start": "Get Started"
     }
+  },
+  "xlsxImport": {
+    "title": "Import Transactions",
+    "importDocument": "Import from File",
+    "selectFile": "Select XLSX File",
+    "selectWallet": "Select Wallet",
+    "rowsFound": "transactions found",
+    "readyToImport": "Ready to import {{count}} transactions",
+    "preview": "Preview Transactions",
+    "import": "Import",
+    "importing": "Importing...",
+    "importSuccess": "Successfully imported {{count}} transactions",
+    "importError": "Failed to import transactions. Please try again.",
+    "parseError": "Failed to parse file. Please check the file format."
   }
 }

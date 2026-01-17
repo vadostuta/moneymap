@@ -5,7 +5,7 @@ import { useWallet, ALL_WALLETS } from '@/contexts/wallet-context'
 import { useTranslation } from 'react-i18next'
 import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { LogIn, LogOut, Plus, Menu, X } from 'lucide-react'
+import { LogIn, LogOut, Plus, Menu, X, FileUp } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { QuickTransactionForm } from '@/components/transaction/QuickTransactionForm'
+import { XlsxImportDialog } from '@/components/transaction/XlsxImportDialog'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { useState, useEffect } from 'react'
 import {
@@ -79,6 +80,7 @@ export function AppSidebar () {
   const pathname = usePathname()
   const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { t } = useTranslation('common')
   const { state: collapsed, toggleSidebar } = useSidebar()
@@ -261,6 +263,19 @@ export function AppSidebar () {
                       onSuccess={() => setDialogOpen(false)}
                       onCancel={() => setDialogOpen(false)}
                     />
+                    <div className='mt-4 pt-4 border-t'>
+                      <Button
+                        variant='outline'
+                        className='w-full gap-2'
+                        onClick={() => {
+                          setDialogOpen(false)
+                          setImportDialogOpen(true)
+                        }}
+                      >
+                        <FileUp className='h-4 w-4' />
+                        {t('xlsxImport.importDocument')}
+                      </Button>
+                    </div>
                   </DialogContent>
                 </Dialog>
               </div>
@@ -470,6 +485,19 @@ export function AppSidebar () {
                           onSuccess={() => setDialogOpen(false)}
                           onCancel={() => setDialogOpen(false)}
                         />
+                        <div className='mt-4 pt-4 border-t'>
+                          <Button
+                            variant='outline'
+                            className='w-full gap-2'
+                            onClick={() => {
+                              setDialogOpen(false)
+                              setImportDialogOpen(true)
+                            }}
+                          >
+                            <FileUp className='h-4 w-4' />
+                            {t('xlsxImport.importDocument')}
+                          </Button>
+                        </div>
                       </DialogContent>
                     </Dialog>
                   </div>
@@ -684,6 +712,12 @@ export function AppSidebar () {
           </SidebarFooter>
         </Sidebar>
       </div>
+
+      {/* XLSX Import Dialog */}
+      <XlsxImportDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+      />
     </>
   )
 }
