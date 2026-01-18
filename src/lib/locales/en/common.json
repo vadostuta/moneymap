@@ -446,6 +446,11 @@
         "title": "Visualize your finances",
         "description": "Use clean charts and summaries to spot spending trends, income growth, or where you can save more.",
         "details": "Beautiful, interactive visualizations that make your financial data easy to understand."
+      },
+      "privat24Import": {
+        "title": "Import from Privat24",
+        "description": "Upload your Privat24 bank statements directly as XLSX files — no manual data entry required.",
+        "details": "Automatically parse transaction dates, amounts, categories, and descriptions from your bank exports."
       }
     },
     "privacy": {
@@ -470,6 +475,17 @@
     "importing": "Importing...",
     "importSuccess": "Successfully imported {{count}} transactions",
     "importError": "Failed to import transactions. Please try again.",
-    "parseError": "Failed to parse file. Please check the file format."
+    "parseError": "Failed to parse file. Please check the file format.",
+    "supportedFormat": "Supported Format",
+    "formatDescription": "Privat24 XLSX export with Date, Category, Description, and Amount columns",
+    "howToExport": "How to export from Privat24",
+    "exportStep1": "Open web version of Privat24",
+    "exportStep2": "Select your card",
+    "exportStep3": "Click \"Export to XLS\" button (near the filter)",
+    "noValidTransactions": "No valid transactions found",
+    "noValidTransactionsDescription": "The file was parsed, but no valid transactions were found. Please ensure:",
+    "checkDates": "Dates are in DD.MM.YYYY format",
+    "checkAmounts": "Amounts are not zero",
+    "checkFormat": "File follows Privat24 export format"
   }
 }

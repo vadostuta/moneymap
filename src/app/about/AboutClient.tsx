@@ -6,10 +6,11 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/auth-context'
 import Image from 'next/image'
 import { Logo } from '@/components/ui/Logo'
+import { LogIn } from 'lucide-react'
 
 export function AboutClient () {
   const { t } = useTranslation('common')
-  const { user } = useAuth()
+  const { user, signInWithGoogle } = useAuth()
 
   const features = [
     {
@@ -46,6 +47,13 @@ export function AboutClient () {
       details: t('about.features.visualize.details'),
       icon: '📊',
       color: 'from-indigo-500/10 to-violet-500/10 dark:from-indigo-500/20 dark:to-violet-500/20'
+    },
+    {
+      title: t('about.features.privat24Import.title'),
+      description: t('about.features.privat24Import.description'),
+      details: t('about.features.privat24Import.details'),
+      icon: '📄',
+      color: 'from-emerald-500/10 to-teal-500/10 dark:from-emerald-500/20 dark:to-teal-500/20'
     }
   ]
 
@@ -172,11 +180,12 @@ export function AboutClient () {
               {t('about.cta.description')}
             </p>
             <Button
-              asChild
+              onClick={signInWithGoogle}
               size='lg'
-              className='bg-white text-purple-600 hover:bg-slate-100 px-8 py-6 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all'
+              className='bg-white text-purple-600 hover:bg-slate-100 px-8 py-6 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all gap-2'
             >
-              <Link href='/start'>{t('about.cta.start')}</Link>
+              <LogIn className='h-5 w-5' />
+              {t('auth.signInWithGoogle')}
             </Button>
           </div>
         )}

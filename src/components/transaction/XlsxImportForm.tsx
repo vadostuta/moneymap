@@ -41,7 +41,8 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   ArrowLeftRight,
-  X
+  X,
+  AlertCircle
 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -107,10 +108,19 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
         .map((row, index) => {
           // Parse date
           const [datePart, timePart] = row.date.split(' ')
+          if (!datePart) return null
+
           const [day, month, year] = datePart.split('.')
-          const isoDate = new Date(
+          if (!day || !month || !year) return null
+
+          const dateObj = new Date(
             `${year}-${month}-${day}T${timePart || '00:00:00'}`
-          ).toISOString()
+          )
+
+          // Validate date
+          if (isNaN(dateObj.getTime())) return null
+
+          const isoDate = dateObj.toISOString()
 
           // Determine type
           const isTransfer = isTransferCategory(row.category)
@@ -133,6 +143,7 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
             originalCategory: row.category
           }
         })
+        .filter((preview): preview is PreviewTransaction => preview !== null)
 
       setPreviewTransactions(previews)
     }
@@ -263,6 +274,32 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
     <Card className='mx-auto border-0 shadow-none'>
       <form onSubmit={handleSubmit}>
         <CardContent className='space-y-4 pt-2 px-0'>
+          {/* Help Text - Supported Format & Export Instructions */}
+          <div className='space-y-3 p-4 bg-secondary/50 rounded-md border border-border'>
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <FileSpreadsheet className='h-4 w-4 text-muted-foreground' />
+                <h3 className='text-sm font-medium text-foreground'>
+                  {t('xlsxImport.supportedFormat')}
+                </h3>
+              </div>
+              <p className='text-xs text-muted-foreground'>
+                {t('xlsxImport.formatDescription')}
+              </p>
+            </div>
+
+            <div>
+              <h4 className='text-sm font-medium text-foreground mb-2'>
+                {t('xlsxImport.howToExport')}
+              </h4>
+              <ol className='text-xs text-muted-foreground space-y-1 list-decimal list-inside'>
+                <li>{t('xlsxImport.exportStep1')}</li>
+                <li>{t('xlsxImport.exportStep2')}</li>
+                <li>{t('xlsxImport.exportStep3')}</li>
+              </ol>
+            </div>
+          </div>
+
           {/* File Input */}
           <div className='space-y-2'>
             <Label htmlFor='xlsx-file'>{t('xlsxImport.selectFile')}</Label>
@@ -306,6 +343,31 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Empty State - No Valid Transactions */}
+          {selectedFile &&
+           !isParsing &&
+           parsedRows.length > 0 &&
+           previewTransactions.length === 0 && (
+            <div className='p-4 bg-destructive/10 border border-destructive/20 rounded-md'>
+              <div className='flex items-start gap-3'>
+                <AlertCircle className='h-5 w-5 text-destructive flex-shrink-0 mt-0.5' />
+                <div className='flex-1'>
+                  <h3 className='text-sm font-medium text-destructive mb-1'>
+                    {t('xlsxImport.noValidTransactions')}
+                  </h3>
+                  <p className='text-xs text-destructive/90 mb-2'>
+                    {t('xlsxImport.noValidTransactionsDescription')}
+                  </p>
+                  <ul className='text-xs text-destructive/80 space-y-1 list-disc list-inside'>
+                    <li>{t('xlsxImport.checkDates')}</li>
+                    <li>{t('xlsxImport.checkAmounts')}</li>
+                    <li>{t('xlsxImport.checkFormat')}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Transaction Preview */}
           {previewTransactions.length > 0 && (

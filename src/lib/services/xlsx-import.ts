@@ -93,10 +93,19 @@ export const xlsxImportService = {
       .map(row => {
         // Parse date from "DD.MM.YYYY HH:MM:SS" format
         const [datePart, timePart] = row.date.split(' ')
+        if (!datePart) return null
+
         const [day, month, year] = datePart.split('.')
-        const isoDate = new Date(
+        if (!day || !month || !year) return null
+
+        const dateObj = new Date(
           `${year}-${month}-${day}T${timePart || '00:00:00'}`
-        ).toISOString()
+        )
+
+        // Validate date
+        if (isNaN(dateObj.getTime())) return null
+
+        const isoDate = dateObj.toISOString()
 
         // Determine transaction type
         const isTransfer = isTransferCategory(row.category)
@@ -120,6 +129,7 @@ export const xlsxImportService = {
           description: row.description || undefined
         }
       })
+      .filter((transaction): transaction is CreateTransactionDTO => transaction !== null)
   },
 
   /**
