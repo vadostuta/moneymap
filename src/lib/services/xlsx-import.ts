@@ -88,48 +88,52 @@ export const xlsxImportService = {
     walletId: string,
     categories: Category[]
   ): CreateTransactionDTO[] {
-    return rows
-      .filter(row => row.amount !== 0 && row.date)
-      .map(row => {
-        // Parse date from "DD.MM.YYYY HH:MM:SS" format
-        const [datePart, timePart] = row.date.split(' ')
-        if (!datePart) return null
+    const validTransactions: CreateTransactionDTO[] = []
 
-        const [day, month, year] = datePart.split('.')
-        if (!day || !month || !year) return null
+    for (const row of rows) {
+      // Skip rows with zero amount or no date
+      if (row.amount === 0 || !row.date) continue
 
-        const dateObj = new Date(
-          `${year}-${month}-${day}T${timePart || '00:00:00'}`
-        )
+      // Parse date from "DD.MM.YYYY HH:MM:SS" format
+      const [datePart, timePart] = row.date.split(' ')
+      if (!datePart) continue
 
-        // Validate date
-        if (isNaN(dateObj.getTime())) return null
+      const [day, month, year] = datePart.split('.')
+      if (!day || !month || !year) continue
 
-        const isoDate = dateObj.toISOString()
+      const dateObj = new Date(
+        `${year}-${month}-${day}T${timePart || '00:00:00'}`
+      )
 
-        // Determine transaction type
-        const isTransfer = isTransferCategory(row.category)
-        let type: 'expense' | 'income' | 'transfer'
+      // Validate date
+      if (isNaN(dateObj.getTime())) continue
 
-        if (isTransfer) {
-          type = 'transfer'
-        } else if (row.amount < 0) {
-          type = 'expense'
-        } else {
-          type = 'income'
-        }
+      const isoDate = dateObj.toISOString()
 
-        return {
-          type,
-          amount: Math.abs(row.amount),
-          wallet_id: walletId,
-          category_id: mapMonobankCategory(row.category, categories),
-          label: 'Personal' as const,
-          date: isoDate,
-          description: row.description || undefined
-        }
+      // Determine transaction type
+      const isTransfer = isTransferCategory(row.category)
+      let type: 'expense' | 'income' | 'transfer'
+
+      if (isTransfer) {
+        type = 'transfer'
+      } else if (row.amount < 0) {
+        type = 'expense'
+      } else {
+        type = 'income'
+      }
+
+      validTransactions.push({
+        type,
+        amount: Math.abs(row.amount),
+        wallet_id: walletId,
+        category_id: mapMonobankCategory(row.category, categories),
+        label: 'Personal' as const,
+        date: isoDate,
+        description: row.description || undefined
       })
-      .filter((transaction): transaction is CreateTransactionDTO => transaction !== null)
+    }
+
+    return validTransactions
   },
 
   /**
