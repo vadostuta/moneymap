@@ -486,6 +486,14 @@
     "noValidTransactionsDescription": "The file was parsed, but no valid transactions were found. Please ensure:",
     "checkDates": "Dates are in DD.MM.YYYY format",
     "checkAmounts": "Amounts are not zero",
-    "checkFormat": "File follows Privat24 export format"
+    "checkFormat": "File follows Privat24 export format",
+    "validation": {
+      "requirements": "Max file size: {{maxSize}}MB. Max transactions: {{maxTransactions}}. Allowed formats: {{extensions}}",
+      "invalidExtension": "Invalid file format. Please select an .xlsx or .xls file.",
+      "fileTooLarge": "File is too large. Maximum size is {{maxSize}}MB.",
+      "tooManyTransactions": "Too many transactions ({{count}}). Maximum is {{maxCount}} per import.",
+      "noTransactionsFound": "No transactions found in the file. Please check the file format.",
+      "parseError": "Failed to parse the file. Please ensure it's a valid Privat24 XLSX export."
+    }
   }
 }

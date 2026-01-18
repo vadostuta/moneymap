@@ -42,8 +42,15 @@ import {
   ArrowUpCircle,
   ArrowLeftRight,
   X,
-  AlertCircle
+  AlertCircle,
+  Info
 } from 'lucide-react'
+
+// Validation constants
+const MAX_FILE_SIZE_MB = 5
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+const MAX_TRANSACTIONS = 500
+const ALLOWED_EXTENSIONS = ['.xlsx', '.xls']
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
@@ -74,6 +81,7 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
   >([])
   const [isParsing, setIsParsing] = useState(false)
   const [openCategoryId, setOpenCategoryId] = useState<number | null>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   const { data: wallets = [] } = useQuery({
     queryKey: ['wallets'],
@@ -188,16 +196,50 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
     const file = e.target.files?.[0]
     if (!file) return
 
-    setSelectedFile(file)
-    setIsParsing(true)
+    // Reset state
+    setValidationError(null)
     setParsedRows([])
     setPreviewTransactions([])
 
+    // Validate file extension
+    const fileName = file.name.toLowerCase()
+    const hasValidExtension = ALLOWED_EXTENSIONS.some(ext => fileName.endsWith(ext))
+    if (!hasValidExtension) {
+      setValidationError(t('xlsxImport.validation.invalidExtension'))
+      return
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      setValidationError(t('xlsxImport.validation.fileTooLarge', { maxSize: MAX_FILE_SIZE_MB }))
+      return
+    }
+
+    setSelectedFile(file)
+    setIsParsing(true)
+
     try {
       const rows = await xlsxImportService.parseXlsxFile(file)
+
+      // Validate transaction count
+      if (rows.length > MAX_TRANSACTIONS) {
+        setValidationError(t('xlsxImport.validation.tooManyTransactions', {
+          count: rows.length,
+          maxCount: MAX_TRANSACTIONS
+        }))
+        setSelectedFile(null)
+        return
+      }
+
+      if (rows.length === 0) {
+        setValidationError(t('xlsxImport.validation.noTransactionsFound'))
+        setSelectedFile(null)
+        return
+      }
+
       setParsedRows(rows)
     } catch (error) {
-      toastService.error(t('xlsxImport.parseError'))
+      setValidationError(t('xlsxImport.validation.parseError'))
       console.error('Parse error:', error)
       setSelectedFile(null)
     } finally {
@@ -302,7 +344,25 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
 
           {/* File Input */}
           <div className='space-y-2'>
-            <Label htmlFor='xlsx-file'>{t('xlsxImport.selectFile')}</Label>
+            <div className='flex items-center gap-2'>
+              <Label htmlFor='xlsx-file'>{t('xlsxImport.selectFile')}</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className='h-4 w-4 text-muted-foreground cursor-help' />
+                  </TooltipTrigger>
+                  <TooltipContent side='right' className='max-w-[250px]'>
+                    <p className='text-xs'>
+                      {t('xlsxImport.validation.requirements', {
+                        maxSize: MAX_FILE_SIZE_MB,
+                        maxTransactions: MAX_TRANSACTIONS,
+                        extensions: ALLOWED_EXTENSIONS.join(', ')
+                      })}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Input
               id='xlsx-file'
               type='file'
@@ -310,6 +370,17 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
               onChange={handleFileChange}
               className='cursor-pointer'
             />
+
+            {/* Validation Error */}
+            {validationError && (
+              <div className='p-3 bg-destructive/10 border border-destructive/20 rounded-md'>
+                <div className='flex items-start gap-2'>
+                  <AlertCircle className='h-4 w-4 text-destructive flex-shrink-0 mt-0.5' />
+                  <p className='text-xs text-destructive'>{validationError}</p>
+                </div>
+              </div>
+            )}
+
             {selectedFile && (
               <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                 <FileSpreadsheet className='h-4 w-4' />
