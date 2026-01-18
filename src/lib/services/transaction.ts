@@ -29,7 +29,8 @@ export const transactionService = {
             ...transaction,
             user_id: user.id,
             date: transaction.date || new Date().toISOString(),
-            category_id: transaction.category_id
+            category_id: transaction.category_id,
+            source: 'manual'
           }
         ])
         .select()

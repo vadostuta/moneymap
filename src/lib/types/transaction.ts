@@ -1,5 +1,7 @@
 export type TransactionType = 'expense' | 'income' | 'transfer'
 
+export type TransactionSource = 'manual' | 'monobank' | 'xlsx_import'
+
 export type TransactionCategory = string
 
 export type TransactionLabel =
@@ -29,6 +31,7 @@ export interface Transaction {
   monobank_id?: string
   is_hidden?: boolean
   is_deleted?: boolean
+  source?: TransactionSource
 }
 
 export type CreateTransactionDTO = Omit<

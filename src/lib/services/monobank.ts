@@ -199,7 +199,8 @@ export class MonobankService {
       .map(t => ({
         ...this.transformTransaction(t, walletId),
         user_id: user.id,
-        monobank_id: t.id
+        monobank_id: t.id,
+        source: 'monobank'
       }))
 
     if (newTransactions.length === 0) {

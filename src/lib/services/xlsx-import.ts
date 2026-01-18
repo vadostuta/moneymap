@@ -138,7 +138,8 @@ export const xlsxImportService = {
     // Add user_id to each transaction
     const transactionsWithUser = transactions.map(t => ({
       ...t,
-      user_id: user.id
+      user_id: user.id,
+      source: 'xlsx_import'
     }))
 
     // Bulk insert (following monobank.ts pattern)
