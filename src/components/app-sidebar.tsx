@@ -35,7 +35,9 @@ import {
   Wallet,
   Settings,
   Receipt,
-  Info
+  Info,
+  PiggyBank,
+  Target
   // BarChart3,
   // PieChart,
   // FileText
@@ -141,6 +143,16 @@ export function AppSidebar () {
       href: '/wallets',
       label: t('navigation.wallets'),
       icon: Wallet
+    },
+    {
+      href: '/wealth',
+      label: t('navigation.wealth'),
+      icon: PiggyBank
+    },
+    {
+      href: '/claims',
+      label: t('navigation.claims'),
+      icon: Target
     },
     {
       href: '/settings',

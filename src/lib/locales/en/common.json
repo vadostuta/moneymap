@@ -32,7 +32,9 @@
     "categories": "Categories",
     "wallets": "Wallets",
     "dashboard": "Dashboard",
-    "about": "About"
+    "about": "About",
+    "wealth": "Wealth",
+    "claims": "Claims"
   },
   "transactions": {
     "title": "Transactions",
@@ -494,6 +496,213 @@
       "tooManyTransactions": "Too many transactions ({{count}}). Maximum is {{maxCount}} per import.",
       "noTransactionsFound": "No transactions found in the file. Please check the file format.",
       "parseError": "Failed to parse the file. Please ensure it's a valid Privat24 XLSX export."
+    }
+  },
+  "wealth": {
+    "title": "Wealth",
+    "history": {
+      "freeHint": "after {{amount}} claimed",
+      "freeNoClaims": "no claims set",
+      "vsPrevious": "{{percent}} vs {{date}}",
+      "firstSnapshot": "first snapshot",
+      "shareOfNetWorth": "{{percent}} of net worth",
+      "locked": "Locked",
+      "lockedHint": "not spendable",
+      "pace": "Pace",
+      "paceHint": "per month, average",
+      "paceNeedsTwo": "needs two snapshots",
+      "trendTitle": "Net worth over time · {{currency}}",
+      "chartEmpty": "Record at least two snapshots to see the trend.",
+      "excluded": "Not shown: {{count}} in {{currencies}} (a different display currency)",
+      "change": "Change"
+    },
+    "newSnapshot": "New snapshot",
+    "sources": {
+      "ecb": "ECB",
+      "nbu": "NBU"
+    },
+    "goals": {
+      "emptyTitle": "No goals yet",
+      "emptyDescription": "A goal is a claim with a target amount and a date — like \"Car: €20,000 by Oct 2027\". Progress comes from the amount you set for that claim in each snapshot.",
+      "almostGoals": "Claims with a target but no date or currency aren't tracked here ({{count}}).",
+      "due": "due {{date}} · {{months}} mo left",
+      "of": "of {{target}}",
+      "needed": "Needed",
+      "pace": "Your pace",
+      "perMonth": "{{amount}} / month",
+      "skipped": "Not counted: {{count}} snapshot(s) in a currency other than {{currency}}.",
+      "chartActual": "Saved",
+      "chartNeeded": "Needed path",
+      "status": {
+        "reached": "Reached",
+        "onTrack": "On track",
+        "behind": "Behind",
+        "overdue": "Overdue",
+        "tooEarly": "Too early to tell",
+        "notStarted": "Not started"
+      },
+      "verdict": {
+        "reached": "Reached.",
+        "reachedOver": "Reached — {{amount}} over target.",
+        "overdue": "The date has passed with {{amount}} still to go.",
+        "notStarted": "Set an amount for it in your next snapshot to start tracking.",
+        "tooEarly": "Record another snapshot to see your pace.",
+        "onTrack": "On track — at this pace you reach it by {{date}}.",
+        "onTrackPlain": "On track.",
+        "behind": "At this pace you reach it in {{date}}. {{gap}} more per month would close the gap.",
+        "stalled": "No progress at this pace — {{amount}} per month is needed."
+      }
+    },
+    "tabs": {
+      "goals": "Goals",
+      "history": "History",
+      "distribution": "Distribution"
+    },
+    "distribution": {
+      "basedOn": "From your {{date}} snapshot",
+      "noSnapshots": "Record a snapshot first — free to spend is worked out from what you have and what's already promised.",
+      "noClaims": "All your liquid money is free — you haven't set up any claims.",
+      "noAllocations": "None of your claims have amounts in this snapshot, so all liquid money counts as free. Set amounts when you record the next one.",
+      "context": "{{percent}} of your liquid money is unclaimed. The rest is held for your claims ({{count}}).",
+      "contextAllFree": "Nothing is claimed in this snapshot, so all liquid money is free.",
+      "contextOver": "Your claims add up to more than your liquid money, so nothing is free.",
+      "noLiquid": "This snapshot has no liquid money.",
+      "overTitle": "Your claims exceed your liquid money by {{amount}}.",
+      "overHint": "Lower a claim on your next snapshot, or mark a locked line as liquid if you intend to break it.",
+      "overTag": "OVER",
+      "overRow": "Over liquid",
+      "claim": "Claim",
+      "earmarked": "Earmarked",
+      "shareOfLiquid": "Share of liquid",
+      "target": "Target",
+      "progress": "Progress",
+      "progressOtherCurrency": "Target is in a different currency",
+      "basis": "Liquid {{liquid}} — excludes {{locked}} locked",
+      "basisAllLiquid": "Liquid {{liquid}} — nothing locked",
+      "other": "Other",
+      "barLabel": "How liquid money is split between claims and free money",
+      "liquidMark": "liquid {{amount}}"
+    },
+    "list": {
+      "date": "Date",
+      "lines": "Lines",
+      "emptyTitle": "No snapshots yet",
+      "emptyDescription": "A snapshot is a dated record of everything you have — cash, bank accounts, crypto, deposits — in any currency. You type the numbers; nothing is pulled from transactions or wallets.",
+      "emptyAction": "Record your first snapshot"
+    },
+    "totals": {
+      "free": "Free to spend",
+      "netWorth": "Net worth",
+      "netWorthHint": "everything, locked or not",
+      "liquid": "Liquid",
+      "liquidHint": "what you could actually reach",
+      "claimed": "Claimed"
+    },
+    "form": {
+      "editTitle": "Edit snapshot",
+      "rateFromStored": "{{source}} rate",
+      "rateFrom": "{{source}} rate · {{date}}",
+      "rateMissing": "No published rate for this date — type it in",
+      "title": "New snapshot",
+      "date": "Date",
+      "pickDate": "Pick a date",
+      "displayCurrency": "Display currency",
+      "note": "Note",
+      "notePlaceholder": "Optional",
+      "lines": "Holdings",
+      "addLine": "Add line",
+      "removeLine": "Remove line",
+      "label": "Label",
+      "labelPlaceholder": "e.g. Erste · EUR",
+      "type": "Type",
+      "currency": "Currency",
+      "amount": "Amount",
+      "rate": "Rate",
+      "rateDirection": "1 {{from}} = ? {{to}}",
+      "swapRate": "Swap rate direction",
+      "liquid": "Liquid",
+      "saving": "Saving...",
+      "claimsSection": "What's claimed",
+      "claimsHint": "How much of this money is promised to each claim, in {{currency}}. Leave blank for nothing.",
+      "noClaims": "You have no active claims.",
+      "manageClaims": "Manage claims",
+      "carried": "carried forward",
+      "edited": "edited · was {{amount}}",
+      "copiedSummary": "Copied from your {{date}} snapshot. {{carried}} of {{total}} amounts are still carried forward.",
+      "moveUp": "Move up",
+      "moveDown": "Move down"
+    },
+    "validation": {
+      "labelRequired": "Label is required",
+      "amountInvalid": "Enter a number",
+      "rateInvalid": "Enter a rate",
+      "rateZero": "Rate can't be zero",
+      "dateRequired": "Pick a date",
+      "futureDate": "Date can't be in the future",
+      "noLines": "Add at least one line",
+      "claimAmountInvalid": "Enter zero or a positive number"
+    },
+    "detail": {
+      "back": "Back to snapshots",
+      "converted": "In {{currency}}",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "delete": {
+      "title": "Delete this snapshot?",
+      "description": "It will disappear from your list and totals. You can record a new snapshot for the same date afterwards."
+    },
+    "success": {
+      "updated": "Snapshot updated",
+      "created": "Snapshot saved",
+      "deleted": "Snapshot deleted"
+    },
+    "errors": {
+      "updateFailed": "Couldn't update the snapshot",
+      "duplicateDate": "A snapshot already exists for this date",
+      "createFailed": "Couldn't save the snapshot",
+      "deleteFailed": "Couldn't delete the snapshot",
+      "notFound": "Snapshot not found"
+    }
+  },
+  "claims": {
+    "dueValue": "by {{date}}",
+    "title": "Claims",
+    "add": "Add claim",
+    "edit": "Edit claim",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "archived": "Archived",
+    "archivedSection": "Archived ({{count}})",
+    "targetValue": "Target {{amount}}",
+    "emptyTitle": "No claims yet",
+    "emptyDescription": "A claim is something your money is already promised to — \"Mortgage first payment\", \"Ferrari\", \"Fuck-you money\". No money moves: when you record a snapshot, you note how much of it is behind each claim.",
+    "form": {
+      "targetDate": "Target date",
+      "clearDate": "Remove date",
+      "targetDateHint": "Add a date to track this claim as a goal.",
+      "name": "Name",
+      "namePlaceholder": "e.g. Mortgage first payment",
+      "target": "Target amount",
+      "targetPlaceholder": "Optional",
+      "targetCurrency": "Target currency"
+    },
+    "validation": {
+      "dateNeedsTarget": "Set a target amount to add a date",
+      "nameRequired": "Name is required",
+      "targetInvalid": "Enter a positive number, or leave it blank"
+    },
+    "delete": {
+      "title": "Delete \"{{name}}\"?",
+      "description": "It disappears from this list and from new snapshots. Past snapshots keep what was recorded for it."
+    },
+    "success": {
+      "saved": "Claim saved",
+      "deleted": "Claim deleted"
+    },
+    "errors": {
+      "saveFailed": "Couldn't save the claim",
+      "deleteFailed": "Couldn't delete the claim"
     }
   }
 }
