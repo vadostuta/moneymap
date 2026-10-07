@@ -34,7 +34,8 @@
     "dashboard": "Dashboard",
     "about": "About",
     "wealth": "Wealth",
-    "claims": "Claims"
+    "claims": "Claims",
+    "plan": "Plan"
   },
   "transactions": {
     "title": "Transactions",
@@ -703,6 +704,141 @@
     "errors": {
       "saveFailed": "Couldn't save the claim",
       "deleteFailed": "Couldn't delete the claim"
+    }
+  },
+  "plan": {
+    "title": "Monthly plan",
+    "back": "Back to plan",
+    "tabs": {
+      "months": "Months",
+      "projection": "Projection"
+    },
+    "kinds": {
+      "fixed": "Fixed amount in {{currency}}",
+      "percent": "% of income"
+    },
+    "flows": {
+      "spend": "Spend",
+      "save": "Keep"
+    },
+    "status": {
+      "open": "Not checked",
+      "on": "On plan",
+      "under": "Under",
+      "over": "Over"
+    },
+    "breakdown": {
+      "label": "Where the income goes"
+    },
+    "totals": {
+      "income": "Income",
+      "allocated": "Planned",
+      "split": "{{spend}} spent · {{save}} kept",
+      "leftover": "Left over",
+      "actualLeftover": "Actually left: {{amount}}",
+      "overAllocated": "The plan gives away {{amount}} more than comes in."
+    },
+    "list": {
+      "planMonth": "Plan {{month}}",
+      "openMonth": "Go to month",
+      "planned": "planned",
+      "actualLeftover": "Actually left",
+      "onPlan_one": "{{count}} of {{total}} lines on plan",
+      "onPlan_other": "{{count}} of {{total}} lines on plan",
+      "emptyTitle": "No months planned yet",
+      "emptyText": "Plan this month: add your income, then split it into fixed payments and percentages. What's left over is yours to invest or spend.",
+      "state": {
+        "open": "Open",
+        "due": "Checkpoint due",
+        "closed": "Closed"
+      }
+    },
+    "history": {
+      "title": "Left over, planned vs actual",
+      "hint": "Months planned in {{currency}}.",
+      "skipped_one": "{{count}} month in another currency is not shown.",
+      "skipped_other": "{{count}} months in other currencies are not shown.",
+      "planned": "Planned",
+      "actual": "Actual",
+      "notChecked": "not checked"
+    },
+    "form": {
+      "copiedFrom": "Copied from {{month}}. Adjust what's different this month.",
+      "firstPlan": "Your first plan. Next months will start from this one.",
+      "currency": "Currency",
+      "note": "Note",
+      "notePlaceholder": "Anything special this month",
+      "incomes": "Income",
+      "incomesHint": "Everything coming in this month. Other currencies are converted to the plan currency.",
+      "incomePlaceholder": "e.g. Salary",
+      "label": "Name",
+      "amount": "Amount",
+      "percent": "Percent",
+      "rate": "Rate",
+      "rateHint": "1 {{from}} = {{rate}} {{to}} (1 {{to}} = {{inverse}} {{from}})",
+      "rateMissing": "No stored rate; type one",
+      "rateFrom": "From {{source}}",
+      "addIncome": "Add income",
+      "removeIncome": "Remove income",
+      "lines": "Where it goes",
+      "linesHint": "Fixed amounts or a percentage of total income. Mark investments and savings as Keep.",
+      "linePlaceholder": "e.g. Rent",
+      "kind": "Type",
+      "flow": "Money is",
+      "ofIncome": "{{percent}} of income",
+      "actual": "Actual",
+      "checkpoint": "Checkpoint",
+      "fillActuals": "Fill blanks with planned",
+      "addLine": "Add line",
+      "removeLine": "Remove line",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "untitled": "Untitled",
+      "closeMonth": "Month is closed",
+      "closeHint": "Close the month once actuals are in ({{checked}} of {{total}} checked).",
+      "closedHint": "This month is checked off. Untick to reopen it.",
+      "saving": "Saving..."
+    },
+    "projection": {
+      "source": "Based on",
+      "range": "Over",
+      "months_one": "{{count}} month",
+      "months_other": "{{count}} months",
+      "pick": "Lines to project",
+      "perMonth": "/mo",
+      "nothingPicked": "Pick at least one line.",
+      "accumulated_one": "kept by {{month}} ({{count}} month)",
+      "accumulated_other": "kept by {{month}} ({{count}} months)",
+      "spent_one": "spent by {{month}} ({{count}} month)",
+      "spent_other": "spent by {{month}} ({{count}} months)",
+      "assumption": "If every month goes like the {{month}} plan. Running totals, no interest or growth.",
+      "month": "Month",
+      "empty": "Plan a month first to see where it leads.",
+      "emptyLink": "Go to months"
+    },
+    "validation": {
+      "labelRequired": "Name is required",
+      "amountInvalid": "Enter a number, 0 or more",
+      "percentTooHigh": "A percentage can't be more than 100",
+      "rateInvalid": "Enter a rate above 0",
+      "noIncome": "Add at least one income"
+    },
+    "delete": {
+      "button": "Delete month",
+      "title": "Delete this month's plan?",
+      "description": "The plan for {{month}}, with its income and checkpoint, will be removed."
+    },
+    "success": {
+      "created": "Month planned",
+      "updated": "Plan saved",
+      "deleted": "Plan deleted"
+    },
+    "errors": {
+      "saveFailed": "Couldn't save the plan",
+      "deleteFailed": "Couldn't delete the plan",
+      "duplicateMonth": "This month already has a plan",
+      "loadFailed": "Couldn't load the plan",
+      "badMonth": "That isn't a valid month"
     }
   }
 }

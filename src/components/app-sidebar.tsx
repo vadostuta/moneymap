@@ -37,7 +37,8 @@ import {
   Receipt,
   Info,
   PiggyBank,
-  Target
+  Target,
+  CalendarRange
   // BarChart3,
   // PieChart,
   // FileText
@@ -150,6 +151,11 @@ export function AppSidebar () {
       icon: PiggyBank
     },
     {
+      href: '/plan',
+      label: t('navigation.plan'),
+      icon: CalendarRange
+    },
+    {
       href: '/claims',
       label: t('navigation.claims'),
       icon: Target
@@ -177,7 +183,7 @@ export function AppSidebar () {
           } else if (event.key === 'd') {
             event.preventDefault()
             setDialogOpen(true)
-          } else if (event.key >= '1' && event.key <= '7') {
+          } else if (event.key >= '1' && event.key <= '8') {
             event.preventDefault()
             const index = parseInt(event.key) - 1
             if (index >= 0 && index < navItems.length) {

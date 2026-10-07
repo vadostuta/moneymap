@@ -476,6 +476,9 @@ declare
   s_new      uuid;
   c_trip     uuid;
   c_fund     uuid;
+  mp         uuid;
+  v_month    date;
+  i          integer;
 begin
   select id into uid from auth.users where email = p_email;
   if uid is null then
@@ -483,6 +486,7 @@ begin
   end if;
 
   -- wipe previous mock data so this is re-runnable
+  delete from monthly_plans        where user_id = uid;
   delete from snapshot_allocations where user_id = uid;
   delete from wealth_snapshots     where user_id = uid;
   delete from claims               where user_id = uid;
@@ -553,6 +557,25 @@ begin
   insert into snapshot_allocations (user_id, snapshot_id, claim_id, amount) values
     (uid, s_new, c_fund, 3500),
     (uid, s_new, c_trip, 1500);
+
+  -- monthly plans for the two months before this one, both checked off.
+  -- The current month is left empty so "New month" can copy the last one.
+  for i in 1..2 loop
+    v_month := (date_trunc('month', current_date) - make_interval(months => 3 - i))::date;
+    insert into monthly_plans (user_id, month, currency, note, closed_at)
+      values (uid, v_month, 'EUR', 'Mock plan', v_month + interval '1 month')
+      returning id into mp;
+    insert into plan_incomes (user_id, plan_id, label, currency, amount, rate, rate_source, converted_amount, sort_order) values
+      (uid, mp, 'Salary', 'EUR', 3000, 1, null, 3000, 0),
+      (uid, mp, 'Freelance', 'UAH', 10000 * i, 0.02, 'mock', 200 * i, 1);
+    insert into plan_lines (user_id, plan_id, label, kind, value, flow, actual_amount, sort_order) values
+      (uid, mp, 'Rent',        'fixed',   800, 'spend', 800,             0),
+      (uid, mp, 'Family',      'fixed',   300, 'spend', 300,             1),
+      (uid, mp, 'Me',          'percent', 10,  'spend', 250 + 80 * i,    2),
+      (uid, mp, 'Sport & health', 'fixed', 120, 'spend', 95 + 40 * i,    3),
+      (uid, mp, 'Groceries',   'fixed',   400, 'spend', 430 - 20 * i,    4),
+      (uid, mp, 'Investments', 'percent', 15,  'save',  450 + 30 * i,    5);
+  end loop;
 end;
 $$;
 
