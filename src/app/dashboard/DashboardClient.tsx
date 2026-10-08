@@ -18,7 +18,8 @@ export default function DashboardClient () {
   const { selectedWallet } = useWallet()
   // Clicking a pie slice filters the transactions next to it
   const [category, setCategory] = useState<string | undefined>()
-  const [month] = useState(() => new Date())
+  // The pie chart's ‹ › switches this; the transactions list follows it
+  const [month, setMonth] = useState(() => new Date())
 
   return (
     <div className='space-y-4 sm:space-y-6'>
@@ -44,6 +45,7 @@ export default function DashboardClient () {
               onCategorySelect={setCategory}
               selectedCategory={category}
               month={month}
+              onMonthChange={setMonth}
             />
             <p className='text-xs text-muted-foreground px-1'>
               {t('home.dashboard.walletNote')}

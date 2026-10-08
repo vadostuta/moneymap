@@ -224,7 +224,8 @@
     "lastMonth": "Last Month",
     "thisYear": "This Year",
     "currentMonthExpenses": "Current Month Expenses",
-    "noExpenseData": "No expense data available for this month"
+    "noExpenseData": "No expense data available for this month",
+    "noData": "No data for this month"
   },
   "dashboard": {
     "title": "Dashboard",
