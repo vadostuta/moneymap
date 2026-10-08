@@ -7,12 +7,14 @@ export async function GET (request: Request) {
   const code = requestUrl.searchParams.get('code')
   const error = requestUrl.searchParams.get('error')
   const errorDescription = requestUrl.searchParams.get('error_description')
+  const loginUrl = `${requestUrl.origin}/login`
 
   console.log('Auth callback received:', { code: !!code, error, errorDescription })
 
   if (error) {
     console.error('OAuth error:', error, errorDescription)
-    return NextResponse.redirect(`${requestUrl.origin}?error=${error}`)
+    const message = errorDescription ? `&message=${encodeURIComponent(errorDescription)}` : ''
+    return NextResponse.redirect(`${loginUrl}?error=${encodeURIComponent(error)}${message}`)
   }
 
   if (code) {
@@ -51,7 +53,7 @@ export async function GET (request: Request) {
         console.error('Error message:', exchangeError.message)
         console.error('Error status:', exchangeError.status)
         console.error('Full error:', JSON.stringify(exchangeError, null, 2))
-        return NextResponse.redirect(`${requestUrl.origin}?error=auth_failed&message=${encodeURIComponent(exchangeError.message)}`)
+        return NextResponse.redirect(`${loginUrl}?error=auth_failed&message=${encodeURIComponent(exchangeError.message)}`)
       }
 
       console.log('✅ Session exchanged successfully:', { userId: data?.user?.id, email: data?.user?.email })
@@ -59,7 +61,7 @@ export async function GET (request: Request) {
       console.error('❌ Unexpected error during session exchange')
       console.error('Exception:', err)
       console.error('Stack:', err)
-      return NextResponse.redirect(`${requestUrl.origin}?error=unexpected&message=${encodeURIComponent((err as Error).message)}`)
+      return NextResponse.redirect(`${loginUrl}?error=unexpected&message=${encodeURIComponent((err as Error).message)}`)
     }
   }
 

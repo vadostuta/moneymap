@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/auth-context'
+import { displayName } from '@/lib/auth/username'
 import { useWallet, ALL_WALLETS } from '@/contexts/wallet-context'
 import { useTranslation } from 'react-i18next'
 import { usePathname, useRouter } from 'next/navigation'
@@ -73,7 +74,7 @@ type NavItem = {
 }
 
 export function AppSidebar () {
-  const { user, signInWithGoogle, signOut } = useAuth()
+  const { user, signOut } = useAuth()
   const {
     selectedWallet,
     setSelectedWallet,
@@ -356,7 +357,7 @@ export function AppSidebar () {
               {user ? (
                 <>
                   <div className='text-sm text-muted-foreground mb-2'>
-                    {user.email}
+                    {displayName(user)}
                   </div>
                   <Button
                     variant='outline'
@@ -367,8 +368,14 @@ export function AppSidebar () {
                   </Button>
                 </>
               ) : (
-                <Button onClick={signInWithGoogle} className='w-full'>
-                  {t('auth.signInWithGoogle')}
+                <Button
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    router.push('/login')
+                  }}
+                  className='w-full'
+                >
+                  {t('auth.signIn')}
                 </Button>
               )}
             </div>
@@ -692,7 +699,7 @@ export function AppSidebar () {
 
                 {collapsed === 'expanded' && (
                   <div className='text-sm text-sidebar-foreground mb-2'>
-                    {user.email}
+                    {displayName(user)}
                   </div>
                 )}
                 {collapsed === 'expanded' ? (
@@ -714,14 +721,14 @@ export function AppSidebar () {
               </>
             ) : collapsed === 'expanded' ? (
               <Button
-                onClick={signInWithGoogle}
+                onClick={() => router.push('/login')}
                 className='w-full bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
               >
-                {t('auth.signInWithGoogle')}
+                {t('auth.signIn')}
               </Button>
             ) : (
               <Button
-                onClick={signInWithGoogle}
+                onClick={() => router.push('/login')}
                 className='w-full bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
               >
                 <LogIn className='h-4 w-4' />

@@ -10,7 +10,7 @@ import { LogIn } from 'lucide-react'
 
 export function AboutClient () {
   const { t } = useTranslation('common')
-  const { user, signInWithGoogle } = useAuth()
+  const { user } = useAuth()
 
   const features = [
     {
@@ -180,12 +180,14 @@ export function AboutClient () {
               {t('about.cta.description')}
             </p>
             <Button
-              onClick={signInWithGoogle}
+              asChild
               size='lg'
               className='bg-white text-purple-600 hover:bg-slate-100 px-8 py-6 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all gap-2'
             >
-              <LogIn className='h-5 w-5' />
-              {t('auth.signInWithGoogle')}
+              <Link href='/login'>
+                <LogIn className='h-5 w-5' />
+                {t('auth.signIn')}
+              </Link>
             </Button>
           </div>
         )}

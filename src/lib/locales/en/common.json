@@ -197,7 +197,19 @@
     "password": "Password",
     "forgotPassword": "Forgot Password?",
     "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?"
+    "hasAccount": "Already have an account?",
+    "continueWithGoogle": "Continue with Google",
+    "createAccount": "Create account",
+    "lastUsed": "Last used",
+    "or": "or",
+    "username": "Username",
+    "usernameHint": "3–30 characters: letters, numbers, dot, dash or underscore.",
+    "invalidUsername": "Username must be 3–30 characters: letters, numbers, dot, dash or underscore",
+    "usernameTaken": "This username is already taken",
+    "wrongCredentials": "Wrong username or password",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "errorTitle": "Authentication error",
+    "welcome": "Sign in to MoneyMap"
   },
   "overview": {
     "title": "Overview",

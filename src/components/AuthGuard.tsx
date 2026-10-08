@@ -5,14 +5,18 @@ import { useTranslation } from 'react-i18next'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Logo } from '@/components/ui/Logo'
+import { Button } from '@/components/ui/button'
+import { LogIn } from 'lucide-react'
+
+// Pages reachable without a session
+const PUBLIC_PATHS = ['/about', '/login']
 
 export function AuthGuard ({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
   const { t } = useTranslation('common')
   const pathname = usePathname()
 
-  // Allow access to about page without authentication
-  if (pathname === '/about') {
+  if (PUBLIC_PATHS.includes(pathname)) {
     return <>{children}</>
   }
 
@@ -31,6 +35,13 @@ export function AuthGuard ({ children }: { children: React.ReactNode }) {
           <p className='text-lg text-muted-foreground mb-6'>
             Please sign in to start using our app
           </p>
+
+          <Button asChild size='lg' className='mb-6 gap-2'>
+            <Link href='/login'>
+              <LogIn className='h-5 w-5' />
+              {t('auth.signIn')}
+            </Link>
+          </Button>
 
           {/* About link for non-signed-in users */}
           <div className='mb-6'>
