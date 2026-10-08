@@ -41,7 +41,7 @@ export function SimpleTemplateList ({
               <div className='absolute inset-0 bg-gradient-to-br from-primary/2 via-transparent to-primary/1 opacity-0 group-hover:opacity-100 transition-opacity duration-200' />
 
               {/* Delete button - positioned at top right */}
-              <div className='absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+              <div className='absolute top-3 right-3 z-20 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200'>
                 <Button
                   variant='ghost'
                   size='sm'

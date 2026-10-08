@@ -27,7 +27,7 @@ export default function TemplatePage () {
 
   if (isLoading) {
     return (
-      <main className='flex min-h-screen mt-[-5rem] flex-col items-center justify-center p-24 w-full'>
+      <main className='flex min-h-screen mt-[-5rem] flex-col items-center justify-center p-4 md:p-24 w-full'>
         <div className='text-center max-w-4xl mx-auto flex flex-col items-center w-full'>
           <div className='flex items-center gap-4 mb-6'>
             <Logo size='lg' />
@@ -47,7 +47,7 @@ export default function TemplatePage () {
 
   if (error) {
     return (
-      <main className='flex min-h-screen mt-[-5rem] flex-col items-center justify-center p-24 w-full'>
+      <main className='flex min-h-screen mt-[-5rem] flex-col items-center justify-center p-4 md:p-24 w-full'>
         <div className='text-center max-w-4xl mx-auto flex flex-col items-center w-full'>
           <div className='flex items-center gap-4 mb-6'>
             <h1 className='text-4xl font-bold text-foreground'>

@@ -17,12 +17,14 @@ interface DatePickerProps {
   date?: Date
   onSelect?: (date?: Date) => void
   placeholder?: string
+  className?: string
 }
 
 export function DatePicker ({
   date,
   onSelect,
-  placeholder = 'Pick a date'
+  placeholder = 'Pick a date',
+  className
 }: DatePickerProps) {
   return (
     <Popover>
@@ -32,11 +34,14 @@ export function DatePicker ({
           variant={'outline'}
           className={cn(
             'w-[240px] justify-start text-left font-normal',
-            !date && 'text-muted-foreground'
+            !date && 'text-muted-foreground',
+            className
           )}
         >
           <CalendarIcon className='mr-2 h-4 w-4' />
-          {date ? format(date, 'PPP') : <span>{placeholder}</span>}
+          <span className='truncate'>
+            {date ? format(date, 'PPP') : placeholder}
+          </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-auto p-0' align='start'>

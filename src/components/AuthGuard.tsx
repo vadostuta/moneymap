@@ -22,7 +22,7 @@ export function AuthGuard ({ children }: { children: React.ReactNode }) {
 
   if (!user) {
     return (
-      <main className='flex min-h-screen mt-[-5rem] flex-col items-center justify-center p-24 w-full'>
+      <main className='flex min-h-screen mt-[-5rem] flex-col items-center justify-center p-4 md:p-24 w-full'>
         <div className='text-center max-w-4xl mx-auto flex flex-col items-center w-full'>
           <div className='flex items-center gap-4 mb-6'>
             <Logo size='lg' />

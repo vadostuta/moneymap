@@ -72,7 +72,7 @@ export default function StartPage () {
 
   if (loading || walletsLoading || templatesLoading) {
     return (
-      <main className='flex min-h-screen mt-[-5rem] flex-col items-center justify-center p-24 w-full'>
+      <main className='flex min-h-screen mt-[-5rem] flex-col items-center justify-center p-4 md:p-24 w-full'>
         <div className='text-center max-w-4xl mx-auto flex flex-col items-center w-full'>
           <div className='flex items-center gap-4 mb-6'>
             <Logo size='lg' />
@@ -125,7 +125,7 @@ export default function StartPage () {
 
   if (templatesError) {
     return (
-      <main className='flex min-h-screen flex-col items-center justify-center p-24'>
+      <main className='flex min-h-screen flex-col items-center justify-center p-4 md:p-24'>
         <div className='text-center'>
           <p className='text-destructive'>
             {t('templates.loadError', { message: templatesError.message })}
@@ -190,7 +190,7 @@ export default function StartPage () {
                       <div className='absolute inset-0 bg-gradient-to-br from-primary/2 via-transparent to-primary/1 opacity-0 group-hover:opacity-100 transition-opacity duration-200' />
 
                       {/* Delete button - positioned at top right */}
-                      <div className='absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+                      <div className='absolute top-3 right-3 z-20 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200'>
                         <Button
                           variant='ghost'
                           size='sm'

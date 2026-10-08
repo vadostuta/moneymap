@@ -54,14 +54,16 @@ export default function RootLayout ({
                       <WalletProvider>
                         <MonobankSyncProvider>
                           <SidebarProvider>
-                            <div className='flex h-screen w-full'>
+                            <div className='flex h-dvh w-full'>
                               <AppSidebar />
                               <main className='flex-1 overflow-auto'>
-                                <div className='py-[5rem] px-4 sm:p-6 flex items-start'>
+                                <div className='pt-20 pb-6 px-4 sm:px-6 md:p-6 flex items-start'>
                                   <div className='hidden md:flex items-center gap-4 mb-4'>
                                     <SidebarTrigger />
                                   </div>
-                                  <AuthGuard>{children}</AuthGuard>
+                                  <div className='flex-1 min-w-0'>
+                                    <AuthGuard>{children}</AuthGuard>
+                                  </div>
                                 </div>
                               </main>
                             </div>

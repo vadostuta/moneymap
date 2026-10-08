@@ -116,7 +116,7 @@ export default function DistributionClient () {
         <p className='text-sm font-medium text-muted-foreground'>
           {t('wealth.totals.free')}
         </p>
-        <p className='text-4xl sm:text-5xl font-bold tabular-nums tracking-tight'>
+        <p className='text-3xl sm:text-5xl font-bold tabular-nums tracking-tight break-words'>
           {money(Math.max(0, d.free))}
         </p>
         <p className='text-sm text-muted-foreground mt-2 max-w-xl'>

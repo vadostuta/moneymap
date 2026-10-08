@@ -118,7 +118,6 @@ export default function TransactionsClient () {
   return (
     <div
       className='container px-3 sm:px-4 md:px-6 ml-0 sm:ml-2 max-w-7xl'
-      style={{ minWidth: 'calc(100% - 5vw)' }}
     >
       <div className='space-y-4 mb-6'>
         <div className='flex flex-wrap gap-4 items-center'>
@@ -127,16 +126,16 @@ export default function TransactionsClient () {
             placeholder={t('transactions.search')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className='max-w-sm'
+            className='w-full sm:max-w-sm'
           />
 
-          <div className='flex gap-2 items-center'>
+          <div className='flex gap-2 items-center w-full sm:w-auto'>
             <Input
               type='number'
               placeholder={t('transactions.minAmount', 'Min amount')}
               value={minAmount}
               onChange={e => setMinAmount(e.target.value)}
-              className='w-[120px]'
+              className='flex-1 min-w-0 sm:flex-none sm:w-[120px]'
             />
             <span>-</span>
             <Input
@@ -144,21 +143,23 @@ export default function TransactionsClient () {
               placeholder={t('transactions.maxAmount', 'Max amount')}
               value={maxAmount}
               onChange={e => setMaxAmount(e.target.value)}
-              className='w-[120px]'
+              className='flex-1 min-w-0 sm:flex-none sm:w-[120px]'
             />
           </div>
 
-          <div className='flex gap-2 items-center'>
+          <div className='flex gap-2 items-center w-full sm:w-auto'>
             <DatePicker
               date={fromDate}
               onSelect={setFromDate}
               placeholder={t('transactions.fromDate', 'From date')}
+              className='flex-1 min-w-0 sm:flex-none sm:w-[240px]'
             />
             <span>-</span>
             <DatePicker
               date={toDate}
               onSelect={setToDate}
               placeholder={t('transactions.toDate', 'To date')}
+              className='flex-1 min-w-0 sm:flex-none sm:w-[240px]'
             />
           </div>
 

@@ -224,7 +224,7 @@ export function AppSidebar () {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className='md:hidden fixed inset-0 bg-background z-40 pt-16'>
+        <div className='md:hidden fixed inset-0 bg-background z-40 pt-16 overflow-y-auto'>
           <div className='p-4'>
             {user && (
               <div className='mb-4'>

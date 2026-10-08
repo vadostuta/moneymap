@@ -122,6 +122,7 @@ export default function WealthClient () {
           {latest && currency && (
             <div className='grid gap-3 grid-cols-2 lg:grid-cols-5'>
               <StatTile
+                className='col-span-2 lg:col-span-1'
                 label={t('wealth.totals.netWorth')}
                 value={formatBalance(latest.net_worth, currency)}
                 sub={
@@ -223,10 +224,10 @@ export default function WealthClient () {
                   <th className='text-right font-medium p-3'>
                     {t('wealth.history.change')}
                   </th>
-                  <th className='text-right font-medium p-3'>
+                  <th className='hidden sm:table-cell text-right font-medium p-3'>
                     {t('wealth.totals.liquid')}
                   </th>
-                  <th className='text-right font-medium p-3'>
+                  <th className='hidden sm:table-cell text-right font-medium p-3'>
                     {t('wealth.totals.free')}
                   </th>
                   <th className='p-3 w-12'>
@@ -260,12 +261,12 @@ export default function WealthClient () {
                     >
                       {formatChange(row.delta, row.display_currency)}
                     </td>
-                    <td className='p-3 text-right tabular-nums whitespace-nowrap'>
+                    <td className='hidden sm:table-cell p-3 text-right tabular-nums whitespace-nowrap'>
                       {formatBalance(row.liquid, row.display_currency)}
                     </td>
                     <td
                       className={cn(
-                        'p-3 text-right tabular-nums whitespace-nowrap',
+                        'hidden sm:table-cell p-3 text-right tabular-nums whitespace-nowrap',
                         row.free < 0 && 'text-destructive'
                       )}
                     >
@@ -324,20 +325,22 @@ function StatTile ({
   label,
   value,
   valueClassName,
-  sub
+  sub,
+  className
 }: {
+  className?: string
   label: string
   value: string
   valueClassName?: string
   sub: React.ReactNode
 }) {
   return (
-    <Card>
-      <CardContent className='pt-4 sm:pt-6'>
+    <Card className={className}>
+      <CardContent className='p-4 sm:p-6'>
         <p className='text-xs sm:text-sm text-muted-foreground'>{label}</p>
         <p
           className={cn(
-            'text-lg sm:text-2xl font-bold tabular-nums mt-1',
+            'text-lg sm:text-2xl font-bold tabular-nums mt-1 [overflow-wrap:anywhere]',
             valueClassName
           )}
         >
