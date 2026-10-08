@@ -1,6 +1,10 @@
 import { supabase } from '@/lib/supabase/client'
 import { CreateTransactionDTO } from '../types/transaction'
-import { getCategoryFromMCC } from './mcc-mapper'
+import {
+  getCategoryFromMCC,
+  isTransferMCC,
+  TRANSFERS_CATEGORY_ID
+} from './mcc-mapper'
 
 export interface BankIntegration {
   id: string
@@ -146,14 +150,21 @@ export class MonobankService {
     transaction: MonobankTransaction,
     walletId: string
   ): CreateTransactionDTO {
+    const isTransfer = isTransferMCC(transaction.mcc)
+
     // Get category ID directly from MCC mapping
-    const categoryId =
-      getCategoryFromMCC(transaction.mcc) ||
-      'e6ae9d7d-1e91-447d-8bcb-9940a5d9d3a0' // fallback category
+    const categoryId = isTransfer
+      ? TRANSFERS_CATEGORY_ID
+      : getCategoryFromMCC(transaction.mcc) ||
+        'e6ae9d7d-1e91-447d-8bcb-9940a5d9d3a0' // fallback category
 
     return {
       wallet_id: walletId,
-      type: transaction.amount < 0 ? 'expense' : 'income',
+      type: isTransfer
+        ? 'transfer'
+        : transaction.amount < 0
+        ? 'expense'
+        : 'income',
       amount: Math.abs(transaction.amount) / 100,
       description: transaction.description || '',
       category_id: categoryId,

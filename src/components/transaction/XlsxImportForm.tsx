@@ -32,6 +32,7 @@ import {
   mapMonobankCategory,
   isTransferCategory
 } from '@/lib/services/xlsx-category-mapper'
+import { TRANSFERS_CATEGORY_ID } from '@/lib/services/mcc-mapper'
 import { toastService } from '@/lib/services/toast'
 import { useTranslation } from 'react-i18next'
 import {
@@ -147,7 +148,9 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
             description: row.description || row.category,
             amount: Math.abs(row.amount),
             type,
-            categoryId: mapMonobankCategory(row.category, categories),
+            categoryId: isTransfer
+              ? TRANSFERS_CATEGORY_ID
+              : mapMonobankCategory(row.category, categories),
             originalCategory: row.category
           }
         })

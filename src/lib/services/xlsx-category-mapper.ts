@@ -1,4 +1,5 @@
 import { Category } from '@/lib/types/category'
+import { TRANSFERS_CATEGORY_ID } from './mcc-mapper'
 
 // Monobank category name to system category ID mapping
 // Category IDs from mcc-mapper.ts
@@ -23,13 +24,13 @@ export const MONOBANK_CATEGORY_MAP: Record<string, string> = {
   // Entertainment
   'Entertainment': '2557ddce-7aec-45e5-8932-63fe3b1f2fd6', // Entertainment
 
-  // Transfers - will be handled separately as 'transfer' type
-  'Transfers': 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa', // Donations/Transfers
-  'To card': 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa', // Transfers
-  'Transfer crediting': 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa', // Transfers
-  'Transfer from my card': 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa', // Transfers
-  'From my card': 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa', // Transfers
-  'Enrollment': 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa', // Income transfer
+  // Transfers - saved with type 'transfer' (see isTransferCategory)
+  'Transfers': TRANSFERS_CATEGORY_ID,
+  'To card': TRANSFERS_CATEGORY_ID,
+  'Transfer crediting': TRANSFERS_CATEGORY_ID,
+  'Transfer from my card': TRANSFERS_CATEGORY_ID,
+  'From my card': TRANSFERS_CATEGORY_ID,
+  'Enrollment': TRANSFERS_CATEGORY_ID, // Income transfer
 
   // Savings
   'Savings': 'e6ae9d7d-1e91-447d-8bcb-9940a5d9d3a0', // Other

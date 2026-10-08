@@ -95,7 +95,7 @@ export function ExpensePieChart ({
 
   // Fetch data by category with wallet filter
   const {
-    data: rawData,
+    data = [],
     isLoading,
     error
   } = useQuery({
@@ -138,17 +138,6 @@ export function ExpensePieChart ({
     // Keep showing the previous tab's chart while the new one loads
     placeholderData: keepPreviousData
   })
-
-  // Filter out transfers here (not in the queryFn) so the result doesn't
-  // depend on whether categories had loaded when the query ran
-  const data = React.useMemo(
-    () =>
-      (rawData ?? []).filter(item => {
-        const category = categories.find(cat => cat.id === item.category_id)
-        return category?.name !== 'Transfers'
-      }),
-    [rawData, categories]
-  )
 
   const handleTypeChange = (value: string) => {
     setType(value as 'net' | 'expense' | 'income')

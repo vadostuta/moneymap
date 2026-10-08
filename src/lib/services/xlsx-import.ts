@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase/client'
 import { CreateTransactionDTO } from '@/lib/types/transaction'
 import { Category } from '@/lib/types/category'
 import { mapMonobankCategory, isTransferCategory } from './xlsx-category-mapper'
+import { TRANSFERS_CATEGORY_ID } from './mcc-mapper'
 
 export interface ParsedXlsxRow {
   date: string
@@ -126,7 +127,9 @@ export const xlsxImportService = {
         type,
         amount: Math.abs(row.amount),
         wallet_id: walletId,
-        category_id: mapMonobankCategory(row.category, categories),
+        category_id: isTransfer
+          ? TRANSFERS_CATEGORY_ID
+          : mapMonobankCategory(row.category, categories),
         label: 'Personal' as const,
         date: isoDate,
         description: row.description || undefined

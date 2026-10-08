@@ -47,8 +47,18 @@ export const MCC_CATEGORY_MAP: Record<number, string> = {
   7298: '11fa4c3f-5cae-4c34-aa46-a892c1259b24',
 
   // ✨ Donations / Charity (new)
-  4829: 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa', // Wire/Transfers often used for charity
   8398: 'd3ff9c14-c203-4ec3-9827-f0ca2104c8fa' // Charitable & Social Service Orgs
+}
+
+// System "Transfers" category
+export const TRANSFERS_CATEGORY_ID = '6da4ff07-a036-4a20-bf7a-14d50f669add'
+
+// Money transfers (card-to-card, between own cards). Saved as type
+// 'transfer' so they don't count as spending or income
+const TRANSFER_MCCS = new Set([4829])
+
+export function isTransferMCC (mcc: number): boolean {
+  return TRANSFER_MCCS.has(mcc)
 }
 
 export function getCategoryFromMCC (mcc: number): string | null {
