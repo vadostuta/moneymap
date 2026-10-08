@@ -1,195 +1,188 @@
 'use client'
 
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { useAuth } from '@/contexts/auth-context'
-import Image from 'next/image'
+import {
+  ArrowRight,
+  BarChart3,
+  Check,
+  Coins,
+  EyeOff,
+  KeyRound,
+  Languages,
+  LayoutDashboard
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/Logo'
-import { LogIn } from 'lucide-react'
+import { useAuth } from '@/contexts/auth-context'
+import { cn } from '@/lib/utils'
+import { GrowPreview, HeroPreview, PlanPreview, TrackPreview } from './previews'
+
+function Story ({
+  id,
+  section,
+  points,
+  visual,
+  reverse = false
+}: {
+  id: string
+  section: 'track' | 'plan' | 'grow'
+  points: string[]
+  visual: React.ReactNode
+  reverse?: boolean
+}) {
+  const { t } = useTranslation('common')
+
+  return (
+    <section
+      id={id}
+      className='grid scroll-mt-8 items-center gap-10 md:grid-cols-2 md:gap-16'
+    >
+      <div className={cn(reverse && 'md:order-2')}>
+        <p className='mb-3 text-sm font-semibold uppercase tracking-wider text-[hsl(var(--chart-1))]'>
+          {t(`about.${section}.eyebrow`)}
+        </p>
+        <h2 className='mb-4 text-3xl font-bold tracking-tight sm:text-4xl'>
+          {t(`about.${section}.title`)}
+        </h2>
+        <p className='mb-6 text-lg leading-relaxed text-muted-foreground'>
+          {t(`about.${section}.description`)}
+        </p>
+        <ul className='space-y-3'>
+          {points.map(point => (
+            <li key={point} className='flex items-start gap-3'>
+              <span className='mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[hsl(var(--chart-1)/0.12)]'>
+                <Check className='h-3 w-3 text-[hsl(var(--chart-1))]' />
+              </span>
+              <span>{t(`about.${section}.points.${point}`)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className={cn(reverse && 'md:order-1')}>{visual}</div>
+    </section>
+  )
+}
+
+const MORE_FEATURES = [
+  { key: 'templates', icon: LayoutDashboard },
+  { key: 'analytics', icon: BarChart3 },
+  { key: 'currencies', icon: Coins },
+  { key: 'privacyMode', icon: EyeOff },
+  { key: 'languages', icon: Languages },
+  { key: 'signIn', icon: KeyRound }
+]
 
 export function AboutClient () {
   const { t } = useTranslation('common')
   const { user } = useAuth()
 
-  const features = [
-    {
-      title: t('about.features.monobank.title'),
-      description: t('about.features.monobank.description'),
-      details: t('about.features.monobank.details'),
-      icon: '🏦',
-      color: 'from-blue-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:to-cyan-500/20'
-    },
-    {
-      title: t('about.features.templates.title'),
-      description: t('about.features.templates.description'),
-      details: t('about.features.templates.details'),
-      icon: '📋',
-      color: 'from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20'
-    },
-    {
-      title: t('about.features.search.title'),
-      description: t('about.features.search.description'),
-      details: t('about.features.search.details'),
-      icon: '🔍',
-      color: 'from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20'
-    },
-    {
-      title: t('about.features.wallets.title'),
-      description: t('about.features.wallets.description'),
-      details: t('about.features.wallets.details'),
-      icon: '💼',
-      color: 'from-orange-500/10 to-amber-500/10 dark:from-orange-500/20 dark:to-amber-500/20'
-    },
-    {
-      title: t('about.features.visualize.title'),
-      description: t('about.features.visualize.description'),
-      details: t('about.features.visualize.details'),
-      icon: '📊',
-      color: 'from-indigo-500/10 to-violet-500/10 dark:from-indigo-500/20 dark:to-violet-500/20'
-    },
-    {
-      title: t('about.features.privat24Import.title'),
-      description: t('about.features.privat24Import.description'),
-      details: t('about.features.privat24Import.details'),
-      icon: '📄',
-      color: 'from-emerald-500/10 to-teal-500/10 dark:from-emerald-500/20 dark:to-teal-500/20'
-    }
-  ]
-
-  const screenshots = [
-    {
-      src: '/preview-images/dashboard.png',
-      alt: 'MoneyMap Dashboard',
-      title: 'Beautiful Dashboard',
-      description: 'Get a complete overview of your finances at a glance'
-    },
-    {
-      src: '/preview-images/transactions.png',
-      alt: 'Transaction Management',
-      title: 'Smart Transactions',
-      description: 'Organize and categorize your expenses effortlessly'
-    },
-    {
-      src: '/preview-images/templates.png',
-      alt: 'Custom Templates',
-      title: 'Flexible Templates',
-      description: 'Create personalized views that fit your workflow'
-    }
-  ]
+  const primaryCta = user
+    ? { href: '/start', label: t('about.hero.openApp') }
+    : { href: '/login', label: t('about.hero.getStarted') }
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-background'>
-      <div className='max-w-6xl mx-auto px-6 py-12'>
-        {/* Back button */}
-        <div className='mb-8'>
-          <Button asChild variant='ghost' size='sm' className='hover:bg-slate-100 dark:hover:bg-slate-800'>
-            <Link href='/' className='flex items-center gap-2'>
-              <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M10 19l-7-7m0 0l7-7m-7 7h18' />
-              </svg>
-              Back
-            </Link>
-          </Button>
-        </div>
+    <div className='relative min-h-screen overflow-hidden bg-background'>
+      {/* Soft glow behind the hero */}
+      <div
+        aria-hidden='true'
+        className='pointer-events-none absolute inset-x-0 top-0 h-[36rem] bg-[radial-gradient(ellipse_at_top,hsl(var(--chart-1)/0.14),transparent_65%)]'
+      />
 
-        {/* Hero Section */}
-        <div className='text-center mb-16'>
-          <div className='inline-flex items-center gap-4 mb-6'>
-            <Logo size='xl' />
-            <h1 className='text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent'>
-              MoneyMap
-            </h1>
+      <div className='relative mx-auto max-w-6xl px-4 pb-24 pt-12 sm:px-6 sm:pt-20'>
+        {/* Hero */}
+        <section className='mx-auto max-w-3xl text-center'>
+          <div className='mb-6 inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-sm text-muted-foreground backdrop-blur'>
+            <Logo size='sm' />
+            {t('about.hero.eyebrow')}
           </div>
-          <p className='text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed mb-4'>
+          <h1 className='text-4xl font-bold tracking-tight sm:text-6xl'>
+            {t('about.hero.title')}
+          </h1>
+          <p className='mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground'>
             {t('about.hero.description')}
           </p>
-          <p className='text-base text-slate-500 dark:text-slate-500 max-w-xl mx-auto'>
-            {t('about.hero.subtitle')}
-          </p>
-        </div>
-
-        {/* Screenshots Showcase */}
-        <div className='mb-20'>
-          <h2 className='text-3xl font-bold text-center text-slate-900 dark:text-slate-100 mb-12'>
-            See It In Action
-          </h2>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            {screenshots.map((screenshot) => (
-              <div key={screenshot.src} className='group relative'>
-                <div className='relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full'>
-                  <div className='aspect-video relative bg-slate-100 dark:bg-slate-800'>
-                    <Image
-                      src={screenshot.src}
-                      alt={screenshot.alt}
-                      fill
-                      className='object-cover'
-                      sizes='(max-width: 768px) 100vw, 33vw'
-                    />
-                  </div>
-                  <div className='p-4 flex-1 flex flex-col'>
-                    <h3 className='font-semibold text-slate-900 dark:text-slate-100 mb-1'>
-                      {screenshot.title}
-                    </h3>
-                    <p className='text-sm text-slate-600 dark:text-slate-400'>
-                      {screenshot.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Features Grid */}
-        <div className='mb-20'>
-          <h2 className='text-3xl font-bold text-center text-slate-900 dark:text-slate-100 mb-12'>
-            {t('about.features.title')}
-          </h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className='group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1'
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                <div className='relative'>
-                  <div className='text-4xl mb-4'>{feature.icon}</div>
-                  <h3 className='text-lg font-bold text-slate-900 dark:text-slate-100 mb-3'>
-                    {feature.title}
-                  </h3>
-                  <p className='text-slate-700 dark:text-slate-300 mb-2 text-sm leading-relaxed'>
-                    {feature.description}
-                  </p>
-                  <p className='text-slate-500 dark:text-slate-500 text-xs leading-relaxed'>
-                    {feature.details}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        {!user && (
-          <div className='text-center py-16 px-8 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-2xl'>
-            <h2 className='text-3xl font-bold text-white mb-4'>
-              {t('about.cta.title')}
-            </h2>
-            <p className='text-blue-100 text-lg mb-8 max-w-2xl mx-auto'>
-              {t('about.cta.description')}
-            </p>
-            <Button
-              asChild
-              size='lg'
-              className='bg-white text-purple-600 hover:bg-slate-100 px-8 py-6 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all gap-2'
-            >
-              <Link href='/login'>
-                <LogIn className='h-5 w-5' />
-                {t('auth.signIn')}
+          <div className='mt-8 flex flex-col justify-center gap-3 sm:flex-row'>
+            <Button asChild size='lg' className='gap-2'>
+              <Link href={primaryCta.href}>
+                {primaryCta.label}
+                <ArrowRight className='h-4 w-4' />
               </Link>
             </Button>
+            <Button asChild size='lg' variant='outline'>
+              <a href='#track'>{t('about.hero.seeFeatures')}</a>
+            </Button>
           </div>
+        </section>
+
+        <div className='mx-auto mt-14 max-w-4xl sm:mt-20'>
+          <HeroPreview />
+        </div>
+
+        {/* Feature stories */}
+        <div className='mt-24 space-y-24 sm:mt-32 sm:space-y-32'>
+          <Story
+            id='track'
+            section='track'
+            points={['sync', 'import', 'wallets', 'search']}
+            visual={<TrackPreview />}
+          />
+          <Story
+            id='plan'
+            section='plan'
+            points={['lines', 'checkpoint', 'projection']}
+            visual={<PlanPreview />}
+            reverse
+          />
+          <Story
+            id='grow'
+            section='grow'
+            points={['snapshots', 'claims', 'goals']}
+            visual={<GrowPreview />}
+          />
+        </div>
+
+        {/* Smaller features */}
+        <section className='mt-24 sm:mt-32'>
+          <h2 className='mb-10 text-center text-3xl font-bold tracking-tight'>
+            {t('about.more.title')}
+          </h2>
+          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+            {MORE_FEATURES.map(({ key, icon: Icon }) => (
+              <div
+                key={key}
+                className='rounded-2xl border bg-card p-6 transition-colors hover:border-[hsl(var(--chart-1)/0.4)]'
+              >
+                <span className='mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-muted'>
+                  <Icon className='h-5 w-5' />
+                </span>
+                <h3 className='mb-1.5 font-semibold'>
+                  {t(`about.more.${key}.title`)}
+                </h3>
+                <p className='text-sm leading-relaxed text-muted-foreground'>
+                  {t(`about.more.${key}.description`)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Closing call to action */}
+        {!user && (
+          <section className='mt-24 rounded-3xl border bg-muted/40 px-6 py-14 text-center sm:mt-32 sm:px-12'>
+            <h2 className='text-3xl font-bold tracking-tight sm:text-4xl'>
+              {t('about.cta.title')}
+            </h2>
+            <p className='mx-auto mt-4 max-w-xl text-lg text-muted-foreground'>
+              {t('about.cta.description')}
+            </p>
+            <Button asChild size='lg' className='mt-8 gap-2'>
+              <Link href='/login'>
+                {t('about.cta.button')}
+                <ArrowRight className='h-4 w-4' />
+              </Link>
+            </Button>
+          </section>
         )}
       </div>
     </div>

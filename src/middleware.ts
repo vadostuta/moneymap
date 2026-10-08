@@ -3,6 +3,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware (req: NextRequest) {
+  // Landing page is /about; from there users can sign in or open the app
+  if (req.nextUrl.pathname === '/') {
+    return NextResponse.redirect(new URL('/about', req.url))
+  }
+
   const res = NextResponse.next()
 
   const supabase = createServerClient(

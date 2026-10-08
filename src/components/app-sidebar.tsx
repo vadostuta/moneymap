@@ -214,7 +214,7 @@ export function AppSidebar () {
           </button>
 
           <Link
-            href='/start'
+            href='/about'
             className='text-foreground hover:text-primary transition-colors'
           >
             <Logo size='sm' className='text-foreground' />
@@ -400,7 +400,7 @@ export function AppSidebar () {
               }`}
             >
               <Link
-                href='/start'
+                href='/about'
                 className={`font-bold ${
                   collapsed === 'collapsed' ? 'text-base' : ''
                 } text-sidebar-foreground hover:text-sidebar-primary transition-colors`}

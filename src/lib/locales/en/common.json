@@ -432,50 +432,95 @@
   },
   "about": {
     "hero": {
-      "description": "MoneyMap helps you take full control of your personal finances — quickly, securely, and in one place.",
-      "subtitle": "It's built for people who want a clear picture of where their money goes without complicated spreadsheets."
+      "eyebrow": "Personal finance, mapped",
+      "title": "Know where your money goes and where it's going next.",
+      "description": "MoneyMap brings your transactions, monthly plan and net worth together, so you see the whole picture without a spreadsheet.",
+      "getStarted": "Get started",
+      "openApp": "Open MoneyMap",
+      "seeFeatures": "See what's inside"
     },
-    "features": {
-      "title": "What You Can Do",
-      "monobank": {
-        "title": "Connect your Monobank account",
-        "description": "Automatically sync your transactions in real time — no manual entry needed.",
-        "details": "Keep everything up to date with secure token-based integration."
-      },
-      "templates": {
-        "title": "Create your own templates",
-        "description": "Build personalized dashboards with charts, expense summaries, or recent transactions.",
-        "details": "Save your favorite layout and reuse it anytime to track what matters most to you."
-      },
-      "search": {
-        "title": "Search all your transactions",
-        "description": "Instantly find any payment or income by description, category, or wallet — across your entire history.",
-        "details": "Powerful search across all your financial data with instant results."
-      },
-      "wallets": {
-        "title": "Manage multiple wallets",
-        "description": "Track your cash, cards, and bank accounts separately, all under one roof.",
-        "details": "Each wallet has its own balance, analytics, and filters. Switch wallets in sidebar → all charts & data update instantly."
-      },
-      "visualize": {
-        "title": "Visualize your finances",
-        "description": "Use clean charts and summaries to spot spending trends, income growth, or where you can save more.",
-        "details": "Beautiful, interactive visualizations that make your financial data easy to understand."
-      },
-      "privat24Import": {
-        "title": "Import from Privat24",
-        "description": "Upload your Privat24 bank statements directly as XLSX files — no manual data entry required.",
-        "details": "Automatically parse transaction dates, amounts, categories, and descriptions from your bank exports."
+    "track": {
+      "eyebrow": "Track",
+      "title": "Every transaction in one place",
+      "description": "Bring in your bank data automatically and keep cash, cards and accounts side by side.",
+      "points": {
+        "sync": "Monobank transactions sync on their own",
+        "import": "Privat24 statements import straight from XLSX",
+        "wallets": "Separate wallets for cash, cards and accounts",
+        "search": "Search your whole history in an instant"
       }
     },
-    "privacy": {
-      "title": "Your Data, Your Privacy",
-      "description": "MoneyMap runs securely on Supabase with bank-grade authentication. Only you can see your data — nothing is shared or stored without your consent."
+    "plan": {
+      "eyebrow": "Plan",
+      "title": "Give every month a plan",
+      "description": "Decide where your income goes before the month starts, then see how it actually went.",
+      "points": {
+        "lines": "Fixed amounts or a share of your income",
+        "checkpoint": "A month-end checkpoint: under, on plan or over",
+        "projection": "Project your savings 3 to 24 months ahead"
+      }
+    },
+    "grow": {
+      "eyebrow": "Grow",
+      "title": "See what you have, not just what you spend",
+      "description": "Record your net worth across accounts and currencies, and know how much is truly free to spend.",
+      "points": {
+        "snapshots": "Net worth snapshots across currencies",
+        "claims": "Set money aside for rent, savings or a trip",
+        "goals": "Goals with a deadline show if you're on pace"
+      }
+    },
+    "more": {
+      "title": "And a few more things",
+      "templates": {
+        "title": "Your own dashboards",
+        "description": "Combine charts, summaries and recent transactions into layouts you reuse."
+      },
+      "analytics": {
+        "title": "Analytics and trends",
+        "description": "Spending by category and month, so patterns stand out."
+      },
+      "currencies": {
+        "title": "Multiple currencies",
+        "description": "Hryvnia, euro, dollar and more, with NBU and ECB rates filled in for you."
+      },
+      "privacyMode": {
+        "title": "Hide amounts",
+        "description": "One click blurs every number, handy on a shared screen."
+      },
+      "languages": {
+        "title": "Ukrainian and English",
+        "description": "Switch the whole app between languages any time."
+      },
+      "signIn": {
+        "title": "Sign in your way",
+        "description": "Use your Google account, or just a username and password."
+      }
     },
     "cta": {
-      "title": "Start Now",
-      "description": "Sign in with Google, add your first wallet, and discover how simple managing money can be. Your financial clarity starts here.",
-      "start": "Get Started"
+      "title": "Start mapping your money",
+      "description": "Create an account in seconds, add a wallet, and the picture starts filling in.",
+      "button": "Create your account"
+    },
+    "preview": {
+      "netWorth": "Net worth",
+      "freeToSpend": "Free to spend",
+      "leftThisMonth": "Left this month",
+      "vsLastMonth": "vs last month",
+      "spendingByMonth": "Spending by month",
+      "searchPlaceholder": "Search transactions",
+      "groceries": "Groceries",
+      "coffee": "Coffee",
+      "salary": "Salary",
+      "rent": "Rent",
+      "planned": "planned",
+      "investments": "Investments",
+      "leftover": "Leftover",
+      "liquid": "Liquid",
+      "earmarked": "Set aside",
+      "goalCar": "Car",
+      "goalBy": "by Oct 2027",
+      "onPace": "On pace"
     }
   },
   "xlsxImport": {
