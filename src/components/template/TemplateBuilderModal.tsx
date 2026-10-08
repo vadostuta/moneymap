@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -48,12 +48,16 @@ import { LayoutPreviewVisual } from './LayoutPreviewVisual'
 import Image from 'next/image'
 import { templateService } from '@/lib/services/template'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from '@/components/ui/use-toast'
+import { toastService } from '@/lib/services/toast'
+
+const DEFAULT_LAYOUT: LayoutType = '2-1'
 
 interface TemplateBuilderModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (template: Template) => void
+  // Edit this template instead of creating a new one
+  template?: Template | null
 }
 
 // Sortable Item Component
@@ -177,7 +181,7 @@ function LayoutPreview ({
             <div className='border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 h-full flex items-center justify-center text-muted-foreground'>
               <div className='text-center'>
                 <div className='text-2xl mb-1'>📦</div>
-                <div className='text-xs'>Empty slot</div>
+                <div className='text-xs'>{t('templates.emptySlot')}</div>
               </div>
             </div>
           )}
@@ -240,16 +244,27 @@ function LayoutPreview ({
 export function TemplateBuilderModal ({
   isOpen,
   onClose,
-  onSave
+  onSave,
+  template
 }: TemplateBuilderModalProps) {
   const { t } = useTranslation('common')
   const [templateName, setTemplateName] = useState('')
   const [selectedComponents, setSelectedComponents] = useState<
     TemplateComponentId[]
   >([])
-  const [selectedLayout, setSelectedLayout] = useState<LayoutType>('2-1')
+  const [selectedLayout, setSelectedLayout] =
+    useState<LayoutType>(DEFAULT_LAYOUT)
+  const isEditing = !!template
 
   const queryClient = useQueryClient()
+
+  // Start from the template being edited, or empty, each time it opens
+  useEffect(() => {
+    if (!isOpen) return
+    setTemplateName(template?.name ?? '')
+    setSelectedComponents(template?.blocks.map(block => block.componentId) ?? [])
+    setSelectedLayout(template?.layout ?? DEFAULT_LAYOUT)
+  }, [isOpen, template])
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -263,12 +278,18 @@ export function TemplateBuilderModal ({
   const currentLayout =
     getTranslatedLayoutMetadata(selectedLayout, t) ||
     getLayoutById(selectedLayout)
+  const slots = currentLayout?.totalBlocks ?? 0
+  const isFull = selectedComponents.length >= slots
+  // Switching to a smaller layout keeps the picks, but they must fit to save
+  const overflow = Math.max(0, selectedComponents.length - slots)
 
   const handleComponentToggle = (componentId: TemplateComponentId) => {
     setSelectedComponents(prev =>
       prev.includes(componentId)
         ? prev.filter(id => id !== componentId)
-        : [...prev, componentId]
+        : prev.length >= slots
+          ? prev
+          : [...prev, componentId]
     )
   }
 
@@ -288,51 +309,55 @@ export function TemplateBuilderModal ({
     }
   }
 
-  const createTemplateMutation = useMutation({
-    mutationFn: templateService.create,
-    onSuccess: newTemplate => {
+  const saveMutation = useMutation({
+    mutationFn: async (
+      data: Pick<Template, 'name' | 'blocks' | 'layout'>
+    ): Promise<Template | null> => {
+      if (!template) return templateService.create(data)
+      await templateService.update(template.id, data)
+      return { ...template, ...data }
+    },
+    onSuccess: saved => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
-      toast({
-        title: t('templates.created'),
-        description: t('templates.createSuccess', { name: newTemplate?.name })
-      })
-      onSave(newTemplate!)
-      setTemplateName('')
-      setSelectedComponents([])
-      setSelectedLayout('2-1')
+      if (template) {
+        queryClient.invalidateQueries({ queryKey: ['template', template.id] })
+      }
+      toastService.success(
+        t(isEditing ? 'templates.updateSuccess' : 'templates.createSuccess', {
+          name: saved?.name
+        })
+      )
+      onSave(saved!)
       onClose()
     },
     onError: error => {
-      toast({
-        title: t('common.error'),
-        description: t('templates.createError'),
-        variant: 'destructive'
-      })
-      console.error('Template creation failed:', error)
+      toastService.error(
+        t(isEditing ? 'templates.updateError' : 'templates.createError')
+      )
+      console.error('Template save failed:', error)
     }
   })
 
   const handleSave = () => {
-    if (!templateName.trim() || selectedComponents.length === 0) {
+    if (!templateName.trim() || selectedComponents.length === 0 || overflow) {
       return
     }
 
-    const templateData = {
+    // Keep the ids of blocks that stay, so nothing keyed on them is reset
+    const existing = new Map(
+      template?.blocks.map(block => [block.componentId, block.id])
+    )
+    saveMutation.mutate({
       name: templateName.trim(),
       blocks: selectedComponents.map(componentId => ({
-        id: crypto.randomUUID(),
+        id: existing.get(componentId) ?? crypto.randomUUID(),
         componentId
       })),
       layout: selectedLayout
-    }
-
-    createTemplateMutation.mutate(templateData)
+    })
   }
 
   const handleCancel = () => {
-    setTemplateName('')
-    setSelectedComponents([])
-    setSelectedLayout('2-1')
     onClose()
   }
 
@@ -340,9 +365,13 @@ export function TemplateBuilderModal ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className='max-w-6xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
-          <DialogTitle>{t('templates.title')}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? t('templates.editTitle') : t('templates.title')}
+          </DialogTitle>
           <DialogDescription>
-            {t('templates.createDescription')}
+            {isEditing
+              ? t('templates.editDescription')
+              : t('templates.createDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -397,7 +426,24 @@ export function TemplateBuilderModal ({
 
             {/* Component Selection */}
             <div className='space-y-4'>
-              <Label>{t('templates.selectComponents')}</Label>
+              <div className='flex items-baseline justify-between gap-2'>
+                <Label>{t('templates.selectComponents')}</Label>
+                <span
+                  className={`text-xs ${
+                    overflow ? 'text-destructive' : 'text-muted-foreground'
+                  }`}
+                >
+                  {t('templates.slotsUsed', {
+                    count: selectedComponents.length,
+                    slots
+                  })}
+                </span>
+              </div>
+              {overflow > 0 && (
+                <p className='text-xs text-destructive'>
+                  {t('templates.tooMany', { count: overflow })}
+                </p>
+              )}
               <div className='space-y-4'>
                 {componentCategories.map(({ category, components }) => (
                   <div key={category} className='space-y-2'>
@@ -408,10 +454,15 @@ export function TemplateBuilderModal ({
                       {components.map(component => (
                         <Card
                           key={component.id}
+                          aria-disabled={
+                            isFull && !selectedComponents.includes(component.id)
+                          }
                           className={`cursor-pointer transition-colors ${
                             selectedComponents.includes(component.id)
                               ? 'ring-2 ring-primary bg-primary/5'
-                              : 'hover:bg-muted/50'
+                              : isFull
+                                ? 'opacity-50 cursor-not-allowed'
+                                : 'hover:bg-muted/50'
                           }`}
                           onClick={() => handleComponentToggle(component.id)}
                         >
@@ -542,11 +593,12 @@ export function TemplateBuilderModal ({
             disabled={
               !templateName.trim() ||
               selectedComponents.length === 0 ||
-              createTemplateMutation.isPending
+              overflow > 0 ||
+              saveMutation.isPending
             }
           >
-            {createTemplateMutation.isPending
-              ? t('templates.creating')
+            {saveMutation.isPending
+              ? t('templates.saving')
               : t('templates.save')}
           </Button>
         </DialogFooter>

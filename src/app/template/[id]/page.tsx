@@ -1,16 +1,21 @@
 'use client'
 
+import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { templateService } from '@/lib/services/template'
 import { TemplateViewer } from '@/components/template/TemplateViewer'
+import { TemplateBuilderModal } from '@/components/template/TemplateBuilderModal'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Pencil } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 
 export default function TemplatePage () {
   const params = useParams()
   const router = useRouter()
+  const { t } = useTranslation('common')
+  const [isEditing, setIsEditing] = useState(false)
 
   const templateId = params.id as string
 
@@ -33,13 +38,9 @@ export default function TemplatePage () {
             <Logo size='lg' />
 
             <h1 className='text-4xl font-bold text-foreground'>
-              Loading Template...
+              {t('common.loading')}
             </h1>
           </div>
-
-          <p className='text-lg text-muted-foreground'>
-            Please wait while we load your template...
-          </p>
         </div>
       </main>
     )
@@ -51,18 +52,17 @@ export default function TemplatePage () {
         <div className='text-center max-w-4xl mx-auto flex flex-col items-center w-full'>
           <div className='flex items-center gap-4 mb-6'>
             <h1 className='text-4xl font-bold text-foreground'>
-              Template Not Found
+              {t('templates.notFoundTitle')}
             </h1>
           </div>
 
           <p className='text-lg text-muted-foreground mb-6'>
-            The template you&apos;re looking for doesn&apos;t exist or has been
-            deleted.
+            {t('templates.notFoundText')}
           </p>
 
           <Button onClick={() => router.push('/start')} className='gap-2'>
             <ArrowLeft className='h-4 w-4' />
-            Back to Templates
+            {t('templates.backToTemplates')}
           </Button>
         </div>
       </main>
@@ -87,11 +87,29 @@ export default function TemplatePage () {
               className='gap-2'
             >
               <ArrowLeft className='h-4 w-4' />
-              Back
+              {t('common.back')}
+            </Button>
+          }
+          actions={
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setIsEditing(true)}
+              className='gap-2 shrink-0'
+            >
+              <Pencil className='h-4 w-4' />
+              {t('common.edit')}
             </Button>
           }
         />
       </div>
+
+      <TemplateBuilderModal
+        isOpen={isEditing}
+        onClose={() => setIsEditing(false)}
+        onSave={() => setIsEditing(false)}
+        template={template}
+      />
     </main>
   )
 }

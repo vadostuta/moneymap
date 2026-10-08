@@ -60,8 +60,10 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Pin } from 'lucide-react'
 import { usePrivacy } from '@/contexts/privacy-context'
+import { useQuery } from '@tanstack/react-query'
+import { templateService } from '@/lib/services/template'
 
 type NavItem = {
   href: string
@@ -90,6 +92,14 @@ export function AppSidebar () {
   const { t } = useTranslation('common')
   const { state: collapsed, toggleSidebar } = useSidebar()
   const { isHidden, toggleHidden } = usePrivacy()
+
+  // Pinned templates show as links under Templates
+  const { data: templates = [] } = useQuery({
+    queryKey: ['templates'],
+    queryFn: templateService.getAll,
+    enabled: !!user
+  })
+  const pinnedTemplates = templates.filter(template => template.is_pinned)
 
   const handleWalletChange = (walletId: string) => {
     if (walletId === 'all') {
@@ -334,6 +344,22 @@ export function AppSidebar () {
                       </p>
                     </TooltipContent>
                   </Tooltip>
+                  {item.href === '/start' &&
+                    pinnedTemplates.map(template => (
+                      <Link
+                        key={template.id}
+                        href={`/template/${template.id}`}
+                        className={`flex items-center gap-2 p-2 pl-8 rounded-md text-sm ${
+                          pathname === `/template/${template.id}`
+                            ? 'bg-accent text-accent-foreground'
+                            : 'hover:bg-accent/50'
+                        }`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Pin className='h-3.5 w-3.5 shrink-0' />
+                        <span className='truncate'>{template.name}</span>
+                      </Link>
+                    ))}
                 </TooltipProvider>
               ))}
             </nav>
@@ -660,6 +686,24 @@ export function AppSidebar () {
                             </Tooltip>
                           </TooltipProvider>
                         )}
+                        {item.href === '/start' &&
+                          collapsed === 'expanded' &&
+                          pinnedTemplates.map(template => (
+                            <SidebarMenuButton
+                              key={template.id}
+                              asChild
+                              isActive={pathname === `/template/${template.id}`}
+                              className='text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground pl-8 mt-1'
+                            >
+                              <Link
+                                href={`/template/${template.id}`}
+                                className='text-sidebar-foreground'
+                              >
+                                <Pin className='h-3.5 w-3.5' />
+                                <span className='truncate'>{template.name}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                          ))}
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>

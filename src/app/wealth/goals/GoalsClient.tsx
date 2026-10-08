@@ -3,54 +3,21 @@
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import {
-  AlertCircle,
-  AlertTriangle,
-  CheckCircle2,
-  Circle,
-  Clock,
-  Flag,
-  TrendingUp
-} from 'lucide-react'
+import { Flag } from 'lucide-react'
 import { wealthService } from '@/lib/services/wealth'
 import { claimService } from '@/lib/services/claim'
 import { usePrivacy } from '@/contexts/privacy-context'
-import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
 import { WealthTabs } from '../WealthTabs'
 import { formatSnapshotDate } from '../utils'
-import { Goal, GoalStatus, buildGoals, isGoal } from './goals'
+import { Goal, buildGoals, isGoal } from './goals'
+import { GoalStatusBadge } from './GoalStatusBadge'
 import { GoalChart } from './GoalChart'
 
 const percent = new Intl.NumberFormat('en-US', {
   style: 'percent',
   maximumFractionDigits: 0
 })
-
-// Status is never colour alone: every badge has an icon and a word
-const STATUS: Record<
-  GoalStatus,
-  { icon: React.ComponentType<{ className?: string }>; className: string }
-> = {
-  reached: {
-    icon: CheckCircle2,
-    className: 'text-green-700 bg-green-500/10 dark:text-green-400'
-  },
-  onTrack: {
-    icon: TrendingUp,
-    className: 'text-green-700 bg-green-500/10 dark:text-green-400'
-  },
-  behind: {
-    icon: AlertTriangle,
-    className: 'text-amber-700 bg-amber-500/10 dark:text-amber-400'
-  },
-  overdue: {
-    icon: AlertCircle,
-    className: 'text-destructive bg-destructive/10'
-  },
-  tooEarly: { icon: Clock, className: 'text-muted-foreground bg-muted' },
-  notStarted: { icon: Circle, className: 'text-muted-foreground bg-muted' }
-}
 
 export default function GoalsClient () {
   const { t } = useTranslation('common')
@@ -131,8 +98,6 @@ function GoalCard ({ goal }: { goal: Goal }) {
       year: 'numeric'
     })
 
-  const { icon: StatusIcon, className: statusClass } = STATUS[goal.status]
-
   return (
     <Card>
       <CardContent className='pt-5 space-y-4'>
@@ -146,15 +111,7 @@ function GoalCard ({ goal }: { goal: Goal }) {
               })}
             </p>
           </div>
-          <span
-            className={cn(
-              'inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium',
-              statusClass
-            )}
-          >
-            <StatusIcon className='h-3.5 w-3.5' />
-            {t(`wealth.goals.status.${goal.status}`)}
-          </span>
+          <GoalStatusBadge status={goal.status} />
         </div>
 
         <div className='space-y-1.5'>

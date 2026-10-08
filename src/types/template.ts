@@ -2,6 +2,12 @@ export type TemplateComponentId =
   | 'expensePieChart'
   | 'recentTransactionsList'
   | 'monthlyExpenseBarChart'
+  | 'monthSummary'
+  | 'netWorth'
+  | 'freeToSpend'
+  | 'goalsProgress'
+  | 'monthPlan'
+  | 'planHistory'
 
 export interface TemplateBlock {
   id: string // uuid
@@ -37,6 +43,7 @@ export interface Template {
   created_at: string
   user_id?: string
   is_deleted?: boolean
+  is_pinned?: boolean
 }
 
 export interface CreateTemplateDTO {

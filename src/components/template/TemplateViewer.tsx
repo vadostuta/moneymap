@@ -15,19 +15,22 @@ import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
 import { RecentTransactions } from '@/components/transaction/RecentTransactions'
 import { MonthlyExpenseBarChart } from '@/app/analytics/components/MonthlyExpenseBarChart'
 import { MonthSelector } from './MonthSelector'
+import {
+  FreeToSpendWidget,
+  GoalsWidget,
+  MonthPlanWidget,
+  MonthSummaryWidget,
+  NetWorthWidget,
+  PlanHistoryWidget
+} from './widgets'
+import { MONTH_AWARE_COMPONENTS } from '@/lib/template-registry'
 
 interface TemplateViewerProps {
   template: Template
   className?: string
   backButton?: React.ReactNode
+  actions?: React.ReactNode
 }
-
-// Component mapping - maps componentId to actual React components
-const COMPONENT_MAP = {
-  expensePieChart: ExpensePieChart,
-  recentTransactionsList: RecentTransactions,
-  monthlyExpenseBarChart: MonthlyExpenseBarChart
-} as const
 
 function renderComponent (
   block: Template['blocks'][0],
@@ -37,21 +40,6 @@ function renderComponent (
   onCategorySelect?: (category: string | undefined) => void,
   onResetCategory?: () => void
 ) {
-  const Component = COMPONENT_MAP[block.componentId]
-
-  if (!Component) {
-    return (
-      <div className='border border-dashed border-muted-foreground/25 rounded-lg p-4 h-32 flex items-center justify-center text-muted-foreground'>
-        <div className='text-center'>
-          <div className='text-2xl mb-1'>❌</div>
-          <div className='text-xs'>
-            Component not found: {block.componentId}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   // Render components with appropriate props based on componentId
   switch (block.componentId) {
     case 'expensePieChart':
@@ -87,6 +75,33 @@ function renderComponent (
           month={selectedMonth}
         />
       )
+
+    case 'monthSummary':
+      return (
+        <MonthSummaryWidget
+          key={block.id}
+          walletId={selectedWallet?.id}
+          currency={selectedWallet?.currency || 'UAH'}
+          month={selectedMonth ?? new Date()}
+        />
+      )
+
+    case 'netWorth':
+      return <NetWorthWidget key={block.id} />
+
+    case 'freeToSpend':
+      return <FreeToSpendWidget key={block.id} />
+
+    case 'goalsProgress':
+      return <GoalsWidget key={block.id} />
+
+    case 'monthPlan':
+      return (
+        <MonthPlanWidget key={block.id} month={selectedMonth ?? new Date()} />
+      )
+
+    case 'planHistory':
+      return <PlanHistoryWidget key={block.id} />
 
     default:
       return (
@@ -182,13 +197,17 @@ function MonthlyExpenseBarChartWrapper ({
 export function TemplateViewer ({
   template,
   className = '',
-  backButton
+  backButton,
+  actions
 }: TemplateViewerProps) {
   const { selectedWallet } = useWallet()
   const { user } = useAuth()
   const layoutDef = getLayoutById(template.layout)
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>()
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date())
+  const usesMonth = template.blocks.some(block =>
+    MONTH_AWARE_COMPONENTS.includes(block.componentId)
+  )
 
   // Fetch available months efficiently (only fetches date field, not full transactions)
   const { data: availableMonths = [] } = useQuery({
@@ -200,7 +219,7 @@ export function TemplateViewer ({
         2 // Look back 2 years
       )
     },
-    enabled: !!selectedWallet?.id && !!user,
+    enabled: usesMonth && !!selectedWallet?.id && !!user,
     staleTime: 5 * 60 * 1000 // Cache for 5 minutes
   })
 
@@ -241,17 +260,18 @@ export function TemplateViewer ({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Template Header */}
-      <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-4'>
+      <div className='flex items-center justify-between gap-2'>
+        <div className='flex items-center gap-4 min-w-0'>
           {backButton}
           <h2 className='text-xl sm:text-2xl font-bold truncate'>
             {template.name}
           </h2>
         </div>
+        {actions}
       </div>
 
       {/* Month Selector - permanent control */}
-      {selectedWallet && availableMonths.length > 0 && (
+      {usesMonth && selectedWallet && availableMonths.length > 0 && (
         <div className='w-full'>
           <MonthSelector
             selectedMonth={selectedMonth}

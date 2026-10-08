@@ -22,7 +22,7 @@
   },
   "navigation": {
     "home": "Home",
-    "start": "Start",
+    "start": "Templates",
     "transactions": "Transactions",
     "overview": "Overview",
     "analytics": "Analytics",
@@ -343,28 +343,86 @@
     "template": "Template",
     "position": "Position {{number}}",
     "emptySlot": "Empty slot",
-    "layout": "Layout"
+    "saving": "Saving...",
+    "editTitle": "Edit Template",
+    "editDescription": "Change the name, layout or components of this template.",
+    "updateSuccess": "Template \"{{name}}\" saved.",
+    "updateError": "Failed to save template. Please try again.",
+    "slotsUsed": "{{count}} of {{slots}} slots used",
+    "tooMany_one": "This layout has fewer slots. Remove {{count}} component or pick a bigger layout.",
+    "tooMany_other": "This layout has fewer slots. Remove {{count}} components or pick a bigger layout.",
+    "actions": "Actions for {{name}}",
+    "duplicate": "Duplicate",
+    "copyName": "{{name}} (copy)",
+    "duplicated": "Created \"{{name}}\".",
+    "duplicateError": "Failed to duplicate template. Please try again.",
+    "pin": "Pin to sidebar",
+    "unpin": "Unpin from sidebar",
+    "pinned": "Pinned",
+    "pinError": "Failed to update template. Please try again.",
+    "deletedNamed": "Deleted \"{{name}}\"",
+    "restoreError": "Failed to restore template. Please try again.",
+    "notFoundTitle": "Template Not Found",
+    "notFoundText": "The template you're looking for doesn't exist or has been deleted.",
+    "backToTemplates": "Back to Templates",
+    "groups": {
+      "Spending": "Spending",
+      "Wealth": "Wealth",
+      "Plan": "Plan"
+    },
+    "widgets": {
+      "open": "Open",
+      "asOf": "as of {{date}}",
+      "noPlan": "No plan for {{month}} yet.",
+      "planHistoryEmpty": "Plan at least two months to see the history."
+    }
   },
   "components": {
     "expensePieChart": {
       "name": "Expense Pie Chart",
       "description": "Visualize expense distribution by category",
-      "category": "Charts"
+      "category": "Spending"
     },
     "recentTransactionsList": {
       "name": "Recent Transactions",
       "description": "Display list of recent transactions",
-      "category": "Lists"
+      "category": "Spending"
     },
     "monthlyExpenseBarChart": {
       "name": "Monthly Expense Bar Chart",
       "description": "Show monthly expense trends over time",
-      "category": "Charts"
+      "category": "Spending"
+    },
+    "monthSummary": {
+      "name": "Month summary",
+      "description": "Income, expenses, net and savings rate for the month",
+      "category": "Spending"
+    },
+    "netWorth": {
+      "name": "Net worth",
+      "description": "Latest net worth and its trend across snapshots",
+      "category": "Wealth"
+    },
+    "freeToSpend": {
+      "name": "Free to spend",
+      "description": "Liquid money minus everything already claimed",
+      "category": "Wealth"
+    },
+    "goalsProgress": {
+      "name": "Goals",
+      "description": "Progress towards each goal and whether it is on track",
+      "category": "Wealth"
+    },
+    "monthPlan": {
+      "name": "Month plan",
+      "description": "Where the month's income is meant to go, and how it went",
+      "category": "Plan"
+    },
+    "planHistory": {
+      "name": "Plan history",
+      "description": "Planned against actual leftover, month by month",
+      "category": "Plan"
     }
-  },
-  "categories": {
-    "Charts": "Charts",
-    "Lists": "Lists"
   },
   "layouts": {
     "2-1": {

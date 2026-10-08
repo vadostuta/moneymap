@@ -35,6 +35,7 @@ export const templateService = {
       .from('templates')
       .select('*')
       .eq('user_id', user.id)
+      .eq('is_deleted', false)
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -53,6 +54,7 @@ export const templateService = {
       .select('*')
       .eq('user_id', user.id)
       .eq('id', id)
+      .eq('is_deleted', false)
       .single()
 
     if (error) throw error
@@ -66,6 +68,7 @@ export const templateService = {
       name: string
       blocks: Template['blocks']
       layout: Template['layout']
+      is_pinned: boolean
     }>
   ): Promise<void> {
     const {
@@ -82,8 +85,16 @@ export const templateService = {
     if (error) throw error
   },
 
-  // Delete a template
+  // Soft delete, so the template can be restored (undo)
   async delete (id: string): Promise<void> {
+    await templateService.setDeleted(id, true)
+  },
+
+  async restore (id: string): Promise<void> {
+    await templateService.setDeleted(id, false)
+  },
+
+  async setDeleted (id: string, isDeleted: boolean): Promise<void> {
     const {
       data: { user }
     } = await supabase.auth.getUser()
@@ -91,10 +102,22 @@ export const templateService = {
 
     const { error } = await supabase
       .from('templates')
-      .delete()
+      .update({ is_deleted: isDeleted })
       .eq('id', id)
       .eq('user_id', user.id)
 
     if (error) throw error
+  },
+
+  // A copy with fresh block ids, never pinned
+  async duplicate (template: Template, name: string): Promise<Template | null> {
+    return templateService.create({
+      name,
+      layout: template.layout,
+      blocks: template.blocks.map(block => ({
+        ...block,
+        id: crypto.randomUUID()
+      }))
+    })
   }
 }

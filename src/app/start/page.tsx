@@ -6,24 +6,25 @@ import { displayName } from '@/lib/auth/username'
 import { useWallet } from '@/contexts/wallet-context'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { LogIn, Plus, Calendar, Trash2 } from 'lucide-react'
+import { LogIn, Plus } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 import { Template } from '@/types/template'
 import { TemplateBuilderModal } from '@/components/template/TemplateBuilderModal'
+import { TemplateTile } from '@/components/template/TemplateTile'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { templateService } from '@/lib/services/template'
-import { toast } from '@/components/ui/use-toast'
+import { toastService } from '@/lib/services/toast'
 import { Logo } from '@/components/ui/Logo'
 
 export default function StartPage () {
   const { user, loading } = useAuth()
   const { wallets, isLoading: walletsLoading } = useWallet()
-  const { t, i18n } = useTranslation('common')
-  const router = useRouter()
+  const { t } = useTranslation('common')
   const queryClient = useQueryClient()
   // Template state
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false)
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
 
   // Fetch templates using React Query
   const {
@@ -36,38 +37,82 @@ export default function StartPage () {
     enabled: !!user
   })
 
-  // Delete template mutation
+  // Pinned first, then newest first (the order getAll returns)
+  const sortedTemplates = [...templates].sort(
+    (a, b) => Number(!!b.is_pinned) - Number(!!a.is_pinned)
+  )
+
+  const invalidateTemplates = () =>
+    queryClient.invalidateQueries({ queryKey: ['templates'] })
+
+  const restoreTemplateMutation = useMutation({
+    mutationFn: templateService.restore,
+    onSuccess: invalidateTemplates,
+    onError: error => {
+      toastService.error(t('templates.restoreError'))
+      console.error('Template restore failed:', error)
+    }
+  })
+
+  // Soft delete, with an undo button in the toast
   const deleteTemplateMutation = useMutation({
-    mutationFn: templateService.delete,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['templates'] })
-      toast({
-        title: t('templates.deleted'),
-        description: t('templates.deleteSuccess')
-      })
+    mutationFn: (template: Template) => templateService.delete(template.id),
+    onSuccess: (_, template) => {
+      invalidateTemplates()
+      toast(
+        toastItem => (
+          <span className='flex items-center gap-3 text-sm'>
+            {t('templates.deletedNamed', { name: template.name })}
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => {
+                toast.dismiss(toastItem.id)
+                restoreTemplateMutation.mutate(template.id)
+              }}
+            >
+              {t('common.undo')}
+            </Button>
+          </span>
+        ),
+        { position: 'bottom-center', duration: 6000 }
+      )
     },
     onError: error => {
-      toast({
-        title: t('common.error'),
-        description: t('templates.deleteError'),
-        variant: 'destructive'
-      })
+      toastService.error(t('templates.deleteError'))
       console.error('Template deletion failed:', error)
     }
   })
 
-  const handleCreateTemplate = () => {
-    // This is now handled by the mutation in TemplateBuilderModal
-    // Just close the modal
-    setIsTemplateModalOpen(false)
-  }
+  const duplicateTemplateMutation = useMutation({
+    mutationFn: (template: Template) =>
+      templateService.duplicate(
+        template,
+        t('templates.copyName', { name: template.name })
+      ),
+    onSuccess: copy => {
+      invalidateTemplates()
+      toastService.success(t('templates.duplicated', { name: copy?.name }))
+    },
+    onError: error => {
+      toastService.error(t('templates.duplicateError'))
+      console.error('Template duplication failed:', error)
+    }
+  })
 
-  const handleDeleteTemplate = (templateId: string) => {
-    deleteTemplateMutation.mutate(templateId)
-  }
+  const pinTemplateMutation = useMutation({
+    mutationFn: (template: Template) =>
+      templateService.update(template.id, { is_pinned: !template.is_pinned }),
+    onSuccess: invalidateTemplates,
+    onError: error => {
+      toastService.error(t('templates.pinError'))
+      console.error('Template pin failed:', error)
+    }
+  })
 
-  const handleViewTemplate = (template: Template) => {
-    router.push(`/template/${template.id}`)
+  const openBuilder = (template: Template | null) => {
+    setEditingTemplate(template)
+    setIsTemplateModalOpen(true)
   }
 
   if (loading || walletsLoading || templatesLoading) {
@@ -94,7 +139,7 @@ export default function StartPage () {
                 {[1, 2, 3].map(i => (
                   <div
                     key={i}
-                    className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[80px] animate-pulse w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
+                    className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[88px] animate-pulse w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
                   >
                     <div className='relative z-10 pr-8 flex flex-col justify-center h-full'>
                       <div className='h-5 w-32 bg-muted/40 rounded mb-2'></div>
@@ -107,7 +152,7 @@ export default function StartPage () {
                 ))}
 
                 {/* Loading skeleton for create button (now last) */}
-                <div className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[80px] animate-pulse w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'>
+                <div className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 h-[88px] animate-pulse w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'>
                   <div className='flex items-center justify-center h-full text-center gap-2'>
                     <div className='p-2 rounded-full bg-muted/20'>
                       <div className='h-4 w-4 bg-muted/40 rounded'></div>
@@ -179,61 +224,22 @@ export default function StartPage () {
             <div className='w-full space-y-4'>
               <div className='flex flex-wrap justify-start gap-4'>
                 {/* Existing Templates */}
-                {templates.map(template => {
-                  return (
-                    <div
-                      key={template.id}
-                      className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 hover:shadow-md hover:shadow-primary/5 hover:border-primary/20 transition-all duration-200 cursor-pointer overflow-hidden h-[80px] w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
-                      onClick={() => handleViewTemplate(template)}
-                    >
-                      {/* Subtle background pattern */}
-                      <div className='absolute inset-0 bg-gradient-to-br from-primary/2 via-transparent to-primary/1 opacity-0 group-hover:opacity-100 transition-opacity duration-200' />
-
-                      {/* Delete button - positioned at top right */}
-                      <div className='absolute top-3 right-3 z-20 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200'>
-                        <Button
-                          variant='ghost'
-                          size='sm'
-                          onClick={e => {
-                            e.stopPropagation()
-                            handleDeleteTemplate(template.id)
-                          }}
-                          className='h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive transition-colors'
-                        >
-                          <Trash2 className='h-3.5 w-3.5' />
-                        </Button>
-                      </div>
-
-                      <div className='relative z-10 pr-8 flex flex-col justify-center h-full'>
-                        {/* Template name - aligned to left */}
-                        <h3 className='font-semibold text-foreground text-base mb-2 text-left group-hover:text-primary transition-colors duration-200'>
-                          {template.name}
-                        </h3>
-
-                        {/* Meta information */}
-                        <div className='flex items-center text-sm text-muted-foreground'>
-                          <div className='flex items-center gap-1.5'>
-                            <Calendar className='h-3.5 w-3.5' />
-                            <span className='font-medium'>
-                              {new Date(template.created_at).toLocaleDateString(
-                                i18n.language === 'ua' ? 'uk-UA' : 'en-US',
-                                {
-                                  month: 'short',
-                                  day: 'numeric'
-                                }
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
+                {sortedTemplates.map(template => (
+                  <TemplateTile
+                    key={template.id}
+                    template={template}
+                    onEdit={openBuilder}
+                    onDuplicate={duplicateTemplateMutation.mutate}
+                    onTogglePin={pinTemplateMutation.mutate}
+                    onDelete={deleteTemplateMutation.mutate}
+                  />
+                ))}
 
                 {/* Create Template Button - styled like template cards (now last) */}
-                <div
-                  className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 hover:shadow-md hover:shadow-primary/5 hover:border-primary/20 transition-all duration-200 cursor-pointer overflow-hidden h-[80px] w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
-                  onClick={() => setIsTemplateModalOpen(true)}
+                <button
+                  type='button'
+                  className='group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-xl p-4 hover:shadow-md hover:shadow-primary/5 hover:border-primary/20 transition-all duration-200 cursor-pointer overflow-hidden h-[88px] w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.667rem)] lg:max-w-[400px]'
+                  onClick={() => openBuilder(null)}
                 >
                   {/* Subtle background pattern */}
                   <div className='absolute inset-0 bg-gradient-to-br from-primary/2 via-transparent to-primary/1 opacity-0 group-hover:opacity-100 transition-opacity duration-200' />
@@ -242,11 +248,11 @@ export default function StartPage () {
                     <div className='p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors'>
                       <Plus className='h-4 w-4 text-primary' />
                     </div>
-                    <h3 className='font-semibold text-foreground text-sm group-hover:text-primary transition-colors duration-200'>
+                    <span className='font-semibold text-foreground text-sm group-hover:text-primary transition-colors duration-200'>
                       {t('templates.create')}
-                    </h3>
+                    </span>
                   </div>
-                </div>
+                </button>
               </div>
 
               {templates.length === 0 && (
@@ -265,7 +271,8 @@ export default function StartPage () {
       <TemplateBuilderModal
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
-        onSave={handleCreateTemplate}
+        onSave={() => setIsTemplateModalOpen(false)}
+        template={editingTemplate}
       />
     </main>
   )
