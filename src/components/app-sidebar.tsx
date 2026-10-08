@@ -39,8 +39,9 @@ import {
   Info,
   PiggyBank,
   Target,
-  CalendarRange
-  // Home
+  CalendarRange,
+  // Home,
+  LayoutGrid
   // BarChart3,
   // PieChart,
   // FileText
@@ -119,6 +120,11 @@ export function AppSidebar () {
     //   label: t('navigation.home'),
     //   icon: Home
     // },
+    {
+      href: '/dashboard',
+      label: t('navigation.dashboard'),
+      icon: LayoutGrid
+    },
     {
       href: '/start',
       label: t('navigation.start'),

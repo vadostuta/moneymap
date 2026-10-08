@@ -761,9 +761,11 @@ export const transactionService = {
     return (data || []).map((row: { month_date: string }) => new Date(row.month_date))
   },
 
-  // Current month's expenses across all wallets, summed per wallet currency.
-  // Hidden transactions are left out, as on the other monthly views.
-  async getCurrentMonthExpensesByCurrency (): Promise<Record<string, number>> {
+  // Current month's expenses across all wallets, each with its wallet's
+  // currency. Hidden transactions are left out, as on the other monthly views.
+  async getCurrentMonthExpenses (): Promise<
+    { date: string; currency: string; amount: number }[]
+  > {
     const {
       data: { user }
     } = await supabase.auth.getUser()
@@ -772,7 +774,7 @@ export const transactionService = {
     const now = new Date()
     const { data, error } = await supabase
       .from('transactions')
-      .select('amount, wallet:wallets!inner(currency)')
+      .select('date, amount, wallet:wallets!inner(currency)')
       .eq('user_id', user.id)
       .eq('type', 'expense')
       .eq('is_deleted', false)
@@ -783,10 +785,10 @@ export const transactionService = {
 
     if (error) throw error
 
-    return (data || []).reduce((acc, row) => {
-      const wallet = row.wallet as unknown as { currency: string }
-      acc[wallet.currency] = (acc[wallet.currency] || 0) + Number(row.amount)
-      return acc
-    }, {} as Record<string, number>)
+    return (data || []).map(row => ({
+      date: row.date,
+      currency: (row.wallet as unknown as { currency: string }).currency,
+      amount: Number(row.amount)
+    }))
   }
 }

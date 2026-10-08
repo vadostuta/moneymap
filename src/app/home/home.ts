@@ -28,6 +28,33 @@ export function spendPace (
   return { elapsed, expected, ahead: spent - expected }
 }
 
+export interface DailyRow {
+  day: number // 1-based day of the month
+  // Running total spent by the end of this day; null after today
+  spent: number | null
+  // Running total an even pace would reach by this day; null with no plan
+  pace: number | null
+}
+
+// One row per day of the month. byDay[i] is what was spent on day i + 1.
+export function dailyCumulative (
+  byDay: number[],
+  planned: number | null,
+  today: Date = new Date()
+): DailyRow[] {
+  const days = getDaysInMonth(today)
+  let running = 0
+  return Array.from({ length: days }, (_, i) => {
+    const day = i + 1
+    running += byDay[i] ?? 0
+    return {
+      day,
+      spent: day <= today.getDate() ? running : null,
+      pace: planned !== null ? (planned * day) / days : null
+    }
+  })
+}
+
 // ─── Net worth ──────────────────────────────────────────────────────────────
 
 export interface NetWorthChange {

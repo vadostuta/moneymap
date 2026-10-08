@@ -993,6 +993,19 @@
       "staleSnapshot_one": "Last snapshot was {{count}} day ago",
       "staleSnapshot_other": "Last snapshot was {{count}} days ago",
       "overClaimed": "Claims exceed liquid money by {{amount}}"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "spendingTitle": "This month's spending",
+      "dailyTitle": "Spending day by day",
+      "dailyHint": "All wallets, in the plan currency. Above the dashed line means ahead of plan.",
+      "dailyNoPlan": "All wallets, in the plan currency. Plan the month to see the pace line.",
+      "spent": "Spent",
+      "pace": "Even pace",
+      "paceLegend": "Even pace to planned spending",
+      "today": "Today",
+      "walletNote": "Click a category to see its transactions. Categories follow the wallet selected in the sidebar.",
+      "empty": "No expenses this month yet."
     }
   }
 }
