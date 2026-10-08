@@ -39,7 +39,8 @@ import {
   Info,
   PiggyBank,
   Target,
-  CalendarRange
+  CalendarRange,
+  Home
   // BarChart3,
   // PieChart,
   // FileText
@@ -102,6 +103,11 @@ export function AppSidebar () {
   }
 
   const navItems: NavItem[] = [
+    {
+      href: '/home',
+      label: t('navigation.home'),
+      icon: Home
+    },
     {
       href: '/start',
       label: t('navigation.start'),

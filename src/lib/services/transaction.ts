@@ -759,5 +759,34 @@ export const transactionService = {
 
     // Convert the returned date strings to Date objects
     return (data || []).map((row: { month_date: string }) => new Date(row.month_date))
+  },
+
+  // Current month's expenses across all wallets, summed per wallet currency.
+  // Hidden transactions are left out, as on the other monthly views.
+  async getCurrentMonthExpensesByCurrency (): Promise<Record<string, number>> {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    const now = new Date()
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('amount, wallet:wallets!inner(currency)')
+      .eq('user_id', user.id)
+      .eq('type', 'expense')
+      .eq('is_deleted', false)
+      .eq('is_hidden', false)
+      .eq('wallets.is_deleted', false)
+      .gte('date', startOfMonth(now).toISOString())
+      .lte('date', endOfMonth(now).toISOString())
+
+    if (error) throw error
+
+    return (data || []).reduce((acc, row) => {
+      const wallet = row.wallet as unknown as { currency: string }
+      acc[wallet.currency] = (acc[wallet.currency] || 0) + Number(row.amount)
+      return acc
+    }, {} as Record<string, number>)
   }
 }

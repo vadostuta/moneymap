@@ -897,5 +897,44 @@
       "loadFailed": "Couldn't load the plan",
       "badMonth": "That isn't a valid month"
     }
+  },
+  "home": {
+    "title": "Home",
+    "asOf": "As of {{date}}",
+    "spent": {
+      "title": "Spent vs plan",
+      "ofPlanned": "of {{amount}} planned to spend",
+      "barLabel": "{{percent}} of planned spending used",
+      "paceMark": "Even pace by today: {{amount}}",
+      "onTrack": "On track",
+      "ahead": "{{amount}} ahead of pace",
+      "behind": "{{amount}} under pace",
+      "over": "{{amount}} over the plan",
+      "source": "Spent comes from this month's expense transactions, at today's rates.",
+      "missing": "No rate for {{currencies}}, so left out.",
+      "noPlan": "Spent so far this month. Plan the month to compare it.",
+      "planAction": "Plan this month"
+    },
+    "netWorth": {
+      "since": "since {{date}}",
+      "locked": "Locked",
+      "empty": "Record what you have today to see your net worth."
+    },
+    "free": {
+      "share": "{{percent}} of liquid money is unclaimed",
+      "over": "Claims exceed liquid money by {{amount}}",
+      "barLabel": "Claimed {{claimed}}, free {{free}}",
+      "empty": "Take a snapshot and set claims to see what is free."
+    },
+    "attention": {
+      "title": "Needs attention",
+      "none": "All caught up.",
+      "checkpointDue": "{{month}} is over: do the checkpoint",
+      "noPlan": "{{month}} has no plan yet",
+      "noSnapshot": "No wealth snapshot yet",
+      "staleSnapshot_one": "Last snapshot was {{count}} day ago",
+      "staleSnapshot_other": "Last snapshot was {{count}} days ago",
+      "overClaimed": "Claims exceed liquid money by {{amount}}"
+    }
   }
 }
