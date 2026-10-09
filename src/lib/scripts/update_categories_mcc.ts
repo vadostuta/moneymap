@@ -102,40 +102,21 @@ async function run () {
       if (cat) updates.push({ id: row.id, category_id: cat })
     }
 
-    // 5) Apply updates in batches (VALUES + join for per-row categories)
+    // 5) Apply updates in batches, one row per request
     const batchSize = 200
     for (let i = 0; i < updates.length; i += batchSize) {
       const batch = updates.slice(i, i + batchSize)
       if (!batch.length) continue
 
-      // Build one SQL statement per batch
-      const values = batch
-        .map(u => `($$${u.id}$$::uuid, $$${u.category_id}$$::uuid)`)
-        .join(', ')
-
-      const sql = `
-        WITH patch(id, category_id) AS (
-          VALUES ${values}
+      await Promise.all(
+        batch.map(u =>
+          supabase
+            .from('transactions')
+            .update({ category_id: u.category_id })
+            .eq('id', u.id)
+            .eq('category_id', OTHER_CATEGORY_ID)
         )
-        UPDATE public.transactions t
-        SET category_id = p.category_id
-        FROM patch p
-        WHERE t.id = p.id
-          AND t.category_id = '${OTHER_CATEGORY_ID}'::uuid
-      `
-      const { error: updErr } = await supabase.rpc('exec_sql', { sql })
-      // If you don't have a generic exec_sql RPC, fall back to per-row updates.
-      if (updErr) {
-        // Fallback: per-row
-        await Promise.all(
-          batch.map(u =>
-            supabase
-              .from('transactions')
-              .update({ category_id: u.category_id })
-              .eq('id', u.id)
-          )
-        )
-      }
+      )
 
       totalUpdated += batch.length
     }
