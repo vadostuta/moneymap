@@ -1,5 +1,6 @@
 'use client'
 
+import { PageHeader } from '@/components/ui/page'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
@@ -60,12 +61,7 @@ export default function ProjectionClient () {
   const source = plans.find(plan => plan.id === sourceId) ?? plans[0]
 
   const header = (
-    <div className='flex flex-wrap items-center justify-between gap-2'>
-      <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>
-        {t('plan.title')}
-      </h1>
-      <PlanTabs />
-    </div>
+    <PageHeader title={t('plan.title')} actions={<PlanTabs />} />
   )
 
   if (isLoading) {

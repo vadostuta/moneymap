@@ -1,5 +1,6 @@
 'use client'
 
+import { PageHeader } from '@/components/ui/page'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useWallet } from '@/contexts/wallet-context'
@@ -23,14 +24,14 @@ export default function DashboardClient () {
 
   return (
     <div className='space-y-4 sm:space-y-6'>
-      <div>
-        <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>
-          {t('home.dashboard.title')}
-        </h1>
-        <p className='text-sm text-muted-foreground capitalize'>
-          {formatMonth(currentMonth(), i18n.language)}
-        </p>
-      </div>
+      <PageHeader
+        title={t('home.dashboard.title')}
+        description={
+          <span className='capitalize'>
+            {formatMonth(currentMonth(), i18n.language)}
+          </span>
+        }
+      />
 
       <HomeCards />
 

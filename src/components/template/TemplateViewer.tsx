@@ -14,7 +14,7 @@ import { transactionService } from '@/lib/services/transaction'
 import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
 import { RecentTransactions } from '@/components/transaction/RecentTransactions'
 import { MonthlyExpenseBarChart } from '@/app/analytics/components/MonthlyExpenseBarChart'
-import { MonthSelector } from './MonthSelector'
+import { MonthSwitcher } from '@/components/ui/month-switcher'
 import {
   FreeToSpendWidget,
   GoalsWidget,
@@ -273,10 +273,10 @@ export function TemplateViewer ({
       {/* Month Selector - permanent control */}
       {usesMonth && selectedWallet && availableMonths.length > 0 && (
         <div className='w-full'>
-          <MonthSelector
-            selectedMonth={selectedMonth}
-            onMonthSelect={handleMonthSelect}
-            availableMonths={availableMonths.slice(0, 12)}
+          <MonthSwitcher
+            month={selectedMonth}
+            onChange={handleMonthSelect}
+            months={availableMonths}
           />
         </div>
       )}

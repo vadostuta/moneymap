@@ -1,5 +1,6 @@
 'use client'
 
+import { PageContainer, PageHeader } from '@/components/ui/page'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { usePathname } from 'next/navigation'
@@ -33,13 +34,8 @@ export default function SettingsLayout ({
   ]
 
   return (
-    <div
-      className='container px-3 sm:px-4 md:px-6 ml-0 sm:ml-2 max-w-7xl'
-      style={{ minWidth: 'calc(100% - 5vw)' }}
-    >
-      <h1 className='text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 text-foreground'>
-        {t('settings.title')}
-      </h1>
+    <PageContainer style={{ minWidth: 'calc(100% - 5vw)' }} className='space-y-4 sm:space-y-6'>
+      <PageHeader title={t('settings.title')} />
 
       <div className='flex flex-col md:flex-row gap-4 md:gap-6'>
         {/* Mobile Navigation */}
@@ -89,6 +85,6 @@ export default function SettingsLayout ({
           {children}
         </main>
       </div>
-    </div>
+    </PageContainer>
   )
 }

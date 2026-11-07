@@ -1,5 +1,6 @@
 'use client'
 
+import { PageHeader } from '@/components/ui/page'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
@@ -533,11 +534,9 @@ export function SnapshotForm ({
       onSubmit={handleSubmit(values => saveMutation.mutate(values))}
       className='space-y-4 sm:space-y-6'
     >
-      <div className='flex items-center justify-between gap-2'>
-        <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>
-          {t(editing ? 'wealth.form.editTitle' : 'wealth.form.title')}
-        </h1>
-      </div>
+      <PageHeader
+        title={t(editing ? 'wealth.form.editTitle' : 'wealth.form.title')}
+      />
 
       <Card>
         <CardContent className='pt-6 grid gap-4 sm:grid-cols-[auto_auto_1fr]'>

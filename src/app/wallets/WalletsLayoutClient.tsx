@@ -1,5 +1,6 @@
 'use client'
 
+import { PageContainer, PageHeader } from '@/components/ui/page'
 import { WalletList } from '@/components/wallet/WalletList'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
@@ -14,15 +15,8 @@ export default function WalletsLayoutClient ({
   const { t } = useTranslation('common')
 
   return (
-    <div
-      className='container px-3 sm:px-4 md:px-6 ml-0 sm:ml-2 max-w-7xl'
-      style={{ minWidth: 'calc(100% - 5vw)' }}
-    >
-      <div className='flex items-center justify-between mb-3 sm:mb-4 md:mb-6'>
-        <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>
-          {t('wallets.title')}
-        </h1>
-      </div>
+    <PageContainer style={{ minWidth: 'calc(100% - 5vw)' }} className='space-y-4 sm:space-y-6'>
+      <PageHeader title={t('wallets.title')} />
       <div className='flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-6'>
         <div className='w-full md:w-64 md:min-w-[256px]'>
           <WalletList
@@ -39,6 +33,6 @@ export default function WalletsLayoutClient ({
           {children}
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 }

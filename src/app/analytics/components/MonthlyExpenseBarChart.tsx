@@ -13,6 +13,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import { useTranslation } from 'react-i18next'
 import { categoryService } from '@/lib/services/category'
+import { assignSeriesColors } from '@/lib/chart-colors'
 import { useQuery } from '@tanstack/react-query'
 import { getTranslatedCategoryName } from '@/lib/categories-translations-mapper'
 import { usePrivacy } from '@/contexts/privacy-context'
@@ -25,20 +26,6 @@ interface MonthlyExpenseBarChartProps {
 }
 
 // Use the same colors as ExpensePieChart for consistency
-const COLORS = [
-  '#FF6B6B', // Red
-  '#4ECDC4', // Teal
-  '#45B7D1', // Blue
-  '#96CEB4', // Green
-  '#FFEEAD', // Yellow
-  '#D4A5A5', // Pink
-  '#9B59B6', // Purple
-  '#3498DB', // Light Blue
-  '#E67E22', // Orange
-  '#2ECC71', // Emerald
-  '#1ABC9C', // Turquoise
-  '#F1C40F' // Gold
-]
 
 export function MonthlyExpenseBarChart ({
   data,
@@ -59,36 +46,28 @@ export function MonthlyExpenseBarChart ({
     return formatAmount(amount, currency)
   }
 
-  // Create a consistent color mapping for categories
-  const categoryColorMap = new Map<string, string>()
-
-  const chartData = data
+  const bars = data
     .filter(item => {
       // Filter out transfers category
       const category = categories.find(cat => cat.id === item.category_id)
       return category?.name !== 'Transfers'
     })
-    .map((item, index) => {
-      const category = categories.find(cat => cat.id === item.category_id)
-
-      // Assign consistent color based on category ID or index
-      let color: string
-      if (categoryColorMap.has(item.category_id)) {
-        color = categoryColorMap.get(item.category_id)!
-      } else {
-        color = COLORS[index % COLORS.length]
-        categoryColorMap.set(item.category_id, color)
-      }
-
-      return {
-        ...item,
-        categoryName: category
-          ? getTranslatedCategoryName(category.name, t)
-          : 'Unknown',
-        color: color
-      }
-    })
     .sort((a, b) => b.amount - a.amount)
+
+  // A category keeps its colour from month to month (lib/chart-colors); bars
+  // past the eighth are muted — their names on the axis still identify them
+  const colorOf = assignSeriesColors(bars.map(item => item.category_id))
+
+  const chartData = bars.map(item => {
+    const category = categories.find(cat => cat.id === item.category_id)
+    return {
+      ...item,
+      categoryName: category
+        ? getTranslatedCategoryName(category.name, t)
+        : 'Unknown',
+      color: colorOf.get(item.category_id)!
+    }
+  })
 
   const CustomTooltip = ({
     active,

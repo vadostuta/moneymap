@@ -1,5 +1,6 @@
 'use client'
 
+import { PageHeader } from '@/components/ui/page'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm, useFieldArray, useWatch, Controller } from 'react-hook-form'
@@ -439,23 +440,22 @@ export function MonthPlanForm ({
       onSubmit={handleSubmit(values => saveMutation.mutate(values))}
       className='space-y-4 sm:space-y-6'
     >
-      <div className='flex flex-wrap items-center justify-between gap-2'>
-        <div>
-          <h1 className='text-lg sm:text-xl md:text-2xl font-bold capitalize'>
+      <PageHeader
+        title={
+          <span className='capitalize'>
             {formatMonth(month, i18n.language)}
-          </h1>
-          {!editing && (
-            <p className='text-sm text-muted-foreground'>
-              {previous
-                ? t('plan.form.copiedFrom', {
-                  month: formatMonth(previous.month, i18n.language)
-                })
-                : t('plan.form.firstPlan')}
-            </p>
-          )}
-        </div>
-        <PlanTabs />
-      </div>
+          </span>
+        }
+        description={
+          !editing &&
+          (previous
+            ? t('plan.form.copiedFrom', {
+              month: formatMonth(previous.month, i18n.language)
+            })
+            : t('plan.form.firstPlan'))
+        }
+        actions={<PlanTabs />}
+      />
 
       <Card>
         <CardContent className='pt-6 grid gap-4 sm:grid-cols-[auto_1fr]'>

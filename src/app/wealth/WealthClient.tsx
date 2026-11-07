@@ -1,5 +1,6 @@
 'use client'
 
+import { PageHeader } from '@/components/ui/page'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -75,12 +76,7 @@ export default function WealthClient () {
 
   return (
     <div className='space-y-4 sm:space-y-6'>
-      <div className='flex flex-wrap items-center justify-between gap-2'>
-        <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>
-          {t('wealth.title')}
-        </h1>
-        <WealthTabs />
-      </div>
+      <PageHeader title={t('wealth.title')} actions={<WealthTabs />} />
 
       <div className='flex justify-end empty:hidden'>
         {snapshots.length > 0 && (

@@ -4,6 +4,7 @@ import { Bar, BarChart, XAxis, YAxis, Cell } from "recharts"
 import { useQuery } from "@tanstack/react-query"
 import { transactionService } from "@/lib/services/transaction"
 import { walletService } from "@/lib/services/wallet"
+import { assignSeriesColors } from "@/lib/chart-colors"
 import {
   Card,
   CardContent,
@@ -19,14 +20,6 @@ import {
 } from "@/components/ui/chart"
 
 // Define a set of colors for the bars
-const BAR_COLORS = [
-  'hsl(341 90% 62% / 0.8)',  // Red with opacity
-  'hsl(151 75% 48% / 0.8)',  // Green with opacity
-  'hsl(217 91% 60% / 0.8)',  // Blue with opacity
-  'hsl(280 91% 60% / 0.8)',  // Purple with opacity
-  'hsl(45 93% 47% / 0.8)',   // Yellow with opacity
-  'hsl(199 89% 48% / 0.8)',  // Cyan with opacity
-]
 
 const chartConfig = {
   expenses: {
@@ -80,6 +73,13 @@ export function ExpenseBarChart() {
     },
     enabled: !!wallets
   })
+
+  // Each wallet keeps its colour however the bars are ordered
+  const walletColors = assignSeriesColors(
+    [...(transactions ?? [])]
+      .sort((a, b) => b.expenses - a.expenses)
+      .map(entry => entry.wallet)
+  )
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
@@ -150,9 +150,9 @@ export function ExpenseBarChart() {
                 />
               }
             />
-            <Bar dataKey="expenses" radius={5} fillOpacity={0.8} barSize={24}>
-              {transactions.map((entry, index) => (
-                <Cell key={index} fill={BAR_COLORS[index % BAR_COLORS.length]} />
+            <Bar dataKey="expenses" radius={5} barSize={24}>
+              {transactions.map(entry => (
+                <Cell key={entry.wallet} fill={walletColors.get(entry.wallet)} />
               ))}
             </Bar>
           </BarChart>

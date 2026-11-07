@@ -1,5 +1,6 @@
 'use client'
 
+import { PageContainer, PageHeader } from '@/components/ui/page'
 import { RecentTransactionItem } from '@/components/transaction/RecentTransactionItem'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/auth-context'
@@ -116,9 +117,8 @@ export default function TransactionsClient () {
   }
 
   return (
-    <div
-      className='container px-3 sm:px-4 md:px-6 ml-0 sm:ml-2 max-w-7xl'
-    >
+    <PageContainer className='space-y-4 sm:space-y-6'>
+      <PageHeader title={t('navigation.transactions')} />
       <div className='space-y-4 mb-6'>
         <div className='flex flex-wrap gap-4 items-center'>
           <Input
@@ -288,6 +288,6 @@ export default function TransactionsClient () {
           onClose={() => setDeletedTransaction(null)}
         />
       )}
-    </div>
+    </PageContainer>
   )
 }
