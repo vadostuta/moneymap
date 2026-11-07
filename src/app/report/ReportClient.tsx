@@ -10,7 +10,7 @@ import { IncomeAnalysisSection } from './components/IncomeAnalysisSection'
 import { ExpenseAnalysisSection } from './components/ExpenseAnalysisSection'
 import { CategoryPerformanceSection } from './components/CategoryPerformanceSection'
 import { TransactionInsightsSection } from './components/TransactionInsightsSection'
-import { MonthSelector } from '@/app/analytics/components/MonthSelector'
+import { MonthSwitcher } from '@/components/ui/month-switcher'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 export function ReportClient () {
@@ -196,10 +196,10 @@ export function ReportClient () {
 
       {/* Month Selector */}
       <div className='mb-6'>
-        <MonthSelector
-          selectedMonth={selectedMonth}
-          onMonthSelect={setSelectedMonth}
-          availableMonths={availableMonths}
+        <MonthSwitcher
+          month={selectedMonth}
+          onChange={setSelectedMonth}
+          months={availableMonths}
         />
       </div>
 

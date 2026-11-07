@@ -1,5 +1,6 @@
 'use client'
 
+import { PageHeader } from '@/components/ui/page'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -40,12 +41,7 @@ export default function GoalsClient () {
 
   return (
     <div className='space-y-4 sm:space-y-6'>
-      <div className='flex flex-wrap items-center justify-between gap-2'>
-        <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>
-          {t('wealth.title')}
-        </h1>
-        <WealthTabs />
-      </div>
+      <PageHeader title={t('wealth.title')} actions={<WealthTabs />} />
 
       {isLoading || claimsLoading ? (
         <div className='space-y-3'>

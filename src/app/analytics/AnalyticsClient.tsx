@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { MonthSelector } from './components/MonthSelector'
+import { MonthSwitcher } from '@/components/ui/month-switcher'
 import { MonthlyExpenseChart } from './components/MonthlyExpenseChart'
 import { useQuery } from '@tanstack/react-query'
 import { transactionService } from '@/lib/services/transaction'
@@ -211,10 +211,10 @@ export function AnalyticsClient () {
         {/* Month Selection Row */}
         {selectedWalletId && (
           <div className='w-full'>
-            <MonthSelector
-              selectedMonth={selectedMonth}
-              onMonthSelect={handleMonthSelect}
-              availableMonths={availableMonths}
+            <MonthSwitcher
+              month={selectedMonth}
+              onChange={handleMonthSelect}
+              months={availableMonths}
             />
           </div>
         )}

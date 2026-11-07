@@ -127,7 +127,7 @@ export function MonthlyExpenseChart ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className='text-destructive'>{t('common.error')}</p>
+              <p className='text-negative'>{t('common.error')}</p>
             </CardContent>
           </Card>
         </div>

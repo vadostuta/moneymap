@@ -1,5 +1,6 @@
 'use client'
 
+import { PageContainer, PageHeader } from '@/components/ui/page'
 import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -223,18 +224,18 @@ export default function ClaimsClient () {
   )
 
   return (
-    <div className='container px-3 sm:px-4 md:px-6 ml-0 sm:ml-2 max-w-3xl py-4 space-y-4 sm:space-y-6'>
-      <div className='flex items-center justify-between gap-2'>
-        <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>
-          {t('claims.title')}
-        </h1>
-        {claims.length > 0 && (
-          <Button onClick={() => setDialog('new')}>
-            <Plus className='h-4 w-4 mr-1' />
-            {t('claims.add')}
-          </Button>
-        )}
-      </div>
+    <PageContainer width='narrow' className='space-y-4 sm:space-y-6'>
+      <PageHeader
+        title={t('claims.title')}
+        actions={
+          claims.length > 0 && (
+            <Button onClick={() => setDialog('new')}>
+              <Plus className='h-4 w-4 mr-1' />
+              {t('claims.add')}
+            </Button>
+          )
+        }
+      />
 
       {isLoading ? (
         <div className='space-y-3'>
@@ -332,7 +333,7 @@ export default function ClaimsClient () {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </PageContainer>
   )
 }
 
@@ -376,7 +377,7 @@ function ClaimForm ({
           {...register('name')}
         />
         {errors.name?.message && (
-          <p className='text-xs text-destructive mt-1'>
+          <p className='text-xs text-negative mt-1'>
             {t(errors.name.message)}
           </p>
         )}
@@ -416,7 +417,7 @@ function ClaimForm ({
           />
         </div>
         {errors.target?.message && (
-          <p className='text-xs text-destructive mt-1'>
+          <p className='text-xs text-negative mt-1'>
             {t(errors.target.message)}
           </p>
         )}
@@ -459,7 +460,7 @@ function ClaimForm ({
           {t('claims.form.targetDateHint')}
         </p>
         {errors.targetDate?.message && (
-          <p className='text-xs text-destructive mt-1'>
+          <p className='text-xs text-negative mt-1'>
             {t(errors.targetDate.message)}
           </p>
         )}

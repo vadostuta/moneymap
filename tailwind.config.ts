@@ -50,8 +50,21 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			},
+  			positive: {
+  				DEFAULT: 'hsl(var(--positive))',
+  				subtle: 'hsl(var(--positive-tint) / 0.1)'
+  			},
+  			negative: {
+  				DEFAULT: 'hsl(var(--negative))',
+  				subtle: 'hsl(var(--negative-tint) / 0.1)'
+  			},
+  			warning: {
+  				DEFAULT: 'hsl(var(--warning))',
+  				subtle: 'hsl(var(--warning-tint) / 0.1)'
+  			},
+  			transfer: 'hsl(var(--transfer))',
   			sidebar: {
-  				DEFAULT: 'hsl(var(--sidebar-background))',
+  				DEFAULT: 'hsl(var(--sidebar))',
   				foreground: 'hsl(var(--sidebar-foreground))',
   				primary: 'hsl(var(--sidebar-primary))',
   				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
@@ -60,6 +73,10 @@ export default {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			}
+  		},
+  		fontFamily: {
+  			sans: ['var(--font-geist-sans)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+  			mono: ['var(--font-geist-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

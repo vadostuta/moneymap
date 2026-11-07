@@ -50,15 +50,15 @@ export function MonthlySummaryCards ({
       title: t('report.cards.income'),
       value: formatAmount(metrics.income, currency),
       icon: TrendingUp,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100 dark:bg-green-900/20'
+      color: 'text-positive',
+      bgColor: 'bg-positive-subtle'
     },
     {
       title: t('report.cards.expenses'),
       value: formatAmount(metrics.expenses, currency),
       icon: TrendingDown,
-      color: 'text-red-600',
-      bgColor: 'bg-red-100 dark:bg-red-900/20'
+      color: 'text-negative',
+      bgColor: 'bg-negative-subtle'
     },
     {
       title: t('report.cards.net'),
@@ -74,11 +74,11 @@ export function MonthlySummaryCards ({
       title: t('report.cards.savingsRate'),
       value: `${metrics.savingsRate.toFixed(1)}%`,
       icon: PiggyBank,
-      color: metrics.savingsRate >= 20 ? 'text-green-600' : 'text-yellow-600',
+      color: metrics.savingsRate >= 20 ? 'text-positive' : 'text-warning',
       bgColor:
         metrics.savingsRate >= 20
-          ? 'bg-green-100 dark:bg-green-900/20'
-          : 'bg-yellow-100 dark:bg-yellow-900/20'
+          ? 'bg-positive-subtle'
+          : 'bg-warning-subtle'
     }
   ]
 

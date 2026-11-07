@@ -172,7 +172,7 @@ export default function StartPage () {
     return (
       <main className='flex min-h-screen flex-col items-center justify-center p-4 md:p-24'>
         <div className='text-center'>
-          <p className='text-destructive'>
+          <p className='text-negative'>
             {t('templates.loadError', { message: templatesError.message })}
           </p>
         </div>

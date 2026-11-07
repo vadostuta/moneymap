@@ -133,7 +133,7 @@ export function TransactionInsightsSection ({
       <Card>
         <CardHeader>
           <CardTitle className='flex items-center gap-2'>
-            <ArrowUpCircle className='h-5 w-5 text-red-600' />
+            <ArrowUpCircle className='h-5 w-5 text-negative' />
             {t('report.insights.largestTransactions', 'Largest Transactions')}
           </CardTitle>
         </CardHeader>
@@ -159,7 +159,7 @@ export function TransactionInsightsSection ({
                   </div>
                 </div>
                 <div className='text-right'>
-                  <div className='font-bold text-red-600'>
+                  <div className='font-bold text-negative'>
                     {formatAmount(transaction.amount, currency)}
                   </div>
                   <div className='text-xs text-muted-foreground'>

@@ -144,7 +144,7 @@ export function CategoryPerformanceSection ({
       <div className='grid md:grid-cols-2 gap-6'>
         <Card>
           <CardHeader>
-            <CardTitle className='flex items-center gap-2 text-red-600'>
+            <CardTitle className='flex items-center gap-2 text-negative'>
               <TrendingUp className='h-5 w-5' />
               {t('report.performance.biggestIncrease', 'Biggest Increase')}
             </CardTitle>
@@ -155,7 +155,7 @@ export function CategoryPerformanceSection ({
                 <div className='text-2xl font-bold mb-2'>
                   {biggestIncrease.name}
                 </div>
-                <div className='flex items-center gap-2 text-red-600'>
+                <div className='flex items-center gap-2 text-negative'>
                   <ArrowUp className='h-4 w-4' />
                   <span className='font-semibold'>
                     {formatAmount(Math.abs(biggestIncrease.change), currency)}
@@ -181,7 +181,7 @@ export function CategoryPerformanceSection ({
 
         <Card>
           <CardHeader>
-            <CardTitle className='flex items-center gap-2 text-green-600'>
+            <CardTitle className='flex items-center gap-2 text-positive'>
               <TrendingDown className='h-5 w-5' />
               {t('report.performance.biggestDecrease', 'Biggest Decrease')}
             </CardTitle>
@@ -192,7 +192,7 @@ export function CategoryPerformanceSection ({
                 <div className='text-2xl font-bold mb-2'>
                   {biggestDecrease.name}
                 </div>
-                <div className='flex items-center gap-2 text-green-600'>
+                <div className='flex items-center gap-2 text-positive'>
                   <ArrowDown className='h-4 w-4' />
                   <span className='font-semibold'>
                     {formatAmount(Math.abs(biggestDecrease.change), currency)}
@@ -251,9 +251,9 @@ export function CategoryPerformanceSection ({
                       <div
                         className={`flex items-center gap-1 ${
                           isIncrease
-                            ? 'text-red-600'
+                            ? 'text-negative'
                             : isDecrease
-                            ? 'text-green-600'
+                            ? 'text-positive'
                             : 'text-muted-foreground'
                         }`}
                       >

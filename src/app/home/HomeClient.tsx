@@ -108,7 +108,7 @@ function AttentionList ({ items }: { items: Attention[] }) {
       {items.length === 0 ? (
         <Card>
           <CardContent className='pt-5 flex items-center gap-2 text-sm text-muted-foreground'>
-            <CheckCircle2 className='h-4 w-4 text-green-700 dark:text-green-400' />
+            <CheckCircle2 className='h-4 w-4 text-positive' />
             {t('home.attention.none')}
           </CardContent>
         </Card>
@@ -126,8 +126,8 @@ function AttentionList ({ items }: { items: Attention[] }) {
                     className={cn(
                       'h-4 w-4 shrink-0',
                       item.kind === 'overClaimed'
-                        ? 'text-destructive'
-                        : 'text-amber-700 dark:text-amber-400'
+                        ? 'text-negative'
+                        : 'text-warning'
                     )}
                   />
                   <span className='flex-1 first-letter:uppercase'>{text}</span>

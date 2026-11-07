@@ -14,7 +14,7 @@ import { transactionService } from '@/lib/services/transaction'
 import { ExpensePieChart } from '@/components/ui/ExpensePieChart'
 import { RecentTransactions } from '@/components/transaction/RecentTransactions'
 import { MonthlyExpenseBarChart } from '@/app/analytics/components/MonthlyExpenseBarChart'
-import { MonthSelector } from './MonthSelector'
+import { MonthSwitcher } from '@/components/ui/month-switcher'
 import {
   FreeToSpendWidget,
   GoalsWidget,
@@ -176,7 +176,7 @@ function MonthlyExpenseBarChartWrapper ({
   if (error) {
     return (
       <div className='border border-destructive rounded-lg p-4 h-32 flex items-center justify-center'>
-        <div className='text-center text-destructive'>
+        <div className='text-center text-negative'>
           <div className='text-2xl mb-1'>⚠️</div>
           <div className='text-sm'>{t('ui.failedToLoad')}</div>
         </div>
@@ -251,7 +251,7 @@ export function TemplateViewer ({
 
   if (!layoutDef) {
     return (
-      <div className='border border-destructive rounded-lg p-4 text-destructive'>
+      <div className='border border-destructive rounded-lg p-4 text-negative'>
         Unknown layout: {template.layout}
       </div>
     )
@@ -273,10 +273,10 @@ export function TemplateViewer ({
       {/* Month Selector - permanent control */}
       {usesMonth && selectedWallet && availableMonths.length > 0 && (
         <div className='w-full'>
-          <MonthSelector
-            selectedMonth={selectedMonth}
-            onMonthSelect={handleMonthSelect}
-            availableMonths={availableMonths.slice(0, 12)}
+          <MonthSwitcher
+            month={selectedMonth}
+            onChange={handleMonthSelect}
+            months={availableMonths}
           />
         </div>
       )}

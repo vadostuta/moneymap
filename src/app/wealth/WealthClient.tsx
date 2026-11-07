@@ -1,5 +1,6 @@
 'use client'
 
+import { PageHeader } from '@/components/ui/page'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -31,8 +32,8 @@ const changeClass = (value: number | null) =>
   value === null || value === 0
     ? 'text-muted-foreground'
     : value > 0
-      ? 'text-green-600 dark:text-green-500'
-      : 'text-red-600 dark:text-red-500'
+      ? 'text-positive'
+      : 'text-negative'
 
 const percent = new Intl.NumberFormat('en-US', {
   style: 'percent',
@@ -75,12 +76,7 @@ export default function WealthClient () {
 
   return (
     <div className='space-y-4 sm:space-y-6'>
-      <div className='flex flex-wrap items-center justify-between gap-2'>
-        <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>
-          {t('wealth.title')}
-        </h1>
-        <WealthTabs />
-      </div>
+      <PageHeader title={t('wealth.title')} actions={<WealthTabs />} />
 
       <div className='flex justify-end empty:hidden'>
         {snapshots.length > 0 && (
@@ -158,7 +154,7 @@ export default function WealthClient () {
               <StatTile
                 label={t('wealth.totals.free')}
                 value={formatBalance(latest.free, currency)}
-                valueClassName={latest.free < 0 ? 'text-destructive' : undefined}
+                valueClassName={latest.free < 0 ? 'text-negative' : undefined}
                 sub={
                   latest.earmarked > 0
                     ? t('wealth.history.freeHint', {
@@ -267,7 +263,7 @@ export default function WealthClient () {
                     <td
                       className={cn(
                         'hidden sm:table-cell p-3 text-right tabular-nums whitespace-nowrap',
-                        row.free < 0 && 'text-destructive'
+                        row.free < 0 && 'text-negative'
                       )}
                     >
                       {formatBalance(row.free, row.display_currency)}

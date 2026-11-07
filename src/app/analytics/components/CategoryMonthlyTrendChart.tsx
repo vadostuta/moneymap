@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { transactionService } from '@/lib/services/transaction'
 import { useWallet } from '@/contexts/wallet-context'
 import { useTranslation } from 'react-i18next'
+import { preferredColor } from '@/lib/chart-colors'
 import { usePrivacy } from '@/contexts/privacy-context'
 import { Button } from '@/components/ui/button'
 import { Calendar, BarChart3, X } from 'lucide-react'
@@ -458,6 +459,11 @@ export function CategoryMonthlyTrendChart ({
     )
   }
 
+  // A category's line uses its own chart colour; the all-spending line is chart-1
+  const lineColor = categoryId
+    ? preferredColor(categoryId)
+    : 'hsl(var(--chart-1))'
+
   return (
     <div className='space-y-4'>
       {/* Data Type and View Mode Toggle */}
@@ -503,10 +509,10 @@ export function CategoryMonthlyTrendChart ({
       <div className='h-80 w-full'>
         <ResponsiveContainer width='100%' height='100%'>
           <LineChart data={chartData} onClick={handleChartClick}>
-            <CartesianGrid strokeDasharray='3 3' stroke='#374151' />
+            <CartesianGrid strokeDasharray='3 3' stroke='hsl(var(--chart-grid))' />
             <XAxis
               dataKey={viewMode === 'monthly' ? 'month' : 'day'}
-              stroke='#6B7280'
+              stroke='hsl(var(--chart-axis))'
               fontSize={12}
               angle={viewMode === 'daily' ? -45 : 0}
               textAnchor={viewMode === 'daily' ? 'end' : 'middle'}
@@ -514,7 +520,7 @@ export function CategoryMonthlyTrendChart ({
               style={{ cursor: 'pointer' }}
             />
             <YAxis
-              stroke='#6B7280'
+              stroke='hsl(var(--chart-axis))'
               fontSize={12}
               tickFormatter={value => formatCurrency(value)}
             />
@@ -540,16 +546,16 @@ export function CategoryMonthlyTrendChart ({
             <Line
               type='monotone'
               dataKey='amount'
-              stroke={categoryId ? '#3B82F6' : '#10B981'}
+              stroke={lineColor}
               strokeWidth={3}
               dot={{
-                fill: categoryId ? '#3B82F6' : '#10B981',
+                fill: lineColor,
                 strokeWidth: 2,
                 r: viewMode === 'daily' ? 2 : 4
               }}
               activeDot={{
                 r: viewMode === 'daily' ? 4 : 6,
-                stroke: categoryId ? '#3B82F6' : '#10B981',
+                stroke: lineColor,
                 strokeWidth: 2
               }}
               name={

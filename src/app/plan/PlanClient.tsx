@@ -1,5 +1,6 @@
 'use client'
 
+import { PageHeader } from '@/components/ui/page'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
@@ -43,11 +44,11 @@ function monthState (plan: MonthlyPlan): MonthState {
 const STATE = {
   closed: {
     icon: CheckCircle2,
-    className: 'text-green-700 bg-green-500/10 dark:text-green-400'
+    className: 'text-positive bg-positive-subtle'
   },
   due: {
     icon: CalendarClock,
-    className: 'text-amber-700 bg-amber-500/10 dark:text-amber-400'
+    className: 'text-warning bg-warning-subtle'
   },
   open: { icon: CircleDot, className: 'text-muted-foreground bg-muted' }
 }
@@ -92,7 +93,7 @@ function MonthCard ({ plan }: { plan: MonthlyPlan }) {
             <dd
               className={cn(
                 'text-right tabular-nums font-medium',
-                totals.leftover < 0 && 'text-destructive'
+                totals.leftover < 0 && 'text-negative'
               )}
             >
               {formatBalance(totals.leftover, plan.currency)}
@@ -142,12 +143,7 @@ export default function PlanClient () {
 
   return (
     <div className='space-y-4 sm:space-y-6'>
-      <div className='flex flex-wrap items-center justify-between gap-2'>
-        <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>
-          {t('plan.title')}
-        </h1>
-        <PlanTabs />
-      </div>
+      <PageHeader title={t('plan.title')} actions={<PlanTabs />} />
 
       <div className='flex flex-wrap items-center gap-2'>
         <Button asChild>

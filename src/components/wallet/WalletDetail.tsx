@@ -148,17 +148,17 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
       </div>
 
       <div className='mb-3 sm:mb-4 md:mb-6'>
-        <p className='text-gray-600 text-xs sm:text-sm md:text-base'>
+        <p className='text-muted-foreground text-xs sm:text-sm md:text-base'>
           {t('wallets.detail.type')}: {wallet.type}
         </p>
       </div>
 
       <div className='mb-3 sm:mb-4 md:mb-6'>
-        <p className='text-xs sm:text-sm text-gray-500'>
+        <p className='text-xs sm:text-sm text-muted-foreground'>
           {t('wallets.detail.created')}:{' '}
           {new Date(wallet.created_at).toLocaleDateString()}
         </p>
-        <p className='text-xs sm:text-sm text-gray-500'>
+        <p className='text-xs sm:text-sm text-muted-foreground'>
           {t('wallets.detail.lastUpdated')}:{' '}
           {new Date(wallet.updated_at).toLocaleDateString()}
         </p>
@@ -186,7 +186,7 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
             {t('wallets.detail.loadingTransactions')}
           </p>
         ) : isTransactionsError ? (
-          <p className='text-sm sm:text-base text-red-500'>
+          <p className='text-sm sm:text-base text-negative'>
             {t('wallets.detail.loadError')}
           </p>
         ) : recentTransactions.length > 0 ? (
@@ -201,7 +201,7 @@ export function WalletDetail ({ walletId, onDelete }: WalletDetailProps) {
             ))}
           </div>
         ) : (
-          <p className='text-sm sm:text-base text-gray-500'>
+          <p className='text-sm sm:text-base text-muted-foreground'>
             {t('wallets.detail.noTransactions')}
           </p>
         )}

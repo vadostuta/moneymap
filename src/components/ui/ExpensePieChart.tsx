@@ -9,8 +9,7 @@ import {
   Tooltip as RechartsTooltip
 } from 'recharts'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import { MonthSwitcher } from '@/components/ui/month-switcher'
 import { transactionService } from '@/lib/services/transaction'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ResponsiveContainer } from 'recharts'
@@ -27,22 +26,11 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useWallet } from '@/contexts/wallet-context'
 import { usePrivacy } from '@/contexts/privacy-context'
 import { Wallet } from '@/lib/types/wallet'
+import { OTHER_COLOR, assignSeriesColors } from '@/lib/chart-colors'
 
-// Define colors for different categories
-const COLORS = [
-  '#FF6B6B', // Red
-  '#4ECDC4', // Teal
-  '#45B7D1', // Blue
-  '#96CEB4', // Green
-  '#FFEEAD', // Yellow
-  '#D4A5A5', // Pink
-  '#9B59B6', // Purple
-  '#3498DB', // Light Blue
-  '#E67E22', // Orange
-  '#2ECC71', // Emerald
-  '#1ABC9C', // Turquoise
-  '#F1C40F' // Gold
-]
+// The 7 biggest categories get their own colour; the rest share one slice
+const MAX_SLICES = 8
+const OTHER_ID = '__other__'
 
 interface ExpensePieChartProps {
   onCategorySelect: (categoryId: string | undefined) => void
@@ -61,7 +49,7 @@ export function ExpensePieChart ({
   month,
   onMonthChange
 }: ExpensePieChartProps) {
-  const { t, i18n } = useTranslation('common')
+  const { t } = useTranslation('common')
   const { selectedWallet } = useWallet()
   const { formatAmount } = usePrivacy()
   const [type, setType] = React.useState<'net' | 'expense' | 'income'>('net') // Default to 'net'
@@ -77,13 +65,8 @@ export function ExpensePieChart ({
   const targetMonth = month || new Date()
   const year = targetMonth.getFullYear()
   const monthIndex = targetMonth.getMonth()
-  const now = new Date()
-  const isCurrentOrFuture =
-    year > now.getFullYear() ||
-    (year === now.getFullYear() && monthIndex >= now.getMonth())
-
-  const shiftMonth = (count: number) => {
-    onMonthChange?.(new Date(year, monthIndex + count, 1))
+  const changeMonth = (next: Date) => {
+    onMonthChange?.(next)
     if (selectedCategory) onCategorySelect(undefined)
   }
 
@@ -153,17 +136,36 @@ export function ExpensePieChart ({
   }
 
   const handlePieClick = (entry: { category_id: string }) => {
-    if (entry && entry.category_id) {
+    if (entry && entry.category_id && entry.category_id !== OTHER_ID) {
       const newCategoryId =
         selectedCategory === entry.category_id ? undefined : entry.category_id
       onCategorySelect(newCategoryId)
     }
   }
 
-  const categoryColorIndex: Record<string, number> = {}
-  data.forEach((entry, idx) => {
-    categoryColorIndex[entry.category_id] = idx
-  })
+  // Biggest first. A category keeps its colour from month to month
+  // (lib/chart-colors); past MAX_SLICES the smallest fold into one slice.
+  const sorted = [...data].sort((a, b) => b.amount - a.amount)
+  const folds = sorted.length > MAX_SLICES
+  const colorOf = assignSeriesColors(
+    sorted.map(entry => entry.category_id),
+    folds ? MAX_SLICES - 1 : MAX_SLICES
+  )
+  const slices = folds
+    ? [
+        ...sorted.slice(0, MAX_SLICES - 1),
+        {
+          category_id: OTHER_ID,
+          amount: sorted
+            .slice(MAX_SLICES - 1)
+            .reduce((sum, entry) => sum + entry.amount, 0)
+        }
+      ]
+    : sorted
+  const sliceColor = (categoryId: string) =>
+    categoryId === OTHER_ID
+      ? OTHER_COLOR
+      : colorOf.get(categoryId) ?? OTHER_COLOR
 
   // Custom tooltip formatter
   const CustomTooltip = ({ active, payload }: TooltipProps<string, number>) => {
@@ -175,7 +177,9 @@ export function ExpensePieChart ({
       return (
         <div className='bg-background border rounded-lg p-2 shadow-lg'>
           <p className='font-medium'>
-            {getTranslatedCategoryName(categoryName, t)}
+            {data.category_id === OTHER_ID
+              ? t('overview.otherCategories')
+              : getTranslatedCategoryName(categoryName, t)}
           </p>
           <p className='text-sm text-muted-foreground'>
             {formatCurrency(data.amount)}
@@ -204,33 +208,7 @@ export function ExpensePieChart ({
         {/* Right side: Month switcher + tabs */}
         <div className='flex flex-col items-end gap-2'>
           {onMonthChange && (
-            <div className='flex items-center gap-1'>
-              <Button
-                variant='outline'
-                size='icon'
-                className='h-8 w-8'
-                onClick={() => shiftMonth(-1)}
-                aria-label={t('common.back')}
-              >
-                <ChevronLeftIcon className='h-4 w-4' />
-              </Button>
-              <span className='min-w-[9rem] text-center text-sm font-medium capitalize'>
-                {targetMonth.toLocaleDateString(
-                  i18n.language === 'ua' ? 'uk-UA' : 'en-US',
-                  { month: 'long', year: 'numeric' }
-                )}
-              </span>
-              <Button
-                variant='outline'
-                size='icon'
-                className='h-8 w-8'
-                onClick={() => shiftMonth(1)}
-                disabled={isCurrentOrFuture}
-                aria-label={t('common.next')}
-              >
-                <ChevronRightIcon className='h-4 w-4' />
-              </Button>
-            </div>
+            <MonthSwitcher month={targetMonth} onChange={changeMonth} />
           )}
           <Tabs
             value={type}
@@ -264,7 +242,7 @@ export function ExpensePieChart ({
               <ResponsiveContainer width='100%' height='100%'>
                 <PieChart>
                   <Pie
-                    data={data}
+                    data={slices}
                     cx='50%'
                     cy='50%'
                     innerRadius={60}
@@ -274,11 +252,11 @@ export function ExpensePieChart ({
                     onClick={handlePieClick}
                     cursor='pointer'
                   >
-                    {data.map((entry, index) => {
+                    {slices.map(entry => {
                       return (
                         <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
+                          key={entry.category_id}
+                          fill={sliceColor(entry.category_id)}
                           style={{
                             opacity:
                               !selectedCategory ||
@@ -295,20 +273,17 @@ export function ExpensePieChart ({
               </ResponsiveContainer>
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-1 mt-4'>
-              {[...data]
-                .sort((a, b) => b.amount - a.amount)
-                .map(entry => {
+              {sorted.map(entry => {
                   const category = categories.find(
                     cat => cat.id === entry.category_id
                   )
                   const categoryName = category?.name ?? ''
-                  const colorIdx = categoryColorIndex[entry.category_id]
                   return (
                     <TooltipProvider key={entry.category_id}>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div
-                            className='flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity p-2 rounded-lg hover:bg-white/5'
+                            className='flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity p-2 rounded-lg hover:bg-accent'
                             onClick={() =>
                               handlePieClick({
                                 category_id: entry.category_id
@@ -316,10 +291,9 @@ export function ExpensePieChart ({
                             }
                           >
                             <div
-                              className='flex items-center justify-center w-6 h-6 rounded-full border border-white/30 flex-shrink-0'
+                              className='flex items-center justify-center w-6 h-6 rounded-full border border-border flex-shrink-0'
                               style={{
-                                backgroundColor:
-                                  COLORS[colorIdx % COLORS.length],
+                                backgroundColor: sliceColor(entry.category_id),
                                 opacity:
                                   !selectedCategory ||
                                   selectedCategory === entry.category_id

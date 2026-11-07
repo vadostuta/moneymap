@@ -143,17 +143,17 @@ export function MonthSummaryWidget ({
           <Stat
             label={t('report.cards.income')}
             value={formatAmount(income, currency)}
-            className='text-green-600 dark:text-green-500'
+            className='text-positive'
           />
           <Stat
             label={t('report.cards.expenses')}
             value={formatAmount(expenses, currency)}
-            className='text-red-600 dark:text-red-500'
+            className='text-negative'
           />
           <Stat
             label={t('report.cards.net')}
             value={formatAmount(net, currency)}
-            className={net < 0 ? 'text-destructive' : undefined}
+            className={net < 0 ? 'text-negative' : undefined}
           />
           <Stat
             label={t('report.cards.savingsRate')}
@@ -231,8 +231,8 @@ export function NetWorthWidget () {
                   <span
                     className={
                       latest.net_worth >= previous.net_worth
-                        ? 'text-green-600 dark:text-green-500'
-                        : 'text-red-600 dark:text-red-500'
+                        ? 'text-positive'
+                        : 'text-negative'
                     }
                   >
                     {latest.net_worth >= previous.net_worth ? '▲' : '▼'}{' '}
@@ -291,7 +291,7 @@ export function FreeToSpendWidget () {
               date: formatSnapshotDate(latest.snapshot_date, i18n.language)
             })}
             value={formatBalance(latest.free, currency)}
-            className={latest.free < 0 ? 'text-destructive' : undefined}
+            className={latest.free < 0 ? 'text-negative' : undefined}
             sub={
               latest.earmarked > 0
                 ? t('wealth.history.freeHint', {
@@ -456,7 +456,7 @@ export function MonthPlanWidget ({ month }: { month: Date }) {
             <dd
               className={cn(
                 'text-right tabular-nums font-medium',
-                totals.actualLeftover < 0 && 'text-destructive'
+                totals.actualLeftover < 0 && 'text-negative'
               )}
             >
               {formatBalance(totals.actualLeftover, plan.currency)}
