@@ -48,7 +48,7 @@ export function WalletList ({
 
   if (isLoading) return <div className='p-4'>Loading wallets...</div>
   if (isError)
-    return <div className='p-4 text-red-500'>Failed to load wallets.</div>
+    return <div className='p-4 text-negative'>Failed to load wallets.</div>
 
   return (
     <div className='flex flex-col h-full border-0 rounded-lg md:rounded-none'>
@@ -109,7 +109,7 @@ export function WalletList ({
             </div>
           ))
         ) : (
-          <div className='p-4 text-center text-gray-500'>
+          <div className='p-4 text-center text-muted-foreground'>
             {t('wallets.noWallets')}
           </div>
         )}

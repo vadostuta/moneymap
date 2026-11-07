@@ -376,7 +376,7 @@ function ClaimForm ({
           {...register('name')}
         />
         {errors.name?.message && (
-          <p className='text-xs text-destructive mt-1'>
+          <p className='text-xs text-negative mt-1'>
             {t(errors.name.message)}
           </p>
         )}
@@ -416,7 +416,7 @@ function ClaimForm ({
           />
         </div>
         {errors.target?.message && (
-          <p className='text-xs text-destructive mt-1'>
+          <p className='text-xs text-negative mt-1'>
             {t(errors.target.message)}
           </p>
         )}
@@ -459,7 +459,7 @@ function ClaimForm ({
           {t('claims.form.targetDateHint')}
         </p>
         {errors.targetDate?.message && (
-          <p className='text-xs text-destructive mt-1'>
+          <p className='text-xs text-negative mt-1'>
             {t(errors.targetDate.message)}
           </p>
         )}

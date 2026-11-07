@@ -31,8 +31,8 @@ export function StatusBadge ({
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap',
         good === null && 'text-muted-foreground bg-muted',
-        good === true && 'text-green-700 bg-green-500/10 dark:text-green-400',
-        good === false && 'text-amber-700 bg-amber-500/10 dark:text-amber-400'
+        good === true && 'text-positive bg-positive-subtle',
+        good === false && 'text-warning bg-warning-subtle'
       )}
     >
       <Icon className='h-3 w-3' />

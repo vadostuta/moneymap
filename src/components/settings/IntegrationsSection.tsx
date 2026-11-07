@@ -112,7 +112,7 @@ export function IntegrationsSection ({
               <button
                 onClick={() => handleDisconnect(integration.id)}
                 disabled={isDisconnecting === integration.id}
-                className='text-destructive hover:text-destructive/90 disabled:opacity-50 transition-opacity'
+                className='text-negative hover:text-negative/90 disabled:opacity-50 transition-opacity'
               >
                 {isDisconnecting === integration.id
                   ? t('settings.integrations.disconnecting')

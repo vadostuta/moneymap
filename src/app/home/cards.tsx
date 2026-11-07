@@ -269,10 +269,10 @@ function SpentCard ({
         className={cn(
           'mt-auto flex items-center gap-1.5 text-sm font-medium',
           onTrack
-            ? 'text-green-700 dark:text-green-400'
+            ? 'text-positive'
             : pace.ahead > 0
-              ? 'text-amber-700 dark:text-amber-400'
-              : 'text-green-700 dark:text-green-400'
+              ? 'text-warning'
+              : 'text-positive'
         )}
       >
         {onTrack ? (
@@ -329,8 +329,8 @@ function NetWorthCard ({ snapshots }: { snapshots: WealthSnapshotSummary[] }) {
           className={cn(
             'flex items-center gap-1.5 text-sm font-medium',
             change.amount >= 0
-              ? 'text-green-700 dark:text-green-400'
-              : 'text-destructive'
+              ? 'text-positive'
+              : 'text-negative'
           )}
         >
           {change.amount >= 0 ? (
@@ -360,7 +360,7 @@ function NetWorthCard ({ snapshots }: { snapshots: WealthSnapshotSummary[] }) {
         className={cn(
           'mt-auto text-xs',
           age > STALE_SNAPSHOT_DAYS
-            ? 'text-amber-700 dark:text-amber-400'
+            ? 'text-warning'
             : 'text-muted-foreground'
         )}
       >
@@ -397,7 +397,7 @@ function FreeCard ({ snapshot }: { snapshot: WealthSnapshotSummary | null }) {
 
   return (
     <StatCard title={title} href='/wealth/distribution'>
-      <p className={cn(BIG, over && 'text-destructive')}>
+      <p className={cn(BIG, over && 'text-negative')}>
         {money(Math.max(0, free))}
       </p>
 

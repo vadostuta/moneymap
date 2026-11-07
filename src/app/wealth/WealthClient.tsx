@@ -31,8 +31,8 @@ const changeClass = (value: number | null) =>
   value === null || value === 0
     ? 'text-muted-foreground'
     : value > 0
-      ? 'text-green-600 dark:text-green-500'
-      : 'text-red-600 dark:text-red-500'
+      ? 'text-positive'
+      : 'text-negative'
 
 const percent = new Intl.NumberFormat('en-US', {
   style: 'percent',
@@ -158,7 +158,7 @@ export default function WealthClient () {
               <StatTile
                 label={t('wealth.totals.free')}
                 value={formatBalance(latest.free, currency)}
-                valueClassName={latest.free < 0 ? 'text-destructive' : undefined}
+                valueClassName={latest.free < 0 ? 'text-negative' : undefined}
                 sub={
                   latest.earmarked > 0
                     ? t('wealth.history.freeHint', {
@@ -267,7 +267,7 @@ export default function WealthClient () {
                     <td
                       className={cn(
                         'hidden sm:table-cell p-3 text-right tabular-nums whitespace-nowrap',
-                        row.free < 0 && 'text-destructive'
+                        row.free < 0 && 'text-negative'
                       )}
                     >
                       {formatBalance(row.free, row.display_currency)}

@@ -526,7 +526,7 @@ export function SnapshotForm ({
   }
 
   const fieldError = (message?: string) =>
-    message ? <p className='text-xs text-destructive mt-1'>{t(message)}</p> : null
+    message ? <p className='text-xs text-negative mt-1'>{t(message)}</p> : null
 
   return (
     <form

@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
 }
 
 @layer base {
@@ -33,6 +34,15 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --radius: 0.5rem;
+    /* Money and status. Text colours pass 4.5:1 on --background; *-tint
+       values are only used at 10% as the fill behind that text. */
+    --positive: 142.4 71.8% 29.2%;
+    --positive-tint: 142.1 70.6% 45.3%;
+    --negative: 0 72.2% 50.6%;
+    --negative-tint: 0 84.2% 60.2%;
+    --warning: 26 90.5% 37.1%;
+    --warning-tint: 37.7 92.1% 50.2%;
+    --transfer: 201.3 96.3% 32.2%;
     --sidebar: 0 0% 100%;
     --sidebar-foreground: 0 0% 0%;
     --sidebar-primary: 0 0% 0%;
@@ -69,7 +79,16 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --radius: 0.5rem;
-    --sidebar: 0 0% 0%;
+    --positive: 141.9 69.2% 58%;
+    --positive-tint: 142.1 70.6% 45.3%;
+    --negative: 0 90.6% 70.8%;
+    --negative-tint: 0 84.2% 60.2%;
+    --warning: 43.3 96.4% 56.3%;
+    --warning-tint: 37.7 92.1% 50.2%;
+    --transfer: 198.4 93.2% 59.6%;
+    /* Same as --background: until now bg-sidebar pointed at an undeclared
+       variable, so the sidebar showed the page colour. Keeps that look. */
+    --sidebar: 224 71.4% 4.1%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
     --sidebar-primary-foreground: 0 0% 0%;

@@ -129,7 +129,7 @@ export default function DistributionClient () {
           role='status'
           className='flex gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm'
         >
-          <AlertTriangle className='h-5 w-5 shrink-0 text-destructive' />
+          <AlertTriangle className='h-5 w-5 shrink-0 text-negative' />
           <div>
             <p className='font-medium'>
               {t('wealth.distribution.overTitle', { amount: money(d.over) })}
@@ -243,7 +243,7 @@ export default function DistributionClient () {
                   <td
                     className={cn(
                       'p-3 text-right tabular-nums whitespace-nowrap',
-                      isOver && 'text-destructive'
+                      isOver && 'text-negative'
                     )}
                   >
                     {money(isOver ? d.over : d.free)}
@@ -341,7 +341,7 @@ function AllocationBar ({
 
         {d.over > 0 && (
           <div
-            className='absolute inset-y-0 right-0 flex items-center justify-center gap-1 rounded-r border-2 border-destructive text-[11px] font-bold text-destructive bg-background/60'
+            className='absolute inset-y-0 right-0 flex items-center justify-center gap-1 rounded-r border-2 border-destructive text-[11px] font-bold text-negative bg-background/60'
             style={{ left: `${liquidAt}%`, ...OVER_STYLE }}
           >
             <AlertTriangle className='h-3.5 w-3.5' />
@@ -398,7 +398,7 @@ function Legend ({
         </li>
       )}
       {d.over > 0 && (
-        <li className='flex items-center gap-2 text-destructive'>
+        <li className='flex items-center gap-2 text-negative'>
           <AlertTriangle className='h-3.5 w-3.5' />
           <span>{t('wealth.distribution.overTag')}</span>
           <span className='tabular-nums'>{money(d.over)}</span>

@@ -287,11 +287,11 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'expense':
-        return <ArrowDownCircle className='h-3 w-3 text-red-500 flex-shrink-0' />
+        return <ArrowDownCircle className='h-3 w-3 text-foreground flex-shrink-0' />
       case 'income':
-        return <ArrowUpCircle className='h-3 w-3 text-green-500 flex-shrink-0' />
+        return <ArrowUpCircle className='h-3 w-3 text-positive flex-shrink-0' />
       case 'transfer':
-        return <ArrowLeftRight className='h-3 w-3 text-blue-500 flex-shrink-0' />
+        return <ArrowLeftRight className='h-3 w-3 text-transfer flex-shrink-0' />
       default:
         return null
     }
@@ -378,8 +378,8 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
             {validationError && (
               <div className='p-3 bg-destructive/10 border border-destructive/20 rounded-md'>
                 <div className='flex items-start gap-2'>
-                  <AlertCircle className='h-4 w-4 text-destructive flex-shrink-0 mt-0.5' />
-                  <p className='text-xs text-destructive'>{validationError}</p>
+                  <AlertCircle className='h-4 w-4 text-negative flex-shrink-0 mt-0.5' />
+                  <p className='text-xs text-negative'>{validationError}</p>
                 </div>
               </div>
             )}
@@ -390,7 +390,7 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
                 <span className='truncate max-w-[200px]'>{selectedFile.name}</span>
                 {isParsing && <Loader2 className='h-4 w-4 animate-spin' />}
                 {previewTransactions.length > 0 && (
-                  <span className='text-green-600'>
+                  <span className='text-positive'>
                     ({previewTransactions.length} {t('xlsxImport.rowsFound')})
                   </span>
                 )}
@@ -425,15 +425,15 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
            previewTransactions.length === 0 && (
             <div className='p-4 bg-destructive/10 border border-destructive/20 rounded-md'>
               <div className='flex items-start gap-3'>
-                <AlertCircle className='h-5 w-5 text-destructive flex-shrink-0 mt-0.5' />
+                <AlertCircle className='h-5 w-5 text-negative flex-shrink-0 mt-0.5' />
                 <div className='flex-1'>
-                  <h3 className='text-sm font-medium text-destructive mb-1'>
+                  <h3 className='text-sm font-medium text-negative mb-1'>
                     {t('xlsxImport.noValidTransactions')}
                   </h3>
-                  <p className='text-xs text-destructive/90 mb-2'>
+                  <p className='text-xs text-negative/90 mb-2'>
                     {t('xlsxImport.noValidTransactionsDescription')}
                   </p>
-                  <ul className='text-xs text-destructive/80 space-y-1 list-disc list-inside'>
+                  <ul className='text-xs text-negative/80 space-y-1 list-disc list-inside'>
                     <li>{t('xlsxImport.checkDates')}</li>
                     <li>{t('xlsxImport.checkAmounts')}</li>
                     <li>{t('xlsxImport.checkFormat')}</li>
@@ -488,9 +488,9 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
                         <span
                           className={cn(
                             'text-xs font-medium w-20 text-right flex-shrink-0',
-                            transaction.type === 'expense' && 'text-red-500',
-                            transaction.type === 'income' && 'text-green-500',
-                            transaction.type === 'transfer' && 'text-blue-500'
+                            transaction.type === 'expense' && 'text-foreground',
+                            transaction.type === 'income' && 'text-positive',
+                            transaction.type === 'transfer' && 'text-transfer'
                           )}
                         >
                           {formatAmount(transaction.amount, transaction.type)}
@@ -571,7 +571,7 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
                                 onClick={() =>
                                   handleRemoveTransaction(transaction.id)
                                 }
-                                className='w-5 flex-shrink-0 p-0.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors'
+                                className='w-5 flex-shrink-0 p-0.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-negative transition-colors'
                               >
                                 <X className='h-3.5 w-3.5' />
                               </button>
@@ -590,17 +590,17 @@ export function XlsxImportForm ({ onSuccess, onCancel }: XlsxImportFormProps) {
               {/* Summary */}
               <div className='flex flex-wrap gap-2 text-sm'>
                 <Badge variant='outline' className='gap-1 text-xs'>
-                  <ArrowDownCircle className='h-3 w-3 text-red-500' />
+                  <ArrowDownCircle className='h-3 w-3 text-foreground' />
                   {previewTransactions.filter(t => t.type === 'expense').length}{' '}
                   {t('transactions.expense').toLowerCase()}
                 </Badge>
                 <Badge variant='outline' className='gap-1 text-xs'>
-                  <ArrowUpCircle className='h-3 w-3 text-green-500' />
+                  <ArrowUpCircle className='h-3 w-3 text-positive' />
                   {previewTransactions.filter(t => t.type === 'income').length}{' '}
                   {t('transactions.income').toLowerCase()}
                 </Badge>
                 <Badge variant='outline' className='gap-1 text-xs'>
-                  <ArrowLeftRight className='h-3 w-3 text-blue-500' />
+                  <ArrowLeftRight className='h-3 w-3 text-transfer' />
                   {previewTransactions.filter(t => t.type === 'transfer').length}{' '}
                   {t('transactions.transfers').toLowerCase()}
                 </Badge>

@@ -336,8 +336,10 @@ export function RecentTransactionItem ({
             <div
               className={`flex items-center gap-1 text-base sm:text-lg font-semibold ${
                 transaction.type === 'expense'
-                  ? 'text-gray-900 dark:text-white'
-                  : 'text-emerald-500'
+                  ? 'text-foreground'
+                  : transaction.type === 'income'
+                    ? 'text-positive'
+                    : 'text-transfer'
               }`}
             >
               <button
@@ -364,7 +366,7 @@ export function RecentTransactionItem ({
               size='icon'
               className={`h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground ${
                 transaction.is_hidden
-                  ? 'hover:text-green-500'
+                  ? 'hover:text-positive'
                   : 'hover:text-yellow-500'
               }`}
               onClick={() => {
@@ -401,7 +403,7 @@ export function RecentTransactionItem ({
             <Button
               variant='ghost'
               size='icon'
-              className='h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-destructive'
+              className='h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-negative'
               onClick={() => deleteMutation.mutate()}
               disabled={deleteMutation.isPending}
             >

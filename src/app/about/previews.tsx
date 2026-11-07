@@ -262,7 +262,7 @@ export function GrowPreview () {
               · {t('about.preview.goalBy')}
             </span>
           </p>
-          <span className='inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400'>
+          <span className='inline-flex items-center gap-1 rounded-full bg-positive-subtle px-2 py-0.5 text-xs font-medium text-positive'>
             <CheckCircle2 className='h-3 w-3' />
             {t('about.preview.onPace')}
           </span>

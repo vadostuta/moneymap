@@ -430,7 +430,7 @@ export function TemplateBuilderModal ({
                 <Label>{t('templates.selectComponents')}</Label>
                 <span
                   className={`text-xs ${
-                    overflow ? 'text-destructive' : 'text-muted-foreground'
+                    overflow ? 'text-negative' : 'text-muted-foreground'
                   }`}
                 >
                   {t('templates.slotsUsed', {
@@ -440,7 +440,7 @@ export function TemplateBuilderModal ({
                 </span>
               </div>
               {overflow > 0 && (
-                <p className='text-xs text-destructive'>
+                <p className='text-xs text-negative'>
                   {t('templates.tooMany', { count: overflow })}
                 </p>
               )}

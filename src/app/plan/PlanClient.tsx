@@ -43,11 +43,11 @@ function monthState (plan: MonthlyPlan): MonthState {
 const STATE = {
   closed: {
     icon: CheckCircle2,
-    className: 'text-green-700 bg-green-500/10 dark:text-green-400'
+    className: 'text-positive bg-positive-subtle'
   },
   due: {
     icon: CalendarClock,
-    className: 'text-amber-700 bg-amber-500/10 dark:text-amber-400'
+    className: 'text-warning bg-warning-subtle'
   },
   open: { icon: CircleDot, className: 'text-muted-foreground bg-muted' }
 }
@@ -92,7 +92,7 @@ function MonthCard ({ plan }: { plan: MonthlyPlan }) {
             <dd
               className={cn(
                 'text-right tabular-nums font-medium',
-                totals.leftover < 0 && 'text-destructive'
+                totals.leftover < 0 && 'text-negative'
               )}
             >
               {formatBalance(totals.leftover, plan.currency)}

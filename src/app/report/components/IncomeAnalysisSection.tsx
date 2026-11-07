@@ -186,7 +186,7 @@ export function IncomeAnalysisSection ({
                   </div>
                   <div className='w-full bg-muted rounded-full h-2'>
                     <div
-                      className='bg-green-500 h-2 rounded-full transition-all'
+                      className='bg-positive h-2 rounded-full transition-all'
                       style={{
                         width: `${(cat.amount / totalIncome) * 100}%`
                       }}

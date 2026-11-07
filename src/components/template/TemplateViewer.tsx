@@ -176,7 +176,7 @@ function MonthlyExpenseBarChartWrapper ({
   if (error) {
     return (
       <div className='border border-destructive rounded-lg p-4 h-32 flex items-center justify-center'>
-        <div className='text-center text-destructive'>
+        <div className='text-center text-negative'>
           <div className='text-2xl mb-1'>⚠️</div>
           <div className='text-sm'>{t('ui.failedToLoad')}</div>
         </div>
@@ -251,7 +251,7 @@ export function TemplateViewer ({
 
   if (!layoutDef) {
     return (
-      <div className='border border-destructive rounded-lg p-4 text-destructive'>
+      <div className='border border-destructive rounded-lg p-4 text-negative'>
         Unknown layout: {template.layout}
       </div>
     )

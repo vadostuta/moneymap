@@ -429,7 +429,7 @@ export function MonthPlanForm ({
   }
 
   const fieldError = (message?: string) =>
-    message ? <p className='text-xs text-destructive mt-1'>{t(message)}</p> : null
+    message ? <p className='text-xs text-negative mt-1'>{t(message)}</p> : null
 
   const percentOfIncome = (amount: number) =>
     totals.income > 0 ? `${Math.round((amount / totals.income) * 100)}%` : '—'
@@ -916,7 +916,7 @@ export function MonthPlanForm ({
               <p
                 className={
                   'text-2xl font-bold tabular-nums ' +
-                  (totals.leftover < 0 ? 'text-destructive' : '')
+                  (totals.leftover < 0 ? 'text-negative' : '')
                 }
               >
                 {formatBalance(totals.leftover, planCurrency)}
@@ -931,7 +931,7 @@ export function MonthPlanForm ({
             </div>
           </div>
           {totals.leftover < 0 && (
-            <p className='flex items-center gap-1.5 text-sm text-destructive'>
+            <p className='flex items-center gap-1.5 text-sm text-negative'>
               <AlertTriangle className='h-4 w-4 shrink-0' />
               {t('plan.totals.overAllocated', {
                 amount: formatBalance(-totals.leftover, planCurrency)
@@ -974,7 +974,7 @@ export function MonthPlanForm ({
           {editing && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button type='button' variant='ghost' className='text-destructive'>
+                <Button type='button' variant='ghost' className='text-negative'>
                   <Trash2 className='h-4 w-4 mr-1' />
                   {t('plan.delete.button')}
                 </Button>

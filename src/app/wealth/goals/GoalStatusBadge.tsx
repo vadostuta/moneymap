@@ -19,19 +19,19 @@ const STATUS: Record<
 > = {
   reached: {
     icon: CheckCircle2,
-    className: 'text-green-700 bg-green-500/10 dark:text-green-400'
+    className: 'text-positive bg-positive-subtle'
   },
   onTrack: {
     icon: TrendingUp,
-    className: 'text-green-700 bg-green-500/10 dark:text-green-400'
+    className: 'text-positive bg-positive-subtle'
   },
   behind: {
     icon: AlertTriangle,
-    className: 'text-amber-700 bg-amber-500/10 dark:text-amber-400'
+    className: 'text-warning bg-warning-subtle'
   },
   overdue: {
     icon: AlertCircle,
-    className: 'text-destructive bg-destructive/10'
+    className: 'text-negative bg-negative-subtle'
   },
   tooEarly: { icon: Clock, className: 'text-muted-foreground bg-muted' },
   notStarted: { icon: Circle, className: 'text-muted-foreground bg-muted' }
